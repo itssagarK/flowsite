@@ -1,0 +1,196 @@
+import React, { useState } from 'react';
+import { motion, AnimatePresence } from 'motion/react';
+import { useBuilder, defaultProjects } from '../../context/BuilderContext';
+
+const LazyImage = ({ src, alt, containerClassName, imgClassName }: { src: string; alt: string; containerClassName?: string; imgClassName?: string }) => {
+  const [isLoaded, setIsLoaded] = useState(false);
+  return (
+    <div className={`relative overflow-hidden ${containerClassName || ''}`}>
+      {!isLoaded && <div className="absolute inset-0 bg-border/20 animate-pulse z-0" />}
+      <img 
+        src={src} 
+        alt={alt} 
+        loading="lazy" 
+        onLoad={() => setIsLoaded(true)}
+        className={`w-full h-full object-cover transition-all duration-700 ${isLoaded ? 'opacity-100 blur-0' : 'opacity-0 blur-md'} ${imgClassName || ''} relative z-10`}
+      />
+    </div>
+  );
+};
+
+export function Projects() {
+  const { data } = useBuilder();
+  const [activeFilter, setActiveFilter] = useState('All');
+
+  const projects = data.projects || defaultProjects;
+  const layout = data.settings.layout;
+  const allTags = ['All', ...Array.from(new Set(projects.flatMap(p => p.tags)))];
+
+  const filteredProjects = activeFilter === 'All' 
+    ? projects 
+    : projects.filter(p => p.tags.includes(activeFilter));
+
+  const renderProjectCard = (project: any) => {
+    if (layout === 'minimal') {
+      return (
+        <motion.div 
+          layout
+          key={project.id} 
+          initial={{ opacity: 0, y: 20 }}
+          animate={{ opacity: 1, y: 0 }}
+          exit={{ opacity: 0, y: -20 }}
+          transition={{ duration: 0.4 }}
+          whileHover={{ x: 8 }}
+          className="border-b border-border py-8 flex flex-col md:flex-row md:items-center justify-between gap-6 group transition-all cursor-pointer"
+        >
+          <div className="flex items-center gap-6 flex-1">
+            {project.image ? (
+              <LazyImage 
+                src={project.image} 
+                alt={project.title} 
+                containerClassName="w-16 h-16 rounded-full shrink-0 overflow-hidden"
+                imgClassName="grayscale opacity-80 group-hover:grayscale-0 group-hover:opacity-100 group-hover:scale-110 transition-all duration-500" 
+              />
+            ) : (
+              <div className="w-16 h-16 rounded-full bg-border/20 flex items-center justify-center font-serif text-xl shrink-0">{project.title.charAt(0)}</div>
+            )}
+            <div>
+              <h3 className="text-2xl font-light text-foreground group-hover:text-primary transition-colors">{project.title}</h3>
+              <p className="text-sm text-muted-foreground mt-1 max-w-xl">{project.desc}</p>
+            </div>
+          </div>
+          <div className="flex gap-3">
+             {project.tags.map((tag: string) => (
+                <span key={tag} className="text-xs font-mono uppercase tracking-wider text-muted-foreground">{tag}</span>
+             ))}
+          </div>
+        </motion.div>
+      );
+    }
+
+    if (layout === 'brutalist') {
+      return (
+        <motion.div 
+          layout
+          key={project.id} 
+          initial={{ opacity: 0, scale: 0.95 }}
+          animate={{ opacity: 1, scale: 1 }}
+          exit={{ opacity: 0, scale: 0.95 }}
+          whileHover={{ x: -4, y: -4, boxShadow: '12px 12px 0 0 var(--primary)' }}
+          className="border-4 border-foreground p-6 bg-white dark:bg-black transition-all flex flex-col cursor-pointer group"
+          style={{ boxShadow: '8px 8px 0 0 var(--primary)' }}
+        >
+          <div className="h-40 border-b-4 border-foreground -mx-6 -mt-6 mb-6 overflow-hidden bg-primary/20 relative">
+            {project.image ? (
+              <LazyImage 
+                src={project.image} 
+                alt={project.title} 
+                containerClassName="w-full h-full"
+                imgClassName="mix-blend-luminosity filter contrast-125 group-hover:mix-blend-normal group-hover:scale-105 transition-all duration-500" 
+              />
+            ) : (
+              <div className="w-full h-full flex items-center justify-center">
+                <span className="font-black text-6xl opacity-20">{project.title.substring(0,2).toUpperCase()}</span>
+              </div>
+            )}
+          </div>
+          <h3 className="text-2xl font-black uppercase text-foreground mb-2">{project.title}</h3>
+          <p className="text-sm font-mono font-bold text-foreground/80 mb-6">{project.desc}</p>
+          
+          <div className="flex flex-wrap gap-2 mt-auto">
+            {project.tags.map((tag: string) => (
+              <span key={tag} className="text-xs font-bold uppercase px-2 py-1 bg-primary text-white border-2 border-foreground">
+                {tag}
+              </span>
+            ))}
+          </div>
+        </motion.div>
+      );
+    }
+
+    // Default Modern Layout
+    return (
+      <motion.div 
+        layout
+        key={project.id} 
+        initial={{ opacity: 0, scale: 0.9 }}
+        animate={{ opacity: 1, scale: 1 }}
+        exit={{ opacity: 0, scale: 0.9 }}
+        transition={{ duration: 0.4, ease: "easeOut" }}
+        className={`p-6 rounded-2xl ${project.color} border border-border/40 hover:shadow-xl hover:shadow-primary/5 transition-all duration-300 flex flex-col group cursor-pointer`}
+        whileHover={{ y: -8, scale: 1.02 }}
+      >
+        <div className="h-40 rounded-xl mb-6 border border-border/30 overflow-hidden bg-white/60 dark:bg-black/30 relative">
+          {project.image ? (
+            <LazyImage 
+              src={project.image} 
+              alt={project.title} 
+              containerClassName="w-full h-full"
+              imgClassName="group-hover:scale-110 transition-transform duration-700 ease-out"
+            />
+          ) : (
+            <div className="w-full h-full flex items-center justify-center opacity-30">
+              <span className="font-semibold text-lg">{project.title.charAt(0)}</span>
+            </div>
+          )}
+        </div>
+        <h3 className="text-xl font-bold mb-2 text-foreground">{project.title}</h3>
+        <p className="text-muted-foreground leading-relaxed mb-4">{project.desc}</p>
+        
+        <div className="flex flex-wrap gap-2 mt-auto">
+          {project.tags.map((tag: string) => (
+            <span key={tag} className="text-[11px] font-semibold tracking-wide uppercase px-2 py-1 bg-white/50 dark:bg-black/40 rounded-md text-foreground/70">
+              {tag}
+            </span>
+          ))}
+        </div>
+      </motion.div>
+    );
+  };
+
+  return (
+    <section id="projects" className="py-24 px-8 md:px-20 min-h-[600px] relative z-0">
+      <motion.div 
+        initial={{ opacity: 0, y: 20 }}
+        whileInView={{ opacity: 1, y: 0 }}
+        viewport={{ once: false, amount: 0.1 }}
+        transition={{ duration: 0.5 }}
+        className={`max-w-4xl mx-auto md:mx-0 mb-8 ${layout === 'minimal' ? 'text-center md:text-left' : ''}`}
+      >
+        {layout !== 'brutalist' && <span className="text-primary font-semibold text-sm tracking-wider uppercase mb-4 block">Selected Work</span>}
+        <h2 className={`${layout === 'brutalist' ? 'text-5xl md:text-7xl font-black uppercase' : 'text-4xl md:text-5xl font-bold tracking-tight'}`}>
+          Recent Projects
+        </h2>
+      </motion.div>
+
+      {/* Filter Bar */}
+      <motion.div 
+        initial={{ opacity: 0, y: 10 }}
+        whileInView={{ opacity: 1, y: 0 }}
+        viewport={{ once: false, amount: 0.1 }}
+        transition={{ duration: 0.5, delay: 0.1 }}
+        className={`flex flex-wrap gap-2 mb-10 max-w-4xl mx-auto md:mx-0 ${layout === 'minimal' ? 'justify-center md:justify-start' : ''}`}
+      >
+        {allTags.map((tag) => (
+          <button
+            key={tag}
+            onClick={() => setActiveFilter(tag)}
+            className={`px-4 py-2 text-sm transition-all duration-300 ${
+              layout === 'brutalist' 
+                ? `border-2 border-foreground font-bold uppercase ${activeFilter === tag ? 'bg-primary text-white shadow-[4px_4px_0_0_var(--foreground)]' : 'bg-transparent text-foreground hover:bg-black/5 dark:hover:bg-white/5'}`
+                : `rounded-full font-medium ${activeFilter === tag ? 'bg-primary text-white shadow-md' : 'bg-black/5 dark:bg-white/5 text-muted-foreground hover:text-foreground hover:bg-black/10 dark:hover:bg-white/10'}`
+            }`}
+          >
+            {tag}
+          </button>
+        ))}
+      </motion.div>
+
+      <motion.div layout className={`w-full ${layout === 'minimal' ? 'flex flex-col' : 'grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6'}`}>
+        <AnimatePresence mode="popLayout">
+          {filteredProjects.map((project) => renderProjectCard(project))}
+        </AnimatePresence>
+      </motion.div>
+    </section>
+  );
+}
