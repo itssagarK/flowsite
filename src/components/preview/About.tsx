@@ -1,5 +1,6 @@
 import React from 'react';
 import { motion } from 'motion/react';
+<<<<<<< HEAD
 import { useBuilder } from '../../context/BuilderContext';
 
 export function About() {
@@ -68,11 +69,22 @@ export function About() {
     <section id="about" className="py-24 px-8 md:px-20 min-h-[500px] flex items-center relative z-0">
       <div className="absolute inset-0 bg-gradient-to-r from-primary/5 via-transparent to-purple-500/5" />
       <motion.div
+=======
+
+export function About() {
+  return (
+    <section id="about" className="py-24 px-8 md:px-20 min-h-[500px] flex items-center relative z-0">
+      <motion.div 
+>>>>>>> 20493c00627f2efebfae0ea823fca073172b044f
         initial={{ opacity: 0, y: 40 }}
         whileInView={{ opacity: 1, y: 0 }}
         viewport={{ once: false, margin: "-50px" }}
         transition={{ duration: 0.6, ease: "easeOut" }}
+<<<<<<< HEAD
         className="max-w-4xl mx-auto md:mx-0 relative"
+=======
+        className="max-w-4xl mx-auto md:mx-0"
+>>>>>>> 20493c00627f2efebfae0ea823fca073172b044f
       >
         <span className="text-primary font-semibold text-sm tracking-wider uppercase mb-4 block">About Me</span>
         <h2 className="text-4xl md:text-5xl font-bold tracking-tight mb-6 leading-tight">
@@ -86,6 +98,7 @@ export function About() {
             When I'm not coding, you'll find me exploring new technologies, contributing to open source, or writing technical articles.
           </p>
         </div>
+<<<<<<< HEAD
 
         {/* Stats/Features */}
         <motion.div
@@ -111,3 +124,9 @@ export function About() {
     </section>
   );
 }
+=======
+      </motion.div>
+    </section>
+  );
+}
+>>>>>>> 20493c00627f2efebfae0ea823fca073172b044f

@@ -1,9 +1,17 @@
+<<<<<<< HEAD
 @import url('https://fonts.googleapis.com/css2?family=Outfit:wght@300;400;500;600;700;800&family=Space+Grotesk:wght@400;500;600;700&display=swap');
 @import "tailwindcss";
 
 @theme {
   --font-sans: 'Outfit', -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif;
   --font-display: 'Space Grotesk', sans-serif;
+=======
+@import url('https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&display=swap');
+@import "tailwindcss";
+
+@theme {
+  --font-sans: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, Helvetica, Arial, sans-serif;
+>>>>>>> 20493c00627f2efebfae0ea823fca073172b044f
   --color-background: var(--background);
   --color-foreground: var(--foreground);
   --color-muted: var(--muted);
@@ -13,6 +21,7 @@
   --color-primary-foreground: var(--primary-foreground);
   --color-canvas-bg: var(--canvas-bg);
   --color-glass: var(--glass);
+<<<<<<< HEAD
   --color-card: var(--card);
   --color-card-foreground: var(--card-foreground);
 }
@@ -335,4 +344,41 @@ html {
 ::placeholder {
   color: var(--muted-foreground);
   opacity: 0.6;
+=======
+}
+
+@layer base {
+  :root {
+    --background: #ffffff;
+    --foreground: #1C1C1E;
+    --muted: rgba(255, 255, 255, 0.3);
+    --muted-foreground: #636366;
+    --border: rgba(255, 255, 255, 0.5);
+    --primary: #007AFF;
+    --primary-foreground: #ffffff;
+    --canvas-bg: rgba(255, 255, 255, 0.2);
+    --glass: rgba(255, 255, 255, 0.4);
+    --bg-gradient: radial-gradient(circle at 0% 0%, #E3F2FD 0%, #F3E5F5 50%, #FFF3E0 100%);
+  }
+
+  .dark {
+    --background: #09090b;
+    --foreground: #fafafa;
+    --muted: rgba(0, 0, 0, 0.3);
+    --muted-foreground: #a1a1aa;
+    --border: rgba(255, 255, 255, 0.1);
+    --primary: #007AFF;
+    --primary-foreground: #ffffff;
+    --canvas-bg: rgba(0, 0, 0, 0.2);
+    --glass: rgba(0, 0, 0, 0.4);
+    --bg-gradient: radial-gradient(circle at 0% 0%, #0D1B2A 0%, #1B0F2A 50%, #2A150D 100%);
+  }
+}
+
+body {
+  background: var(--bg-gradient);
+  color: var(--foreground);
+  font-family: var(--font-sans);
+  -webkit-font-smoothing: antialiased;
+>>>>>>> 20493c00627f2efebfae0ea823fca073172b044f
 }
