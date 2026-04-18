@@ -1,16 +1,9 @@
-<<<<<<< HEAD
 import React, { createContext, useContext, useState, useEffect, useCallback } from 'react';
 
 export type SectionLayout = 'modern' | 'minimal' | 'brutalist';
 export type WebsiteType = 'portfolio' | 'college' | 'business' | 'app';
 
 // Project item for portfolios
-=======
-import React, { createContext, useContext, useState, useEffect } from 'react';
-
-export type SectionLayout = 'modern' | 'minimal' | 'brutalist';
-
->>>>>>> 20493c00627f2efebfae0ea823fca073172b044f
 export interface ProjectItem {
   id: number;
   title: string;
@@ -18,7 +11,6 @@ export interface ProjectItem {
   color: string;
   tags: string[];
   image?: string;
-<<<<<<< HEAD
   link?: string;
   featured?: boolean;
 }
@@ -108,29 +100,20 @@ export interface SocialLink {
 // Portfolio Data
 export interface PortfolioData {
   websiteType: WebsiteType;
-=======
-}
-
-export interface PortfolioData {
->>>>>>> 20493c00627f2efebfae0ea823fca073172b044f
   user: {
     name: string;
     role: string;
     bio: string;
-<<<<<<< HEAD
     email?: string;
     location?: string;
     avatar?: string;
     tagline?: string;
-=======
->>>>>>> 20493c00627f2efebfae0ea823fca073172b044f
   };
   settings: {
     theme: 'light' | 'dark';
     layout: SectionLayout;
     accentColor: string;
   };
-<<<<<<< HEAD
   // Portfolio specific
   projects?: ProjectItem[];
   skills?: SkillItem[];
@@ -267,37 +250,10 @@ const getDefaultData = (websiteType: WebsiteType): PortfolioData => {
     default:
       return { ...baseData, websiteType: 'portfolio' };
   }
-=======
-  projects?: ProjectItem[];
-}
-
-export const defaultProjects: ProjectItem[] = [
-  { id: 1, title: 'Campus Event App', desc: 'A full-stack mobile app built for organizing and ticketing college fests.', color: 'bg-indigo-50 dark:bg-indigo-900/20', tags: ['Mobile', 'Full Stack'] },
-  { id: 2, title: 'HackMIT Winner 2025', desc: 'AI-powered study assistant built in 48 hours using Gemini API and React.', color: 'bg-amber-50 dark:bg-amber-900/20', tags: ['AI', 'Hackathon'] },
-  { id: 3, title: 'React UI Library', desc: 'An open-source accessible component library with 1k+ stars on GitHub.', color: 'bg-blue-50 dark:bg-blue-900/20', tags: ['Frontend', 'Open Source'] },
-  { id: 4, title: 'Robotics Club Website', desc: 'High-performance animated landing page for the university robotics society.', color: 'bg-emerald-50 dark:bg-emerald-900/20', tags: ['Frontend', 'Design'] },
-  { id: 5, title: 'Capstone: Smart IoT Grid', desc: 'Final year research project optimizing energy distribution with real-time analytics.', color: 'bg-purple-50 dark:bg-purple-900/20', tags: ['Research', 'Full Stack'] },
-  { id: 6, title: 'Finance Tracker', desc: 'Personal finance dashboard for students to manage budgets and expenses.', color: 'bg-rose-50 dark:bg-rose-900/20', tags: ['React', 'Full Stack'] },
-];
-
-const defaultData: PortfolioData = {
-  user: {
-    name: 'Sagar',
-    role: 'Frontend Developer',
-    bio: 'Building fast performant web applications with a focus on human centered design.',
-  },
-  settings: {
-    theme: 'dark',
-    layout: 'modern',
-    accentColor: '#007AFF', // Default Blue
-  },
-  projects: defaultProjects,
->>>>>>> 20493c00627f2efebfae0ea823fca073172b044f
 };
 
 interface BuilderContextType {
   data: PortfolioData;
-<<<<<<< HEAD
   websiteType: WebsiteType;
   setWebsiteType: (type: WebsiteType) => void;
   updateData: (newData: Partial<PortfolioData> | ((prev: PortfolioData) => PortfolioData)) => void;
@@ -321,23 +277,13 @@ interface BuilderContextType {
   scanImage: (imageUrl: string) => Promise<void>;
   exportCode: () => string;
   resetToBlank: () => void;
-=======
-  updateData: (newData: Partial<PortfolioData> | ((prev: PortfolioData) => PortfolioData)) => void;
-  updateUser: (userUpdates: Partial<PortfolioData['user']>) => void;
-  updateProject: (id: number, projectUpdates: Partial<ProjectItem>) => void;
-  toggleTheme: () => void;
->>>>>>> 20493c00627f2efebfae0ea823fca073172b044f
 }
 
 const BuilderContext = createContext<BuilderContextType | undefined>(undefined);
 
 export function BuilderProvider({ children }: { children: React.ReactNode }) {
-<<<<<<< HEAD
   const [data, setData] = useState<PortfolioData>(getDefaultData('portfolio'));
   const [websiteType, setWebsiteTypeState] = useState<WebsiteType>('portfolio');
-=======
-  const [data, setData] = useState<PortfolioData>(defaultData);
->>>>>>> 20493c00627f2efebfae0ea823fca073172b044f
 
   // Apply theme and color to document
   useEffect(() => {
@@ -347,7 +293,6 @@ export function BuilderProvider({ children }: { children: React.ReactNode }) {
     } else {
       root.classList.remove('dark');
     }
-<<<<<<< HEAD
     root.style.setProperty('--primary', data.settings.accentColor);
   }, [data.settings.theme, data.settings.accentColor]);
 
@@ -364,28 +309,10 @@ export function BuilderProvider({ children }: { children: React.ReactNode }) {
   }, []);
 
   const updateUser = useCallback((userUpdates: Partial<PortfolioData['user']>) => {
-=======
-    // Update CSS Variable for dynamic accent colors
-    root.style.setProperty('--primary', data.settings.accentColor);
-  }, [data.settings.theme, data.settings.accentColor]);
-
-  const updateData = (newData: Partial<PortfolioData> | ((prev: PortfolioData) => PortfolioData)) => {
-    setData((prev) => {
-      const merged = typeof newData === 'function' ? newData(prev) : { ...prev, ...newData };
-      if (!merged.projects) {
-        merged.projects = defaultProjects;
-      }
-      return merged;
-    });
-  };
-
-  const updateUser = (userUpdates: Partial<PortfolioData['user']>) => {
->>>>>>> 20493c00627f2efebfae0ea823fca073172b044f
     setData((prev) => ({
       ...prev,
       user: { ...prev.user, ...userUpdates },
     }));
-<<<<<<< HEAD
   }, []);
 
   const updateProject = useCallback((id: number, projectUpdates: Partial<ProjectItem>) => {
@@ -494,18 +421,6 @@ export function BuilderProvider({ children }: { children: React.ReactNode }) {
   }, []);
 
   const toggleTheme = useCallback(() => {
-=======
-  };
-
-  const updateProject = (id: number, projectUpdates: Partial<ProjectItem>) => {
-    setData((prev) => ({
-      ...prev,
-      projects: prev.projects?.map(p => p.id === id ? { ...p, ...projectUpdates } : p) || defaultProjects
-    }));
-  };
-
-  const toggleTheme = () => {
->>>>>>> 20493c00627f2efebfae0ea823fca073172b044f
     setData((prev) => ({
       ...prev,
       settings: {
@@ -513,7 +428,6 @@ export function BuilderProvider({ children }: { children: React.ReactNode }) {
         theme: prev.settings.theme === 'dark' ? 'light' : 'dark',
       },
     }));
-<<<<<<< HEAD
   }, []);
 
   const scanImage = useCallback(async (imageUrl: string) => {
@@ -735,12 +649,6 @@ export function BuilderProvider({ children }: { children: React.ReactNode }) {
       exportCode,
       resetToBlank,
     }}>
-=======
-  };
-
-  return (
-    <BuilderContext.Provider value={{ data, updateData, updateUser, updateProject, toggleTheme }}>
->>>>>>> 20493c00627f2efebfae0ea823fca073172b044f
       {children}
     </BuilderContext.Provider>
   );
@@ -752,8 +660,4 @@ export function useBuilder() {
     throw new Error('useBuilder must be used within a BuilderProvider');
   }
   return context;
-<<<<<<< HEAD
 }
-=======
-}
->>>>>>> 20493c00627f2efebfae0ea823fca073172b044f

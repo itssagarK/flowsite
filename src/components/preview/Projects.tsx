@@ -40,25 +40,16 @@ export function Projects() {
           animate={{ opacity: 1, y: 0 }}
           exit={{ opacity: 0, y: -20 }}
           transition={{ duration: 0.4 }}
-<<<<<<< HEAD
           whileHover={{ x: 8 }}
           className="border-b border-border py-8 flex flex-col md:flex-row md:items-center justify-between gap-6 group transition-all cursor-pointer"
-=======
-          className="border-b border-border py-8 flex flex-col md:flex-row md:items-center justify-between gap-6 group hover:px-4 transition-all"
->>>>>>> 20493c00627f2efebfae0ea823fca073172b044f
         >
           <div className="flex items-center gap-6 flex-1">
             {project.image ? (
               <LazyImage 
                 src={project.image} 
                 alt={project.title} 
-<<<<<<< HEAD
                 containerClassName="w-16 h-16 rounded-full shrink-0 overflow-hidden"
                 imgClassName="grayscale opacity-80 group-hover:grayscale-0 group-hover:opacity-100 group-hover:scale-110 transition-all duration-500" 
-=======
-                containerClassName="w-16 h-16 rounded-full shrink-0"
-                imgClassName="grayscale opacity-80 group-hover:grayscale-0 group-hover:opacity-100" 
->>>>>>> 20493c00627f2efebfae0ea823fca073172b044f
               />
             ) : (
               <div className="w-16 h-16 rounded-full bg-border/20 flex items-center justify-center font-serif text-xl shrink-0">{project.title.charAt(0)}</div>
@@ -85,13 +76,9 @@ export function Projects() {
           initial={{ opacity: 0, scale: 0.95 }}
           animate={{ opacity: 1, scale: 1 }}
           exit={{ opacity: 0, scale: 0.95 }}
-<<<<<<< HEAD
           whileHover={{ x: -4, y: -4, boxShadow: '12px 12px 0 0 var(--primary)' }}
           className="border-4 border-foreground p-6 bg-white dark:bg-black transition-all flex flex-col cursor-pointer group"
           style={{ boxShadow: '8px 8px 0 0 var(--primary)' }}
-=======
-          className="border-4 border-foreground p-6 bg-white dark:bg-black shadow-[8px_8px_0_0_#primary] hover:-translate-y-1 hover:-translate-x-1 hover:shadow-[12px_12px_0_0_#primary] transition-all flex flex-col"
->>>>>>> 20493c00627f2efebfae0ea823fca073172b044f
         >
           <div className="h-40 border-b-4 border-foreground -mx-6 -mt-6 mb-6 overflow-hidden bg-primary/20 relative">
             {project.image ? (
@@ -99,11 +86,7 @@ export function Projects() {
                 src={project.image} 
                 alt={project.title} 
                 containerClassName="w-full h-full"
-<<<<<<< HEAD
                 imgClassName="mix-blend-luminosity filter contrast-125 group-hover:mix-blend-normal group-hover:scale-105 transition-all duration-500" 
-=======
-                imgClassName="mix-blend-luminosity filter contrast-125" 
->>>>>>> 20493c00627f2efebfae0ea823fca073172b044f
               />
             ) : (
               <div className="w-full h-full flex items-center justify-center">
@@ -134,13 +117,8 @@ export function Projects() {
         animate={{ opacity: 1, scale: 1 }}
         exit={{ opacity: 0, scale: 0.9 }}
         transition={{ duration: 0.4, ease: "easeOut" }}
-<<<<<<< HEAD
         className={`p-6 rounded-2xl ${project.color} border border-border/40 hover:shadow-xl hover:shadow-primary/5 transition-all duration-300 flex flex-col group cursor-pointer`}
         whileHover={{ y: -8, scale: 1.02 }}
-=======
-        className={`p-6 rounded-2xl ${project.color} border border-border/40 hover:shadow-lg transition-shadow duration-300 flex flex-col`}
-        whileHover={{ y: -5 }}
->>>>>>> 20493c00627f2efebfae0ea823fca073172b044f
       >
         <div className="h-40 rounded-xl mb-6 border border-border/30 overflow-hidden bg-white/60 dark:bg-black/30 relative">
           {project.image ? (
@@ -148,10 +126,7 @@ export function Projects() {
               src={project.image} 
               alt={project.title} 
               containerClassName="w-full h-full"
-<<<<<<< HEAD
               imgClassName="group-hover:scale-110 transition-transform duration-700 ease-out"
-=======
->>>>>>> 20493c00627f2efebfae0ea823fca073172b044f
             />
           ) : (
             <div className="w-full h-full flex items-center justify-center opacity-30">
@@ -202,11 +177,7 @@ export function Projects() {
             onClick={() => setActiveFilter(tag)}
             className={`px-4 py-2 text-sm transition-all duration-300 ${
               layout === 'brutalist' 
-<<<<<<< HEAD
                 ? `border-2 border-foreground font-bold uppercase ${activeFilter === tag ? 'bg-primary text-white shadow-[4px_4px_0_0_var(--foreground)]' : 'bg-transparent text-foreground hover:bg-black/5 dark:hover:bg-white/5'}`
-=======
-                ? `border-2 border-foreground font-bold uppercase ${activeFilter === tag ? 'bg-primary text-white shadow-[4px_4px_0_0_#1C1C1E] dark:shadow-[4px_4px_0_0_#FFFFFF]' : 'bg-transparent text-foreground hover:bg-black/5 dark:hover:bg-white/5'}`
->>>>>>> 20493c00627f2efebfae0ea823fca073172b044f
                 : `rounded-full font-medium ${activeFilter === tag ? 'bg-primary text-white shadow-md' : 'bg-black/5 dark:bg-white/5 text-muted-foreground hover:text-foreground hover:bg-black/10 dark:hover:bg-white/10'}`
             }`}
           >
