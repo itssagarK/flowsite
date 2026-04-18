@@ -2,6 +2,22 @@ import React, { useState } from 'react';
 import { motion, AnimatePresence } from 'motion/react';
 import { useBuilder, defaultProjects } from '../../context/BuilderContext';
 
+const LazyImage = ({ src, alt, containerClassName, imgClassName }: { src: string; alt: string; containerClassName?: string; imgClassName?: string }) => {
+  const [isLoaded, setIsLoaded] = useState(false);
+  return (
+    <div className={`relative overflow-hidden ${containerClassName || ''}`}>
+      {!isLoaded && <div className="absolute inset-0 bg-border/20 animate-pulse z-0" />}
+      <img 
+        src={src} 
+        alt={alt} 
+        loading="lazy" 
+        onLoad={() => setIsLoaded(true)}
+        className={`w-full h-full object-cover transition-all duration-700 ${isLoaded ? 'opacity-100 blur-0' : 'opacity-0 blur-md'} ${imgClassName || ''} relative z-10`}
+      />
+    </div>
+  );
+};
+
 export function Projects() {
   const { data } = useBuilder();
   const [activeFilter, setActiveFilter] = useState('All');
@@ -28,9 +44,14 @@ export function Projects() {
         >
           <div className="flex items-center gap-6 flex-1">
             {project.image ? (
-              <img src={project.image} alt={project.title} className="w-16 h-16 rounded-full object-cover grayscale opacity-80 group-hover:grayscale-0 group-hover:opacity-100 transition-all" />
+              <LazyImage 
+                src={project.image} 
+                alt={project.title} 
+                containerClassName="w-16 h-16 rounded-full shrink-0"
+                imgClassName="grayscale opacity-80 group-hover:grayscale-0 group-hover:opacity-100" 
+              />
             ) : (
-              <div className="w-16 h-16 rounded-full bg-border/20 flex items-center justify-center font-serif text-xl">{project.title.charAt(0)}</div>
+              <div className="w-16 h-16 rounded-full bg-border/20 flex items-center justify-center font-serif text-xl shrink-0">{project.title.charAt(0)}</div>
             )}
             <div>
               <h3 className="text-2xl font-light text-foreground group-hover:text-primary transition-colors">{project.title}</h3>
@@ -58,7 +79,12 @@ export function Projects() {
         >
           <div className="h-40 border-b-4 border-foreground -mx-6 -mt-6 mb-6 overflow-hidden bg-primary/20 relative">
             {project.image ? (
-              <img src={project.image} alt={project.title} className="w-full h-full object-cover mix-blend-luminosity filter contrast-125" />
+              <LazyImage 
+                src={project.image} 
+                alt={project.title} 
+                containerClassName="w-full h-full"
+                imgClassName="mix-blend-luminosity filter contrast-125" 
+              />
             ) : (
               <div className="w-full h-full flex items-center justify-center">
                 <span className="font-black text-6xl opacity-20">{project.title.substring(0,2).toUpperCase()}</span>
@@ -93,7 +119,11 @@ export function Projects() {
       >
         <div className="h-40 rounded-xl mb-6 border border-border/30 overflow-hidden bg-white/60 dark:bg-black/30 relative">
           {project.image ? (
-            <img src={project.image} alt={project.title} className="w-full h-full object-cover" />
+            <LazyImage 
+              src={project.image} 
+              alt={project.title} 
+              containerClassName="w-full h-full"
+            />
           ) : (
             <div className="w-full h-full flex items-center justify-center opacity-30">
               <span className="font-semibold text-lg">{project.title.charAt(0)}</span>
