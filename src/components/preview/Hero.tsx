@@ -5,7 +5,61 @@ import { useBuilder } from '../../context/BuilderContext';
 export function Hero() {
   const { data } = useBuilder();
   const { name, role, bio } = data.user;
+  const { layout } = data.settings;
 
+  if (layout === 'minimal') {
+    return (
+      <section id="hero" className="relative w-full flex flex-col justify-center items-center text-center px-8 py-32 min-h-[600px]">
+        <motion.div
+          initial={{ opacity: 0, y: 10 }}
+          whileInView={{ opacity: 1, y: 0 }}
+          viewport={{ once: false, amount: 0.3 }}
+          transition={{ duration: 0.8, ease: 'easeOut' }}
+          className="max-w-2xl space-y-8"
+        >
+          <p className="text-sm uppercase tracking-[0.2em] text-muted-foreground font-medium">{role}</p>
+          <h1 className="text-5xl md:text-6xl font-light tracking-tight text-foreground leading-tight">
+            {name}
+          </h1>
+          <div className="w-12 h-[1px] bg-border mx-auto my-8"></div>
+          <p className="text-xl text-muted-foreground leading-relaxed font-serif italic">
+            {bio}
+          </p>
+        </motion.div>
+      </section>
+    );
+  }
+
+  if (layout === 'brutalist') {
+    return (
+      <section id="hero" className="relative w-full flex flex-col justify-center px-6 md:px-12 py-24 min-h-[600px] border-b-8 border-foreground overflow-hidden">
+        <motion.div
+          initial={{ opacity: 0, x: -20 }}
+          whileInView={{ opacity: 1, x: 0 }}
+          viewport={{ once: false, amount: 0.3 }}
+          transition={{ duration: 0.4, ease: 'easeOut' }}
+          className="flex flex-col gap-12 w-full max-w-5xl mx-auto md:mx-0"
+        >
+          <div className="w-fit border-4 border-foreground px-4 py-2 bg-primary text-white font-mono font-bold uppercase text-xl shadow-[8px_8px_0_0_#1C1C1E] dark:shadow-[8px_8px_0_0_#FFFFFF]">
+            SYSTEM ROLE: {role}
+          </div>
+          
+          <div className="relative">
+            <h1 className="text-6xl md:text-8xl lg:text-[100px] font-black uppercase leading-[0.85] tracking-tighter text-foreground break-words">
+              {name}
+            </h1>
+            <div className="mt-8 border-t-4 border-foreground pt-4 w-full max-w-xl">
+              <p className="text-xl md:text-2xl font-mono font-bold text-foreground bg-primary/20 p-4">
+                {bio}
+              </p>
+            </div>
+          </div>
+        </motion.div>
+      </section>
+    );
+  }
+
+  // Modern (Default) Layout
   return (
     <section id="hero" className="relative w-full flex flex-col justify-center px-8 md:px-20 py-24 min-h-[500px]">
       <div className="container max-w-4xl mx-auto md:mx-0">

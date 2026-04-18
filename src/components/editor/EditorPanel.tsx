@@ -116,28 +116,31 @@ export function EditorPanel() {
           <div className="space-y-1.5">
             <label className="block text-xs font-medium">Accent Color</label>
             <div className="flex gap-2">
-              <div className="w-6 h-6 rounded-full border-2 border-foreground cursor-pointer bg-[#007AFF]"></div>
-              <div className="w-6 h-6 rounded-full border-2 border-transparent cursor-pointer bg-[#FF2D55]"></div>
-              <div className="w-6 h-6 rounded-full border-2 border-transparent cursor-pointer bg-[#34C759]"></div>
-              <div className="w-6 h-6 rounded-full border-2 border-transparent cursor-pointer bg-[#AF52DE]"></div>
-              <div className="w-6 h-6 rounded-full border-2 border-transparent cursor-pointer bg-[#FF9500]"></div>
+              {['#007AFF', '#FF2D55', '#34C759', '#AF52DE', '#FF9500'].map(color => (
+                <div 
+                  key={color}
+                  onClick={() => updateData({ settings: { ...data.settings, accentColor: color } })}
+                  style={{ backgroundColor: color }}
+                  className={`w-6 h-6 rounded-full border-2 cursor-pointer transition-all ${data.settings.accentColor === color ? 'border-foreground scale-110' : 'border-transparent hover:scale-110'}`}
+                />
+              ))}
             </div>
           </div>
         </div>
       </div>
       
       <div className="p-6">
-        <h3 className="text-[11px] uppercase tracking-[1px] text-muted-foreground font-semibold mb-4">Sections</h3>
+        <h3 className="text-[11px] uppercase tracking-[1px] text-muted-foreground font-semibold mb-4">Layout Style</h3>
         <div className="flex flex-col gap-2">
-          <div className="p-3 bg-white dark:bg-black rounded-lg text-[13px] font-semibold border border-border shadow-sm text-foreground">
-            Hero Section
-          </div>
-          <div className="p-3 bg-white/30 dark:bg-black/30 rounded-lg text-[13px] text-muted-foreground">
-            About Me
-          </div>
-          <div className="p-3 bg-white/30 dark:bg-black/30 rounded-lg text-[13px] text-muted-foreground">
-            Projects Grid
-          </div>
+          {['modern', 'minimal', 'brutalist'].map(l => (
+            <button 
+              key={l}
+              onClick={() => updateData({ settings: { ...data.settings, layout: l as any } })}
+              className={`p-3 rounded-lg text-[13px] font-semibold border shadow-sm transition-all text-left capitalize ${data.settings.layout === l ? 'bg-white dark:bg-black border-border text-foreground' : 'bg-white/30 dark:bg-black/30 border-transparent text-muted-foreground hover:bg-white/50 dark:hover:bg-black/50'}`}
+            >
+              {l} Layout
+            </button>
+          ))}
         </div>
       </div>
     </div>

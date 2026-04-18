@@ -15,7 +15,12 @@ const templates: { id: string; title: string; icon: any; color: string; data: Po
         role: 'Full Stack Engineer', 
         bio: 'Building scalable systems and creating intuitive web experiences.' 
       },
-      settings: { theme: 'dark', layout: 'modern' }
+      settings: { theme: 'dark', layout: 'modern', accentColor: '#007AFF' },
+      projects: [
+        { id: 101, title: 'AWS Server Migration', desc: 'Migrated legacy monolith to AWS Lambda microservices, reducing costs by 40%.', color: 'bg-blue-50 dark:bg-blue-900/20', tags: ['Backend', 'AWS', 'Node.js'] },
+        { id: 102, title: 'Fintech Dashboard', desc: 'Real-time financial analytics dashboard handling thousands of websocket events.', color: 'bg-indigo-50 dark:bg-indigo-900/20', tags: ['React', 'Websockets'] },
+        { id: 103, title: 'Open Source CLI', desc: 'A developer tool for scaffolding React projects, boasting 5k+ weekly downloads.', color: 'bg-slate-50 dark:bg-slate-900/20', tags: ['CLI', 'TypeScript'] }
+      ]
     }
   },
   {
@@ -29,7 +34,12 @@ const templates: { id: string; title: string; icon: any; color: string; data: Po
         role: 'Product Designer', 
         bio: 'Crafting human-centric interfaces with a focus on motion design and accessibility.' 
       },
-      settings: { theme: 'light', layout: 'minimal' }
+      settings: { theme: 'light', layout: 'minimal', accentColor: '#FF2D55' },
+      projects: [
+        { id: 201, title: 'Lumina Brand Guidelines', desc: 'Comprehensive brand identity and UI kit for a clean energy startup.', color: 'bg-rose-50', tags: ['Branding', 'Figma'] },
+        { id: 202, title: 'Healthcare App Redesign', desc: 'A total UX overhaul increasing user retention by 25% among elderly users.', color: 'bg-pink-50', tags: ['UX Research', 'Mobile'] },
+        { id: 203, title: 'Typography System', desc: 'A custom web font and layout system designed for editorial focus.', color: 'bg-stone-50', tags: ['Typography', 'Web'] }
+      ]
     }
   },
   {
@@ -43,7 +53,12 @@ const templates: { id: string; title: string; icon: any; color: string; data: Po
         role: 'Digital Creator', 
         bio: 'Documenting my journey through code and design. Exploring minimalism in tech.' 
       },
-      settings: { theme: 'dark', layout: 'brutalist' }
+      settings: { theme: 'dark', layout: 'brutalist', accentColor: '#34C759' },
+      projects: [
+        { id: 301, title: 'Void Engine', desc: 'A lightweight 2D rendering engine built in pure C++ and OpenGL.', color: 'bg-zinc-900', tags: ['C++', 'Graphics'] },
+        { id: 302, title: 'Vim Configurations', desc: 'My stark, distraction-free Neovim setup optimized for speed.', color: 'bg-zinc-800', tags: ['Tools', 'Lua'] },
+        { id: 303, title: 'Personal Manifesto', desc: 'A brutalist web essay on the state of modern software bloat.', color: 'bg-black', tags: ['Writing', 'HTML/CSS'] }
+      ]
     }
   },
   {
@@ -57,7 +72,12 @@ const templates: { id: string; title: string; icon: any; color: string; data: Po
         role: 'Winner @ GlobalHack', 
         bio: 'An AI-powered IoT solution built in 48 hours to optimize campus energy consumption.' 
       },
-      settings: { theme: 'dark', layout: 'modern' }
+      settings: { theme: 'dark', layout: 'modern', accentColor: '#FF9500' },
+      projects: [
+        { id: 401, title: 'The 48h Build', desc: 'How we wired together Raspberry Pis, React, and Gemini AI in one weekend.', color: 'bg-orange-900/20', tags: ['Story', 'IoT'] },
+        { id: 402, title: 'Architecture Diagram', desc: 'Technical breakdown of our scalable serverless event architecture.', color: 'bg-amber-900/20', tags: ['Docs', 'Cloud'] },
+        { id: 403, title: 'Live Demo Video', desc: 'Pitch presentation for the judges that secured us 1st place.', color: 'bg-yellow-900/20', tags: ['Media', 'Pitch'] }
+      ]
     }
   },
   {
@@ -71,7 +91,12 @@ const templates: { id: string; title: string; icon: any; color: string; data: Po
         role: 'University Tech Org', 
         bio: 'Building autonomous rovers and fostering a community of hardware enthusiasts since 2021.' 
       },
-      settings: { theme: 'light', layout: 'modern' }
+      settings: { theme: 'light', layout: 'modern', accentColor: '#AF52DE' },
+      projects: [
+        { id: 501, title: 'Mars Rover Prototype', desc: 'Our entry for the University Rover Challenge featuring a 6-DOF robotic arm.', color: 'bg-violet-50', tags: ['Hardware', 'C++'] },
+        { id: 502, title: 'Line Follower Bots', desc: 'Introductory project for freshman members learning basic circuitry.', color: 'bg-fuchsia-50', tags: ['Education', 'Arduino'] },
+        { id: 503, title: 'Annual Tech Fest', desc: 'Hosting over 500 students for collaborative building and competitions.', color: 'bg-purple-50', tags: ['Events'] }
+      ]
     }
   },
   {
@@ -85,7 +110,12 @@ const templates: { id: string; title: string; icon: any; color: string; data: Po
         role: 'ML Researcher', 
         bio: 'Publishing research on neuro-symbolic AI and exploring real-world impact applications.' 
       },
-      settings: { theme: 'light', layout: 'minimal' }
+      settings: { theme: 'light', layout: 'minimal', accentColor: '#007AFF' },
+      projects: [
+        { id: 601, title: 'NeurIPS 2024 Paper', desc: 'Published research on efficient attention mechanisms in transformer models.', color: 'bg-cyan-50', tags: ['Publication', 'AI'] },
+        { id: 602, title: 'PyTorch Implementations', desc: 'Open source repository containing reproducible model setups.', color: 'bg-sky-50', tags: ['Code', 'Python'] },
+        { id: 603, title: 'Grant Proposal Data', desc: 'Visualizations and metrics used for our recent grant acquisition.', color: 'bg-blue-50', tags: ['Data Viz'] }
+      ]
     }
   },
   {
@@ -99,7 +129,12 @@ const templates: { id: string; title: string; icon: any; color: string; data: Po
         role: 'Event Photographer', 
         bio: 'Capturing candid moments on campus. Available for graduation shoots and local events.' 
       },
-      settings: { theme: 'dark', layout: 'minimal' }
+      settings: { theme: 'dark', layout: 'minimal', accentColor: '#FF9500' },
+      projects: [
+        { id: 701, title: 'Class of 2025', desc: 'Senior portraits exploring lighting and campus environments.', color: 'bg-stone-900/40', tags: ['Portrait', 'Gallery'] },
+        { id: 702, title: 'Midnight Concerts', desc: 'Low-light photography series covering local indie bands.', color: 'bg-neutral-900/60', tags: ['Live', 'Music'] },
+        { id: 703, title: 'Film Archives', desc: 'Scans from my 35mm experiments and darkroom prints.', color: 'bg-zinc-900/50', tags: ['Analog', 'Film'] }
+      ]
     }
   }
 ];

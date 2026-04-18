@@ -20,6 +20,7 @@ export interface PortfolioData {
   settings: {
     theme: 'light' | 'dark';
     layout: SectionLayout;
+    accentColor: string;
   };
   projects?: ProjectItem[];
 }
@@ -42,6 +43,7 @@ const defaultData: PortfolioData = {
   settings: {
     theme: 'dark',
     layout: 'modern',
+    accentColor: '#007AFF', // Default Blue
   },
   projects: defaultProjects,
 };
@@ -59,7 +61,7 @@ const BuilderContext = createContext<BuilderContextType | undefined>(undefined);
 export function BuilderProvider({ children }: { children: React.ReactNode }) {
   const [data, setData] = useState<PortfolioData>(defaultData);
 
-  // Apply theme to document
+  // Apply theme and color to document
   useEffect(() => {
     const root = window.document.documentElement;
     if (data.settings.theme === 'dark') {
@@ -67,7 +69,9 @@ export function BuilderProvider({ children }: { children: React.ReactNode }) {
     } else {
       root.classList.remove('dark');
     }
-  }, [data.settings.theme]);
+    // Update CSS Variable for dynamic accent colors
+    root.style.setProperty('--primary', data.settings.accentColor);
+  }, [data.settings.theme, data.settings.accentColor]);
 
   const updateData = (newData: Partial<PortfolioData> | ((prev: PortfolioData) => PortfolioData)) => {
     setData((prev) => {
