@@ -151,13 +151,18 @@ export function Hero() {
               {/* Main Floating Card */}
               <div className="absolute inset-0 bg-gradient-to-br from-card/80 to-card/40 backdrop-blur-3xl border border-white/10 rounded-[40px] shadow-2xl overflow-hidden group">
                 <div className="absolute inset-0 bg-gradient-to-br from-primary/10 to-transparent opacity-0 group-hover:opacity-100 transition-opacity duration-500" />
-                <div className="p-8 h-full flex flex-col justify-between relative z-10">
-                  <Sparkles size={40} className="text-primary" />
-                  <div>
-                    <div className="text-4xl font-bold mb-2">100%</div>
-                    <div className="text-sm text-muted-foreground uppercase tracking-widest font-bold">Performance Driven</div>
+                
+                {data.user.avatar ? (
+                  <img src={data.user.avatar} alt={name} className="w-full h-full object-cover opacity-80 group-hover:scale-110 transition-transform duration-700" />
+                ) : (
+                  <div className="p-8 h-full flex flex-col justify-between relative z-10">
+                    <Sparkles size={40} className="text-primary" />
+                    <div>
+                      <div className="text-4xl font-bold mb-2">100%</div>
+                      <div className="text-sm text-muted-foreground uppercase tracking-widest font-bold">Performance Driven</div>
+                    </div>
                   </div>
-                </div>
+                )}
               </div>
 
               {/* Decorative Pill */}

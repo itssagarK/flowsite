@@ -51,8 +51,11 @@ export function EditorPanel() {
   const handleAvatarUpload = (e: React.ChangeEvent<HTMLInputElement>) => {
     const file = e.target.files?.[0];
     if (file) {
-      const imageUrl = URL.createObjectURL(file);
-      updateUser({ avatar: imageUrl });
+      const reader = new FileReader();
+      reader.onloadend = () => {
+        updateUser({ avatar: reader.result as string });
+      };
+      reader.readAsDataURL(file);
     }
   };
 
@@ -91,12 +94,15 @@ export function EditorPanel() {
     const file = e.target.files?.[0];
     if (!file) return;
     setIsScanning(true);
-    const imageUrl = URL.createObjectURL(file);
-    try {
-      await scanImage(imageUrl);
-    } finally {
-      setIsScanning(false);
-    }
+    const reader = new FileReader();
+    reader.onloadend = async () => {
+      try {
+        await scanImage(reader.result as string);
+      } finally {
+        setIsScanning(false);
+      }
+    };
+    reader.readAsDataURL(file);
   };
 
   const projects = data.projects || [];
@@ -323,7 +329,7 @@ export function EditorPanel() {
               initial={{ opacity: 0, x: -20 }}
               animate={{ opacity: 1, x: 0 }}
               exit={{ opacity: 0, x: 20 }}
-              className="space-y-5"
+              className="space-y-6"
             >
               {/* Website Sections Toggle */}
               <div className="p-4 bg-muted/30 rounded-xl border border-border">
@@ -339,6 +345,9 @@ export function EditorPanel() {
                     { id: 'skills', label: 'Skills', icon: Sparkles },
                     { id: 'experience', label: 'Experience', icon: Briefcase },
                     { id: 'services', label: 'Services', icon: Building2 },
+                    { id: 'stats', label: 'Stats', icon: Zap },
+                    { id: 'team', label: 'Team', icon: User },
+                    { id: 'pricing', label: 'Pricing', icon: AppWindow },
                     { id: 'contact', label: 'Contact', icon: Mail },
                   ].map((section) => {
                     const Icon = section.icon;
@@ -359,18 +368,18 @@ export function EditorPanel() {
                             }
                           });
                         }}
-                        className={`flex items-center justify-between p-3 rounded-lg cursor-pointer transition-all ${
+                        className={`flex items-center justify-between p-2.5 rounded-lg cursor-pointer transition-all ${
                           isEnabled ? 'bg-emerald-500/10 border border-emerald-500/30' : 'bg-muted/40 border border-border'
                         }`}
                       >
                         <div className="flex items-center gap-2">
                           <Icon size={14} className={isEnabled ? 'text-emerald-500' : 'text-muted-foreground'} />
-                          <span className={`text-sm ${isEnabled ? 'text-foreground' : 'text-muted-foreground'}`}>{section.label}</span>
+                          <span className={`text-[13px] ${isEnabled ? 'text-foreground' : 'text-muted-foreground'}`}>{section.label}</span>
                         </div>
-                        <div className={`w-10 h-5 rounded-full relative transition-all ${isEnabled ? 'bg-emerald-500' : 'bg-muted'}`}>
+                        <div className={`w-8 h-4 rounded-full relative transition-all ${isEnabled ? 'bg-emerald-500' : 'bg-muted'}`}>
                           <motion.div
-                            animate={{ x: isEnabled ? 20 : 2 }}
-                            className="absolute top-1 w-3 h-3 rounded-full bg-white"
+                            animate={{ x: isEnabled ? 16 : 2 }}
+                            className="absolute top-0.5 w-3 h-3 rounded-full bg-white shadow-sm"
                           />
                         </div>
                       </motion.div>
@@ -379,174 +388,164 @@ export function EditorPanel() {
                 </div>
               </div>
 
-              {/* Projects (Portfolio/College) */}
+              {/* PROJECTS SECTION */}
               {(websiteType === 'portfolio' || websiteType === 'college') && (
-                <div>
-                  <div className="flex items-center justify-between mb-3">
+                <div className="space-y-4">
+                  <div className="flex items-center justify-between">
                     <div className="flex items-center gap-2">
                       <FolderOpen size={14} className="text-emerald-500" />
                       <h4 className="font-semibold text-xs text-foreground uppercase tracking-wider">
-                        {websiteType === 'college' ? 'College Projects' : 'Projects'}
+                        {websiteType === 'college' ? 'Academic Projects' : 'Projects'}
                       </h4>
-                      <span className="text-[10px] px-1.5 py-0.5 bg-emerald-500/10 text-emerald-600 rounded-full">
-                        {projects.length}
-                      </span>
                     </div>
                     <motion.button
                       whileHover={{ scale: 1.1 }}
                       whileTap={{ scale: 0.9 }}
-                      onClick={() => addProject({ title: 'New Project', desc: 'Description', color: 'bg-muted', tags: ['New'] })}
+                      onClick={() => addProject({ title: 'New Project', desc: 'Description...', color: 'bg-muted', tags: ['React'] })}
                       className="p-1.5 rounded-lg bg-emerald-500/10 text-emerald-600 hover:bg-emerald-500/20"
                     >
                       <Plus size={14} />
                     </motion.button>
                   </div>
-
                   <div className="space-y-2">
-                    <AnimatePresence mode="popLayout">
-                      {projects.map((project, index) => (
-                        <motion.div
-                          key={project.id}
-                          layout
-                          initial={{ opacity: 0, height: 0 }}
-                          animate={{ opacity: 1, height: 'auto' }}
-                          exit={{ opacity: 0, height: 0 }}
-                          className="bg-muted/40 border border-border rounded-xl overflow-hidden"
-                        >
-                          {/* Project Header */}
-                          <div
-                            className="flex items-center gap-2 p-3 cursor-pointer hover:bg-muted/60 transition-colors"
-                            onClick={() => setProjectExpand(projectExpand === project.id ? null : project.id)}
-                          >
-                            <GripVertical size={14} className="text-muted-foreground/50" />
-                            <div className="flex-1 min-w-0">
-                              <p className="font-medium text-sm truncate">{project.title || 'Untitled Project'}</p>
-                              <p className="text-xs text-muted-foreground truncate">{project.desc || 'No description'}</p>
-                            </div>
-                            <motion.div animate={{ rotate: projectExpand === project.id ? 180 : 0 }}>
-                              <ChevronDown size={14} className="text-muted-foreground" />
-                            </motion.div>
+                    {(data.projects || []).map((project) => (
+                      <div key={project.id} className="bg-muted/30 border border-border rounded-xl overflow-hidden">
+                        <div className="p-3 flex items-center justify-between cursor-pointer hover:bg-muted/50" onClick={() => setProjectExpand(projectExpand === project.id ? null : project.id)}>
+                          <div className="flex items-center gap-2 truncate">
+                            <GripVertical size={14} className="text-muted-foreground/30" />
+                            <span className="text-sm font-medium truncate">{project.title}</span>
                           </div>
-
-                          {/* Expanded Content */}
-                          <AnimatePresence>
-                            {projectExpand === project.id && (
-                              <motion.div
-                                initial={{ height: 0, opacity: 0 }}
-                                animate={{ height: 'auto', opacity: 1 }}
-                                exit={{ height: 0, opacity: 0 }}
-                                className="px-3 pb-3 space-y-2"
-                              >
-                                <input
-                                  type="text"
-                                  value={project.title}
-                                  onChange={(e) => updateProject(project.id, { title: e.target.value })}
-                                  className="w-full rounded-lg border border-border bg-background px-3 py-2 text-sm"
-                                  placeholder="Project title"
-                                />
-                                <textarea
-                                  value={project.desc}
-                                  onChange={(e) => updateProject(project.id, { desc: e.target.value })}
-                                  className="w-full rounded-lg border border-border bg-background px-3 py-2 text-xs resize-none"
-                                  rows={2}
-                                  placeholder="Description"
-                                />
-                                <input
-                                  type="text"
-                                  value={project.tags.join(', ')}
-                                  onChange={(e) => updateProject(project.id, { tags: e.target.value.split(',').map(t => t.trim()).filter(Boolean) })}
-                                  className="w-full rounded-lg border border-border bg-background px-3 py-2 text-xs"
-                                  placeholder="Tags (comma separated)"
-                                />
-                                <motion.button
-                                  whileHover={{ scale: 1.02 }}
-                                  whileTap={{ scale: 0.98 }}
-                                  onClick={() => removeProject(project.id)}
-                                  className="w-full py-2 bg-red-500/10 text-red-600 text-xs font-medium rounded-lg flex items-center justify-center gap-1 hover:bg-red-500/20"
-                                >
-                                  <Trash2 size={12} />
-                                  Remove Project
-                                </motion.button>
-                              </motion.div>
-                            )}
-                          </AnimatePresence>
-                        </motion.div>
-                      ))}
-                    </AnimatePresence>
-
-                    {projects.length === 0 && (
-                      <div className="text-center py-6 text-muted-foreground">
-                        <FolderOpen size={24} className="mx-auto mb-2 opacity-50" />
-                        <p className="text-sm">No projects yet</p>
-                        <p className="text-xs">Click + to add your first project</p>
+                          <ChevronDown size={14} className={`text-muted-foreground transition-transform ${projectExpand === project.id ? 'rotate-180' : ''}`} />
+                        </div>
+                        {projectExpand === project.id && (
+                          <div className="px-3 pb-3 space-y-3">
+                            <input type="text" value={project.title} onChange={(e) => updateProject(project.id, { title: e.target.value })} className="w-full bg-background border border-border rounded-lg px-3 py-2 text-sm" placeholder="Title" />
+                            <textarea value={project.desc} onChange={(e) => updateProject(project.id, { desc: e.target.value })} className="w-full bg-background border border-border rounded-lg px-3 py-2 text-xs resize-none" rows={2} placeholder="Description" />
+                            <div className="flex justify-end">
+                              <button onClick={() => removeProject(project.id)} className="text-red-500 hover:bg-red-500/10 p-2 rounded-lg transition-colors"><Trash2 size={16} /></button>
+                            </div>
+                          </div>
+                        )}
                       </div>
-                    )}
+                    ))}
                   </div>
                 </div>
               )}
 
-              {/* Services (Business) */}
+              {/* SKILLS SECTION */}
+              {websiteType === 'portfolio' && (
+                <div className="space-y-4">
+                  <div className="flex items-center justify-between">
+                    <div className="flex items-center gap-2">
+                      <Sparkles size={14} className="text-violet-500" />
+                      <h4 className="font-semibold text-xs text-foreground uppercase tracking-wider">Skills</h4>
+                    </div>
+                    <motion.button onClick={() => addSkill({ name: 'New Skill', level: 80 })} className="p-1.5 rounded-lg bg-violet-500/10 text-violet-600 hover:bg-violet-500/20"><Plus size={14} /></motion.button>
+                  </div>
+                  <div className="grid grid-cols-1 gap-2">
+                    {(data.skills || []).map((skill) => (
+                      <div key={skill.id} className="bg-muted/30 border border-border rounded-xl p-3 flex items-center gap-3">
+                        <input type="text" value={skill.name} onChange={(e) => updateSkill(skill.id, { name: e.target.value })} className="flex-1 bg-transparent border-none p-0 text-sm focus:ring-0" placeholder="Skill name" />
+                        <input type="number" value={skill.level} onChange={(e) => updateSkill(skill.id, { level: parseInt(e.target.value) })} className="w-12 bg-background border border-border rounded px-1 text-xs" />
+                        <button onClick={() => removeSkill(skill.id)} className="text-red-400 hover:text-red-600"><Trash2 size={14} /></button>
+                      </div>
+                    ))}
+                  </div>
+                </div>
+              )}
+
+              {/* EXPERIENCE SECTION */}
+              {websiteType === 'portfolio' && (
+                <div className="space-y-4">
+                  <div className="flex items-center justify-between">
+                    <div className="flex items-center gap-2">
+                      <Briefcase size={14} className="text-blue-500" />
+                      <h4 className="font-semibold text-xs text-foreground uppercase tracking-wider">Experience</h4>
+                    </div>
+                    <motion.button onClick={() => addExperience({ title: 'Role', company: 'Company', period: '2024', description: 'What did you do?' })} className="p-1.5 rounded-lg bg-blue-500/10 text-blue-600 hover:bg-blue-500/20"><Plus size={14} /></motion.button>
+                  </div>
+                  <div className="space-y-2">
+                    {(data.experience || []).map((exp) => (
+                      <div key={exp.id} className="bg-muted/30 border border-border rounded-xl p-3 space-y-2">
+                        <input type="text" value={exp.title} onChange={(e) => updateExperience(exp.id, { title: e.target.value })} className="w-full bg-transparent border-none p-0 font-bold text-sm" placeholder="Job Title" />
+                        <input type="text" value={exp.company} onChange={(e) => updateExperience(exp.id, { company: e.target.value })} className="w-full bg-transparent border-none p-0 text-xs text-primary" placeholder="Company Name" />
+                        <button onClick={() => removeExperience(exp.id)} className="text-red-500 hover:bg-red-500/10 p-1.5 rounded"><Trash2 size={14} /></button>
+                      </div>
+                    ))}
+                  </div>
+                </div>
+              )}
+
+              {/* SERVICES SECTION */}
               {websiteType === 'business' && (
-                <div>
-                  <div className="flex items-center justify-between mb-3">
+                <div className="space-y-4">
+                  <div className="flex items-center justify-between">
                     <div className="flex items-center gap-2">
                       <Building2 size={14} className="text-amber-500" />
                       <h4 className="font-semibold text-xs text-foreground uppercase tracking-wider">Services</h4>
-                      <span className="text-[10px] px-1.5 py-0.5 bg-amber-500/10 text-amber-600 rounded-full">{services.length}</span>
                     </div>
-                    <motion.button
-                      whileHover={{ scale: 1.1 }}
-                      whileTap={{ scale: 0.9 }}
-                      onClick={() => addService({ title: 'New Service', desc: 'Description', icon: 'code', features: ['Feature'] })}
-                      className="p-1.5 rounded-lg bg-amber-500/10 text-amber-600"
-                    >
-                      <Plus size={14} />
-                    </motion.button>
+                    <motion.button onClick={() => addService({ title: 'New Service', desc: 'Description...', icon: 'code', features: [] })} className="p-1.5 rounded-lg bg-amber-500/10 text-amber-600"><Plus size={14} /></motion.button>
                   </div>
-
-                  <AnimatePresence mode="popLayout">
-                    {services.map((service) => (
-                      <motion.div
-                        key={service.id}
-                        layout
-                        initial={{ opacity: 0 }}
-                        animate={{ opacity: 1 }}
-                        exit={{ opacity: 0 }}
-                        className="p-3 bg-muted/40 border border-border rounded-xl mb-2 group"
-                      >
-                        <div className="flex items-center justify-between mb-2">
-                          <input
-                            type="text"
-                            value={service.title}
-                            onChange={(e) => updateService(service.id, { title: e.target.value })}
-                            className="flex-1 bg-transparent font-medium text-sm focus:outline-none"
-                            placeholder="Service name"
-                          />
-                          <button onClick={() => removeService(service.id)} className="opacity-0 group-hover:opacity-100 p-1 text-red-500 hover:bg-red-500/10 rounded">
-                            <Trash2 size={12} />
-                          </button>
-                        </div>
-                        <textarea
-                          value={service.desc}
-                          onChange={(e) => updateService(service.id, { desc: e.target.value })}
-                          className="w-full bg-transparent text-xs resize-none focus:outline-none"
-                          rows={2}
-                          placeholder="Service description"
-                        />
-                      </motion.div>
-                    ))}
-                  </AnimatePresence>
+                  {(data.services || []).map((service) => (
+                    <div key={service.id} className="bg-muted/30 border border-border rounded-xl p-3 space-y-2">
+                      <input type="text" value={service.title} onChange={(e) => updateService(service.id, { title: e.target.value })} className="w-full bg-transparent font-bold text-sm" placeholder="Service Name" />
+                      <textarea value={service.desc} onChange={(e) => updateService(service.id, { desc: e.target.value })} className="w-full bg-transparent text-xs resize-none" rows={2} />
+                      <button onClick={() => removeService(service.id)} className="text-red-500"><Trash2 size={14} /></button>
+                    </div>
+                  ))}
                 </div>
               )}
 
-              {/* Features (App) */}
-              {websiteType === 'app' && (
-                <div className="p-4 bg-muted/40 rounded-xl border border-border">
-                  <div className="flex items-center gap-2 mb-2">
-                    <AppWindow size={14} className="text-violet-500" />
-                    <h4 className="font-semibold text-xs text-foreground">App Features</h4>
+              {/* STATS SECTION */}
+              {websiteType === 'business' && (
+                <div className="space-y-4">
+                  <div className="flex items-center justify-between">
+                    <div className="flex items-center gap-2">
+                      <Zap size={14} className="text-orange-500" />
+                      <h4 className="font-semibold text-xs text-foreground uppercase tracking-wider">Business Stats</h4>
+                    </div>
+                    <motion.button onClick={() => updateData({ stats: [...(data.stats || []), { label: 'Stat', value: '100+' }] })} className="p-1.5 rounded-lg bg-orange-500/10 text-orange-600"><Plus size={14} /></motion.button>
                   </div>
-                  <p className="text-xs text-muted-foreground">Features are automatically populated based on your website data.</p>
+                  <div className="grid grid-cols-1 gap-2">
+                    {(data.stats || []).map((stat, i) => (
+                      <div key={i} className="flex items-center gap-2 bg-muted/30 border border-border rounded-xl p-2">
+                        <input type="text" value={stat.value} onChange={(e) => {
+                          const newStats = [...(data.stats || [])];
+                          newStats[i].value = e.target.value;
+                          updateData({ stats: newStats });
+                        }} className="w-16 font-bold text-primary bg-transparent text-sm" />
+                        <input type="text" value={stat.label} onChange={(e) => {
+                          const newStats = [...(data.stats || [])];
+                          newStats[i].label = e.target.value;
+                          updateData({ stats: newStats });
+                        }} className="flex-1 bg-transparent text-xs" />
+                        <button onClick={() => updateData({ stats: data.stats?.filter((_, idx) => idx !== i) })} className="text-red-500"><Trash2 size={14} /></button>
+                      </div>
+                    ))}
+                  </div>
+                </div>
+              )}
+
+              {/* PRICING SECTION */}
+              {websiteType === 'app' && (
+                <div className="space-y-4">
+                  <div className="flex items-center justify-between">
+                    <div className="flex items-center gap-2">
+                      <AppWindow size={14} className="text-purple-500" />
+                      <h4 className="font-semibold text-xs text-foreground uppercase tracking-wider">Pricing Plans</h4>
+                    </div>
+                    <motion.button onClick={() => updateData({ pricing: [...(data.pricing || []), { id: Date.now(), name: 'New Plan', price: '$29', period: 'mo', features: ['Feature 1'] }] })} className="p-1.5 rounded-lg bg-purple-500/10 text-purple-600"><Plus size={14} /></motion.button>
+                  </div>
+                  {(data.pricing || []).map((plan) => (
+                    <div key={plan.id} className="bg-muted/30 border border-border rounded-xl p-3 space-y-2">
+                      <input type="text" value={plan.name} onChange={(e) => updateData({ pricing: data.pricing?.map(p => p.id === plan.id ? { ...p, name: e.target.value } : p) })} className="w-full bg-transparent font-bold text-sm" />
+                      <div className="flex gap-2">
+                        <input type="text" value={plan.price} onChange={(e) => updateData({ pricing: data.pricing?.map(p => p.id === plan.id ? { ...p, price: e.target.value } : p) })} className="w-20 bg-background border border-border rounded px-2 py-1 text-sm" />
+                        <input type="text" value={plan.period} onChange={(e) => updateData({ pricing: data.pricing?.map(p => p.id === plan.id ? { ...p, period: e.target.value } : p) })} className="flex-1 bg-background border border-border rounded px-2 py-1 text-sm" />
+                      </div>
+                      <button onClick={() => updateData({ pricing: data.pricing?.filter(p => p.id !== plan.id) })} className="text-red-500 text-xs flex items-center gap-1"><Trash2 size={12} /> Remove</button>
+                    </div>
+                  ))}
                 </div>
               )}
             </motion.div>

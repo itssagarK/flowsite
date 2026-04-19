@@ -20,6 +20,12 @@ export function BusinessHero() {
             </motion.span>
           )}
 
+          {data.user.avatar && (
+            <motion.div initial={{ opacity: 0, scale: 0.8 }} whileInView={{ opacity: 1, scale: 1 }} className="flex justify-center pb-4">
+              <img src={data.user.avatar} className="w-24 h-24 rounded-2xl object-cover border-2 border-primary/20 shadow-lg" alt={name} />
+            </motion.div>
+          )}
+
           <h1 className="text-4xl md:text-6xl font-bold tracking-tight text-foreground">
             {name || 'Your Business'}
           </h1>

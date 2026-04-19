@@ -114,6 +114,7 @@ export interface PortfolioData {
     theme: 'light' | 'dark';
     layout: SectionLayout;
     accentColor: string;
+    visibleSections?: Record<string, boolean>;
   };
   // Portfolio specific
   projects?: ProjectItem[];
@@ -190,6 +191,20 @@ const getDefaultData = (websiteType: WebsiteType): PortfolioData => {
       theme: 'dark' as const,
       layout: 'modern' as SectionLayout,
       accentColor: '#6366F1',
+      visibleSections: {
+        hero: true,
+        projects: true,
+        skills: true,
+        experience: true,
+        services: true,
+        contact: true,
+        stats: true,
+        features: true,
+        pricing: true,
+        education: true,
+        about: true,
+        team: true,
+      }
     },
     user: {
       name: '',
@@ -206,14 +221,8 @@ const getDefaultData = (websiteType: WebsiteType): PortfolioData => {
         ...baseData,
         websiteType: 'portfolio',
         projects: defaultProjects,
-        skills: [
-          { id: 1, name: 'React', level: 90, category: 'Frontend' },
-          { id: 2, name: 'TypeScript', level: 85, category: 'Languages' },
-          { id: 3, name: 'Node.js', level: 80, category: 'Backend' },
-        ],
-        experience: [
-          { id: 1, title: 'Developer', company: 'Tech Corp', period: '2023 - Present', description: 'Building amazing products', current: true },
-        ],
+        skills: defaultSkills,
+        experience: defaultExperience,
       };
     case 'college':
       return {
@@ -446,120 +455,126 @@ export function BuilderProvider({ children }: { children: React.ReactNode }) {
   const exportCode = useCallback(() => {
     const { user, settings, projects, skills, experience, collegeProjects, services, stats, appFeatures, pricing, websiteType } = data;
     const isDark = settings.theme === 'dark';
+    const visible = settings.visibleSections || {};
 
-    // Generate code based on website type
-    let sections = '';
+    // Generate sections dynamically based on visibility
+    let sectionsHtml = '';
 
-    if (websiteType === 'portfolio' || websiteType === 'college') {
-      sections = `
-  <!-- Hero Section -->
-  <section class="hero">
+    if (visible.hero !== false) {
+      if (websiteType === 'app') {
+        sectionsHtml += `
+  <section class="hero app-hero">
     <div class="container">
-      <h1>${user.name}</h1>
-      <h2>${user.role}</h2>
-      <p>${user.bio}</p>
-      <a href="#projects" class="btn">View Work</a>
-    </div>
-  </section>
-
-  <!-- Projects Section -->
-  <section id="projects" class="projects">
-    <div class="container">
-      <h2>${websiteType === 'college' ? 'Academic Projects' : 'Selected Projects'}</h2>
-      <div class="projects-grid">
-        ${(projects || []).map(p => `
-        <div class="project-card">
-          <h3>${p.title}</h3>
-          <p>${p.desc}</p>
-          <div class="tags">${p.tags.map(t => `<span class="tag">${t}</span>`).join('')}</div>
-        </div>
-        `).join('')}
-      </div>
-    </div>
-  </section>`;
-    } else if (websiteType === 'business') {
-      sections = `
-  <!-- Hero Section -->
-  <section class="hero">
-    <div class="container">
-      <h1>${user.tagline || user.name}</h1>
-      <p>${user.bio}</p>
-      <a href="#services" class="btn">Our Services</a>
-    </div>
-  </section>
-
-  <!-- Stats Section -->
-  <section class="stats">
-    <div class="container">
-      <div class="stats-grid">
-        ${(stats || []).map(s => `
-        <div class="stat-item">
-          <div class="stat-value">${s.value}</div>
-          <div class="stat-label">${s.label}</div>
-        </div>
-        `).join('')}
-      </div>
-    </div>
-  </section>
-
-  <!-- Services Section -->
-  <section id="services" class="services">
-    <div class="container">
-      <h2>Services</h2>
-      <div class="services-grid">
-        ${(services || []).map(s => `
-        <div class="service-card">
-          <h3>${s.title}</h3>
-          <p>${s.desc}</p>
-          <ul>${s.features.map(f => `<li>${f}</li>`).join('')}</ul>
-        </div>
-        `).join('')}
-      </div>
-    </div>
-  </section>`;
-    } else if (websiteType === 'app') {
-      sections = `
-  <!-- Hero Section -->
-  <section class="hero">
-    <div class="container">
-      <h1>${user.name}</h1>
-      <p>${user.tagline}</p>
-      <p>${user.bio}</p>
+      <h1>${user.name || 'Your App Name'}</h1>
+      <p class="tagline">${user.tagline || 'Your catchy tagline'}</p>
+      <p class="bio">${user.bio || 'The best solution for your needs.'}</p>
       <div class="cta-buttons">
         <a href="#features" class="btn">Get Started</a>
         <a href="#pricing" class="btn btn-outline">View Pricing</a>
       </div>
     </div>
-  </section>
-
-  <!-- Features Section -->
-  <section id="features" class="features">
+  </section>`;
+      } else {
+        sectionsHtml += `
+  <section class="hero">
     <div class="container">
-      <h2>Features</h2>
-      <div class="features-grid">
-        ${(appFeatures || []).map(f => `
-        <div class="feature-card">
-          <h3>${f.title}</h3>
-          <p>${f.desc}</p>
+      ${user.avatar ? `<img src="${user.avatar}" class="avatar" alt="${user.name}">` : ''}
+      <h1>${user.name || 'Your Name'}</h1>
+      <h2 class="role">${user.role || 'Professional Title'}</h2>
+      <p class="bio">${user.bio || 'Tell your story here...'}</p>
+      <a href="#projects" class="btn">View My Work</a>
+    </div>
+  </section>`;
+      }
+    }
+
+    if (visible.projects !== false && (projects?.length || collegeProjects?.length)) {
+      const items = websiteType === 'college' ? collegeProjects : projects;
+      sectionsHtml += `
+  <section id="projects" class="projects">
+    <div class="container">
+      <h2>${websiteType === 'college' ? 'Academic Projects' : 'Featured Projects'}</h2>
+      <div class="grid">
+        ${(items || []).map(p => `
+        <div class="card project-card">
+          <h3>${p.title}</h3>
+          <p>${p.desc}</p>
+          <div class="tags">${(p as any).tags?.map((t: string) => `<span class="tag">${t}</span>`).join('') || ''}</div>
         </div>
         `).join('')}
       </div>
     </div>
-  </section>
+  </section>`;
+    }
 
-  <!-- Pricing Section -->
-  <section id="pricing" class="pricing">
+    if (visible.skills !== false && skills?.length) {
+      sectionsHtml += `
+  <section id="skills" class="skills">
     <div class="container">
-      <h2>Pricing</h2>
-      <div class="pricing-grid">
-        ${(pricing || []).map(p => `
-        <div class="pricing-card${p.featured ? ' featured' : ''}">
-          <h3>${p.name}</h3>
-          <div class="price">${p.price}<span>/${p.period}</span></div>
-          <ul>${p.features.map(f => `<li>${f}</li>`).join('')}</ul>
-          <a href="#" class="btn">Choose Plan</a>
+      <h2>Skills & Expertise</h2>
+      <div class="skills-grid">
+        ${skills.map(s => `
+        <div class="skill-item">
+          <div class="skill-info">
+            <span>${s.name}</span>
+            <span>${s.level}%</span>
+          </div>
+          <div class="skill-bar"><div class="skill-progress" style="width: ${s.level}%"></div></div>
         </div>
         `).join('')}
+      </div>
+    </div>
+  </section>`;
+    }
+
+    if (visible.experience !== false && experience?.length) {
+      sectionsHtml += `
+  <section id="experience" class="experience">
+    <div class="container">
+      <h2>Experience</h2>
+      <div class="timeline">
+        ${experience.map(e => `
+        <div class="timeline-item">
+          <div class="time">${e.period}</div>
+          <div class="content">
+            <h3>${e.title}</h3>
+            <h4>${e.company}</h4>
+            <p>${e.description}</p>
+          </div>
+        </div>
+        `).join('')}
+      </div>
+    </div>
+  </section>`;
+    }
+
+    if (visible.services !== false && services?.length) {
+      sectionsHtml += `
+  <section id="services" class="services">
+    <div class="container">
+      <h2>Our Services</h2>
+      <div class="grid">
+        ${services.map(s => `
+        <div class="card service-card">
+          <div class="icon">${s.icon}</div>
+          <h3>${s.title}</h3>
+          <p>${s.desc}</p>
+        </div>
+        `).join('')}
+      </div>
+    </div>
+  </section>`;
+    }
+
+    if (visible.contact !== false) {
+      sectionsHtml += `
+  <section id="contact" class="contact">
+    <div class="container">
+      <h2>Get In Touch</h2>
+      <p>Interested in working together? Let's talk!</p>
+      <div class="contact-links">
+        ${user.email ? `<a href="mailto:${user.email}" class="btn">${user.email}</a>` : ''}
+        ${user.location ? `<p class="location" style="margin-top: 1.5rem; color: var(--muted);">📍 ${user.location}</p>` : ''}
       </div>
     </div>
   </section>`;
@@ -570,49 +585,46 @@ export function BuilderProvider({ children }: { children: React.ReactNode }) {
 <head>
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
-  <title>${user.name} - ${websiteType.charAt(0).toUpperCase() + websiteType.slice(1)}</title>
+  <title>${user.name || 'My Website'} | FlowSite</title>
   <link href="https://fonts.googleapis.com/css2?family=Outfit:wght@300;400;500;600;700;800&display=swap" rel="stylesheet">
   <style>
     :root {
       --primary: ${settings.accentColor};
-      --background: ${isDark ? '#030712' : '#FAFBFC'};
-      --foreground: ${isDark ? '#F8FAFC' : '#0F172A'};
-      --muted: ${isDark ? 'rgba(248, 250, 252, 0.04)' : 'rgba(15, 23, 42, 0.04)'};
-      --muted-foreground: ${isDark ? '#94A3B8' : '#64748B'};
-      --border: ${isDark ? 'rgba(248, 250, 252, 0.1)' : 'rgba(15, 23, 42, 0.1)'};
-      --card: ${isDark ? '#111827' : '#FFFFFF'};
+      --bg: ${isDark ? '#030712' : '#FAFBFC'};
+      --fg: ${isDark ? '#F8FAFC' : '#0F172A'};
+      --card-bg: ${isDark ? '#111827' : '#FFFFFF'};
+      --border: ${isDark ? 'rgba(255,255,255,0.1)' : 'rgba(0,0,0,0.1)'};
+      --muted: ${isDark ? '#94A3B8' : '#64748B'};
     }
     * { margin: 0; padding: 0; box-sizing: border-box; }
-    body { font-family: 'Outfit', sans-serif; background: var(--background); color: var(--foreground); line-height: 1.6; }
-    .container { max-width: 1200px; margin: 0 auto; padding: 0 2rem; }
-    section { padding: 6rem 0; }
-    h1 { font-size: clamp(2.5rem, 6vw, 4rem); font-weight: 800; margin-bottom: 1rem; }
-    h2 { font-size: 2.5rem; font-weight: 700; margin-bottom: 2rem; }
-    .hero { min-height: 80vh; display: flex; align-items: center; justify-content: center; text-align: center; background: ${isDark ? 'radial-gradient(circle, rgba(99,102,241,0.15), transparent)' : 'radial-gradient(circle, rgba(99,102,241,0.1), transparent)'}; }
-    .hero h2 { color: var(--primary); font-weight: 500; margin-bottom: 1rem; }
-    .hero p { font-size: 1.25rem; color: var(--muted-foreground); max-width: 600px; margin: 0 auto 2rem; }
-    .btn { display: inline-block; padding: 1rem 2rem; background: var(--primary); color: white; text-decoration: none; border-radius: 12px; font-weight: 600; transition: transform 0.2s; }
-    .btn:hover { transform: translateY(-2px); }
+    body { font-family: 'Outfit', sans-serif; background: var(--bg); color: var(--fg); line-height: 1.6; }
+    .container { max-width: 1100px; margin: 0 auto; padding: 0 2rem; }
+    section { padding: 8rem 0; border-bottom: 1px solid var(--border); }
+    h1 { font-size: 4rem; font-weight: 800; margin-bottom: 1rem; }
+    h2 { font-size: 2.5rem; font-weight: 700; margin-bottom: 3rem; text-align: center; }
+    .hero { text-align: center; min-height: 90vh; display: flex; align-items: center; justify-content: center; background: radial-gradient(circle at center, var(--primary)05, transparent 70%); }
+    .avatar { width: 150px; height: 150px; border-radius: 50%; object-cover: cover; mb-6; border: 4px solid var(--primary); margin: 0 auto 2rem; display: block; }
+    .role { color: var(--primary); font-size: 1.5rem; margin-bottom: 1.5rem; font-weight: 600; }
+    .bio { max-width: 600px; margin: 0 auto 2rem; font-size: 1.2rem; color: var(--muted); }
+    .btn { display: inline-block; padding: 1rem 2.5rem; background: var(--primary); color: white; text-decoration: none; border-radius: 100px; font-weight: 600; transition: 0.3s; }
+    .btn:hover { transform: translateY(-2px); box-shadow: 0 10px 20px -5px var(--primary); }
     .btn-outline { background: transparent; border: 2px solid var(--primary); color: var(--primary); }
-    .projects-grid, .services-grid, .features-grid, .pricing-grid { display: grid; grid-template-columns: repeat(auto-fit, minmax(300px, 1fr)); gap: 2rem; }
-    .project-card, .service-card, .feature-card, .pricing-card { background: var(--card); border: 1px solid var(--border); border-radius: 16px; padding: 2rem; }
-    .pricing-card.featured { border-color: var(--primary); }
-    .stats { background: var(--muted); }
-    .stats-grid { display: flex; justify-content: center; gap: 4rem; flex-wrap: wrap; }
-    .stat-value { font-size: 3rem; font-weight: 800; color: var(--primary); }
-    .tags { display: flex; gap: 0.5rem; flex-wrap: wrap; margin-top: 1rem; }
-    .tag { font-size: 0.75rem; padding: 0.25rem 0.75rem; background: var(--muted); border-radius: 20px; }
-    .price { font-size: 2.5rem; font-weight: 700; }
-    .price span { font-size: 1rem; font-weight: 400; }
-    .pricing-card ul { list-style: none; margin: 1.5rem 0; }
-    .pricing-card li { padding: 0.5rem 0; border-bottom: 1px solid var(--border); }
-    .cta-buttons { display: flex; gap: 1rem; justify-content: center; }
-    @keyframes fadeIn { from { opacity: 0; transform: translateY(20px); } to { opacity: 1; transform: translateY(0); } }
-    .animate-in { animation: fadeIn 0.6s ease-out forwards; }
+    .grid { display: grid; grid-template-columns: repeat(auto-fit, minmax(300px, 1fr)); gap: 2rem; }
+    .card { background: var(--card-bg); padding: 2.5rem; border-radius: 24px; border: 1px solid var(--border); transition: 0.3s; }
+    .card:hover { border-color: var(--primary); transform: translateY(-5px); }
+    .tag { display: inline-block; font-size: 0.8rem; padding: 0.3rem 0.8rem; background: var(--primary)15; color: var(--primary); border-radius: 6px; margin: 0.5rem 0.5rem 0 0; }
+    .skills-grid { display: grid; grid-template-columns: repeat(auto-fit, minmax(250px, 1fr)); gap: 2rem; }
+    .skill-info { display: flex; justify-content: space-between; margin-bottom: 0.5rem; font-weight: 600; }
+    .skill-bar { height: 8px; background: var(--border); border-radius: 4px; overflow: hidden; }
+    .skill-progress { height: 100%; background: var(--primary); }
+    .timeline { position: relative; max-width: 800px; margin: 0 auto; }
+    .timeline-item { display: flex; gap: 2rem; margin-bottom: 3rem; }
+    .time { font-weight: 700; color: var(--primary); min-width: 120px; }
+    .contact { text-align: center; }
+    @media (max-width: 768px) { h1 { font-size: 2.5rem; } section { padding: 5rem 0; } .hero { min-height: 70vh; } }
   </style>
 </head>
-<body>${sections}
-</body>
+<body>${sectionsHtml}</body>
 </html>`;
   }, [data]);
 

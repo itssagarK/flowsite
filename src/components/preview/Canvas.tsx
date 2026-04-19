@@ -93,45 +93,47 @@ export function Canvas() {
   };
 
   const renderSections = () => {
+    const visible = data.settings.visibleSections || {};
+
     switch (websiteType) {
       case 'portfolio':
         return (
           <>
-            <Hero />
-            <Projects />
-            <Skills />
-            <Experience />
-            <About />
-            <Contact />
+            {visible.hero !== false && <Hero />}
+            {visible.projects !== false && <Projects />}
+            {visible.skills !== false && <Skills />}
+            {visible.experience !== false && <Experience />}
+            {visible.about !== false && <About />}
+            {visible.contact !== false && <Contact />}
           </>
         );
       case 'college':
         return (
           <>
-            <Hero />
-            <CollegeProjects />
-            <Education />
-            <About />
-            <Contact />
+            {visible.hero !== false && <Hero />}
+            {visible.projects !== false && <CollegeProjects />}
+            {visible.education !== false && <Education />}
+            {visible.about !== false && <About />}
+            {visible.contact !== false && <Contact />}
           </>
         );
       case 'business':
         return (
           <>
-            <BusinessHero />
-            <Stats />
-            <Services />
-            <Team />
-            <Contact />
+            {visible.hero !== false && <BusinessHero />}
+            {visible.stats !== false && <Stats />}
+            {visible.services !== false && <Services />}
+            {visible.team !== false && <Team />}
+            {visible.contact !== false && <Contact />}
           </>
         );
       case 'app':
         return (
           <>
-            <AppHero />
-            <Features />
-            <Pricing />
-            <Contact />
+            {visible.hero !== false && <AppHero />}
+            {visible.features !== false && <Features />}
+            {visible.pricing !== false && <Pricing />}
+            {visible.contact !== false && <Contact />}
           </>
         );
       default:
