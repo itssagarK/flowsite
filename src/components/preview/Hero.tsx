@@ -65,120 +65,131 @@ export function Hero() {
 
   // Modern (Default) Layout
   return (
-    <section id="hero" className="relative w-full flex flex-col justify-center px-8 md:px-20 py-20 md:py-32 min-h-[500px]">
-      {/* Background Effects */}
-      <div className="absolute inset-0 bg-gradient-to-br from-primary/10 via-transparent to-violet-500/10 pointer-events-none" />
-      <div className="absolute top-20 right-20 w-64 h-64 bg-primary/20 rounded-full blur-[100px] pointer-events-none" />
-      <div className="absolute bottom-10 left-10 w-48 h-48 bg-violet-500/15 rounded-full blur-[80px] pointer-events-none" />
+    <section id="hero" className="relative w-full flex flex-col justify-center px-8 md:px-20 py-20 md:py-32 min-h-[700px] overflow-hidden">
+      {/* Mesh Gradient Background */}
+      <div className="absolute inset-0 opacity-40 pointer-events-none">
+        <div className="absolute top-[-10%] left-[-10%] w-[50%] h-[50%] bg-primary/30 rounded-full blur-[120px] animate-pulse" />
+        <div className="absolute bottom-[-10%] right-[-10%] w-[50%] h-[50%] bg-violet-500/20 rounded-full blur-[120px] animate-pulse" style={{ animationDelay: '2s' }} />
+      </div>
 
-      <div className="container max-w-4xl mx-auto relative">
-        <motion.div
-          initial={{ opacity: 0, y: 20 }}
-          whileInView={{ opacity: 1, y: 0 }}
-          viewport={{ once: false, amount: 0.3 }}
-          transition={{ duration: 0.5, ease: 'easeOut' }}
-          className="space-y-6"
-        >
-          {/* Animated Name */}
-          <div className="overflow-hidden">
-            <AnimatePresence mode="popLayout">
-              {(name || 'Your Name').split('').map((char, i) => (
-                <motion.span
-                  key={`${i}-${char}`}
-                  initial={{ opacity: 0, y: 20, filter: 'blur(8px)' }}
-                  animate={{ opacity: 1, y: 0, filter: 'blur(0px)' }}
-                  transition={{
-                    duration: 0.4,
-                    delay: i * 0.02,
-                    ease: [0.25, 0.46, 0.45, 0.94],
-                  }}
-                  className="text-5xl md:text-7xl lg:text-8xl font-bold leading-none tracking-tight inline-block whitespace-pre text-foreground"
-                >
-                  {char === ' ' ? '\u00A0' : char}
-                </motion.span>
-              ))}
-            </AnimatePresence>
-          </div>
-
-          {/* Role */}
+      <div className="container max-w-6xl mx-auto relative">
+        <div className="grid lg:grid-cols-[1fr_auto] gap-12 items-center">
           <motion.div
-            layout
-            initial={{ opacity: 0, y: 5 }}
-            whileInView={{ opacity: 1, y: 0 }}
+            initial={{ opacity: 0, x: -30 }}
+            whileInView={{ opacity: 1, x: 0 }}
             viewport={{ once: false }}
-            transition={{ duration: 0.3 }}
+            transition={{ duration: 0.8, ease: [0.16, 1, 0.3, 1] }}
+            className="space-y-8"
           >
-            <h2 className="text-xl md:text-2xl font-medium text-primary flex items-center gap-2">
-              <Sparkles size={20} />
-              {role || 'Your Role Here'}
-            </h2>
-          </motion.div>
-
-          {/* Bio */}
-          <motion.div
-            layout
-            initial={{ opacity: 0 }}
-            whileInView={{ opacity: 1 }}
-            viewport={{ once: false }}
-            transition={{ duration: 0.5, delay: 0.2 }}
-            className="max-w-xl"
-          >
-            <p className="text-lg md:text-xl text-muted-foreground leading-relaxed">
-              {bio || 'Write a short description about yourself...'}
-            </p>
-          </motion.div>
-
-          {/* Contact Info */}
-          {(email || location) && (
+            {/* Status Pill */}
             <motion.div
-              initial={{ opacity: 0 }}
-              whileInView={{ opacity: 1 }}
-              viewport={{ once: false }}
-              transition={{ delay: 0.3 }}
-              className="flex flex-wrap items-center gap-4 text-sm text-muted-foreground"
+              initial={{ opacity: 0, scale: 0.9 }}
+              animate={{ opacity: 1, scale: 1 }}
+              className="inline-flex items-center gap-2 px-3 py-1 bg-primary/10 border border-primary/20 rounded-full"
             >
-              {email && (
-                <motion.a
-                  href={`mailto:${email}`}
-                  whileHover={{ scale: 1.02 }}
-                  className="flex items-center gap-2 px-4 py-2 bg-card border border-border rounded-full hover:border-primary/50 transition-colors"
-                >
-                  <Mail size={14} className="text-primary" />
-                  {email}
-                </motion.a>
-              )}
-              {location && (
-                <motion.div
-                  whileHover={{ scale: 1.02 }}
-                  className="flex items-center gap-2 px-4 py-2 bg-card border border-border rounded-full"
-                >
-                  <MapPin size={14} className="text-violet-500" />
-                  {location}
-                </motion.div>
-              )}
+              <div className="w-2 h-2 rounded-full bg-primary animate-ping" />
+              <span className="text-[11px] font-bold uppercase tracking-wider text-primary">Available for Projects</span>
             </motion.div>
-          )}
 
-          {/* CTA Button */}
-          <motion.div
-            initial={{ opacity: 0, y: 10 }}
-            whileInView={{ opacity: 1, y: 0 }}
-            viewport={{ once: false }}
-            transition={{ duration: 0.5, delay: 0.4 }}
-            className="flex items-center gap-4 pt-4"
-          >
-            <motion.a
-              href="#projects"
-              whileHover={{ scale: 1.03, boxShadow: '0 10px 30px rgba(99, 102, 241, 0.3)' }}
-              whileTap={{ scale: 0.98 }}
-              className="inline-flex items-center justify-center gap-2 rounded-xl text-[16px] font-semibold bg-gradient-to-r from-primary to-violet-500 text-white shadow-lg shadow-primary/25 h-[52px] px-8"
-            >
-              {hero?.ctaText || 'View My Work'}
-              <ArrowRight size={18} />
-            </motion.a>
+            {/* Main Headline */}
+            <div className="space-y-4">
+              <h2 className="text-xl md:text-2xl font-semibold text-muted-foreground flex items-center gap-2">
+                Hi, I'm <span className="text-foreground">{name || 'Your Name'}</span>
+                <motion.span
+                  animate={{ rotate: [0, 20, 0] }}
+                  transition={{ duration: 2, repeat: Infinity }}
+                >👋</motion.span>
+              </h2>
+              
+              <h1 className="text-6xl md:text-8xl font-black leading-[0.9] tracking-tighter text-foreground">
+                {role?.split(' ')[0] || 'Creative'}<br />
+                <span className="gradient-text">{role?.split(' ').slice(1).join(' ') || 'Developer'}</span>
+              </h1>
+            </div>
+
+            {/* Bio */}
+            <p className="text-lg md:text-xl text-muted-foreground leading-relaxed max-w-xl">
+              {bio || 'I build high-performance digital experiences that merge elegant design with technical excellence.'}
+            </p>
+
+            {/* CTA & Socials */}
+            <div className="flex flex-wrap items-center gap-6">
+              <motion.a
+                href="#projects"
+                whileHover={{ scale: 1.05, y: -2 }}
+                whileTap={{ scale: 0.98 }}
+                className="inline-flex items-center justify-center gap-2 rounded-2xl text-base font-bold bg-foreground text-background h-[56px] px-8 transition-shadow hover:shadow-xl hover:shadow-primary/20"
+              >
+                Explore Work
+                <ArrowRight size={20} />
+              </motion.a>
+              
+              <div className="flex items-center gap-4 text-muted-foreground">
+                {email && (
+                  <a href={`mailto:${email}`} className="hover:text-primary transition-colors">
+                    <Mail size={24} />
+                  </a>
+                )}
+                {location && (
+                  <div className="flex items-center gap-1.5 text-sm font-medium">
+                    <MapPin size={18} />
+                    {location}
+                  </div>
+                )}
+              </div>
+            </div>
           </motion.div>
-        </motion.div>
+
+          {/* Floating Visual Elements */}
+          <div className="hidden lg:block relative">
+            <motion.div
+              initial={{ opacity: 0, scale: 0.8, rotate: -5 }}
+              animate={{ opacity: 1, scale: 1, rotate: 0 }}
+              transition={{ duration: 1, ease: 'easeOut' }}
+              className="relative w-[400px] h-[400px]"
+            >
+              {/* Main Floating Card */}
+              <div className="absolute inset-0 bg-gradient-to-br from-card/80 to-card/40 backdrop-blur-3xl border border-white/10 rounded-[40px] shadow-2xl overflow-hidden group">
+                <div className="absolute inset-0 bg-gradient-to-br from-primary/10 to-transparent opacity-0 group-hover:opacity-100 transition-opacity duration-500" />
+                <div className="p-8 h-full flex flex-col justify-between relative z-10">
+                  <Sparkles size={40} className="text-primary" />
+                  <div>
+                    <div className="text-4xl font-bold mb-2">100%</div>
+                    <div className="text-sm text-muted-foreground uppercase tracking-widest font-bold">Performance Driven</div>
+                  </div>
+                </div>
+              </div>
+
+              {/* Decorative Pill */}
+              <motion.div
+                animate={{ y: [0, -20, 0] }}
+                transition={{ duration: 4, repeat: Infinity, ease: 'easeInOut' }}
+                className="absolute -top-6 -right-6 px-6 py-3 bg-violet-500 text-white rounded-2xl font-bold shadow-xl shadow-violet-500/30"
+              >
+                Innovation
+              </motion.div>
+
+              {/* Glass Tag */}
+              <motion.div
+                animate={{ y: [0, 20, 0] }}
+                transition={{ duration: 5, repeat: Infinity, ease: 'easeInOut' }}
+                className="absolute -bottom-4 -left-8 px-6 py-4 bg-white/10 backdrop-blur-md border border-white/20 rounded-2xl shadow-lg"
+              >
+                <div className="flex items-center gap-3">
+                  <div className="w-10 h-10 rounded-full bg-emerald-500/20 flex items-center justify-center">
+                    <div className="w-2 h-2 rounded-full bg-emerald-500" />
+                  </div>
+                  <div>
+                    <div className="text-xs text-muted-foreground font-bold uppercase">Uptime</div>
+                    <div className="text-sm font-bold">99.9% Ready</div>
+                  </div>
+                </div>
+              </motion.div>
+            </motion.div>
+          </div>
+        </div>
       </div>
     </section>
   );
 }
+

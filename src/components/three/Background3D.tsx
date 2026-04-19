@@ -1,157 +1,97 @@
 import React, { useRef, useMemo, useState, useEffect } from 'react';
-import { Canvas, useFrame } from '@react-three/fiber';
-import { Float, MeshDistortMaterial, Sphere, Torus, Icosahedron, Octahedron, MeshWobbleMaterial, OrbitControls } from '@react-three/drei';
+import { Canvas, useFrame, useThree } from '@react-three/fiber';
+import { Float, MeshDistortMaterial, Sphere, Torus, Icosahedron, Octahedron, MeshWobbleMaterial, Sparkles, PerspectiveCamera } from '@react-three/drei';
 import * as THREE from 'three';
 
-function AnimatedParticle({ position, color, delay = 0 }: { position: [number, number, number]; color: string; delay?: number }) {
-  const ref = useRef<THREE.Mesh>(null);
-  const [hovered, setHovered] = useState(false);
-
-  useFrame((state) => {
-    if (ref.current) {
-      ref.current.position.y = position[1] + Math.sin(state.clock.elapsedTime * 0.5 + delay) * 0.2;
-      ref.current.rotation.x = state.clock.elapsedTime * 0.2 + delay;
-      ref.current.rotation.y = state.clock.elapsedTime * 0.15;
-    }
-  });
-
-  return (
-    <mesh
-      ref={ref}
-      position={position}
-      onPointerOver={() => setHovered(true)}
-      onPointerOut={() => setHovered(false)}
-    >
-      <sphereGeometry args={[0.03, 16, 16]} />
-      <meshBasicMaterial color={color} transparent opacity={hovered ? 1 : 0.6} />
-    </mesh>
-  );
-}
-
-function FloatingGeometricShape({ position, color, geometry, speed = 1, delay = 0, scale = 1 }: {
-  position: [number, number, number];
+function ResponsiveFloatingShape({ color, geometry, speed = 1, delay = 0, scale = 1, offset = [0, 0, 0] }: {
   color: string;
-  geometry: 'sphere' | 'torus' | 'icosahedron' | 'octahedron' | 'box';
+  geometry: 'sphere' | 'torus' | 'icosahedron' | 'octahedron';
   speed?: number;
   delay?: number;
   scale?: number;
+  offset: [number, number, number];
 }) {
   const meshRef = useRef<THREE.Mesh>(null);
   const [hovered, setHovered] = useState(false);
+  const { viewport } = useThree();
 
   useFrame((state) => {
     if (meshRef.current) {
-      meshRef.current.rotation.x = Math.sin(state.clock.elapsedTime * speed + delay) * 0.4;
+      // Calculate responsive position based on viewport
+      const x = (offset[0] / 10) * viewport.width;
+      const y = (offset[1] / 10) * viewport.height;
+      
+      meshRef.current.position.x = THREE.MathUtils.lerp(meshRef.current.position.x, x, 0.1);
+      meshRef.current.position.y = THREE.MathUtils.lerp(meshRef.current.position.y, y + Math.sin(state.clock.elapsedTime * speed * 0.5 + delay) * 0.2, 0.1);
+      
+      meshRef.current.rotation.x = Math.sin(state.clock.elapsedTime * speed * 0.2 + delay) * 0.3;
       meshRef.current.rotation.y += 0.005 * speed;
-      meshRef.current.position.y = position[1] + Math.sin(state.clock.elapsedTime * speed * 0.5 + delay) * 0.15;
     }
   });
 
-  const GeometryComponent = {
-    sphere: Sphere,
-    torus: Torus,
-    icosahedron: Icosahedron,
-    octahedron: Octahedron,
-  }[geometry];
-
   return (
-    <Float speed={1.2 * speed} rotationIntensity={0.4} floatIntensity={0.8}>
+    <Float speed={2 * speed} rotationIntensity={0.5} floatIntensity={0.5}>
       <mesh
         ref={meshRef}
-        position={position}
-        scale={hovered ? scale * 1.15 : scale}
+        scale={hovered ? scale * 1.2 : scale}
         onPointerOver={() => setHovered(true)}
         onPointerOut={() => setHovered(false)}
       >
-        {geometry === 'sphere' && <Sphere args={[0.6, 32, 32]} />}
-        {geometry === 'torus' && <Torus args={[0.5, 0.2, 16, 48]} />}
-        {geometry === 'icosahedron' && <Icosahedron args={[0.6, 1]} />}
+        {geometry === 'sphere' && <Sphere args={[0.6, 64, 64]} />}
+        {geometry === 'torus' && <Torus args={[0.5, 0.15, 32, 64]} />}
+        {geometry === 'icosahedron' && <Icosahedron args={[0.6, 2]} />}
         {geometry === 'octahedron' && <Octahedron args={[0.6, 0]} />}
-        <MeshWobbleMaterial
+        <MeshDistortMaterial
           color={color}
-          factor={0.15}
-          speed={2}
-          roughness={0.2}
-          metalness={0.6}
+          speed={2 * speed}
+          distort={0.4}
+          radius={1}
+          roughness={0.1}
+          metalness={0.8}
           transparent
-          opacity={hovered ? 0.8 : 0.4}
+          opacity={hovered ? 0.9 : 0.5}
         />
       </mesh>
     </Float>
   );
 }
 
-function ParticleField({ count = 150 }: { count?: number }) {
-  const particlesRef = useRef<THREE.Points>(null);
-  const [positions, colors] = useMemo(() => {
-    const pos = new Float32Array(count * 3);
-    const col = new Float32Array(count * 3);
-    const colorPalette = ['#818CF8', '#A78BFA', '#F472B6', '#22D3EE', '#34D399'];
-
-    for (let i = 0; i < count; i++) {
-      pos[i * 3] = (Math.random() - 0.5) * 25;
-      pos[i * 3 + 1] = (Math.random() - 0.5) * 25;
-      pos[i * 3 + 2] = (Math.random() - 0.5) * 15 - 5;
-
-      const color = new THREE.Color(colorPalette[Math.floor(Math.random() * colorPalette.length)]);
-      col[i * 3] = color.r;
-      col[i * 3 + 1] = color.g;
-      col[i * 3 + 2] = color.b;
-    }
-    return [pos, col];
-  }, [count]);
-
+function MovingStars() {
+  const ref = useRef<THREE.Points>(null);
+  
   useFrame((state) => {
-    if (particlesRef.current) {
-      particlesRef.current.rotation.y = state.clock.elapsedTime * 0.02;
-      particlesRef.current.rotation.x = Math.sin(state.clock.elapsedTime * 0.01) * 0.1;
+    if (ref.current) {
+      ref.current.rotation.y = state.clock.elapsedTime * 0.05;
+      ref.current.rotation.z = state.clock.elapsedTime * 0.03;
     }
   });
 
   return (
-    <points ref={particlesRef}>
-      <bufferGeometry>
-        <bufferAttribute attach="attributes-position" count={positions.length / 3} array={positions} itemSize={3} />
-        <bufferAttribute attach="attributes-color" count={colors.length / 3} array={colors} itemSize={3} />
-      </bufferGeometry>
-      <pointsMaterial size={0.04} vertexColors transparent opacity={0.7} sizeAttenuation />
-    </points>
+    <Sparkles 
+      ref={ref}
+      count={200} 
+      scale={20} 
+      size={2} 
+      speed={0.5} 
+      opacity={0.3} 
+      color="#818CF8" 
+    />
   );
 }
 
-function FloatingRing({ position, color, speed = 1 }: { position: [number, number, number]; color: string; speed?: number }) {
-  const meshRef = useRef<THREE.Mesh>(null);
-
-  useFrame((state) => {
-    if (meshRef.current) {
-      meshRef.current.rotation.x = Math.PI / 2 + Math.sin(state.clock.elapsedTime * speed * 0.3) * 0.3;
-      meshRef.current.rotation.y += 0.002 * speed;
-    }
-  });
-
-  return (
-    <Float speed={0.8} rotationIntensity={0.2} floatIntensity={0.4}>
-      <mesh ref={meshRef} position={position}>
-        <torusGeometry args={[0.8, 0.02, 16, 64]} />
-        <meshBasicMaterial color={color} transparent opacity={0.3} />
-      </mesh>
-    </Float>
-  );
-}
-
-function GridFloor() {
+function FuturisticGrid() {
   const gridRef = useRef<THREE.Group>(null);
 
   useFrame((state) => {
     if (gridRef.current) {
-      gridRef.current.position.z = (state.clock.elapsedTime * 0.5) % 2;
+      gridRef.current.position.z = (state.clock.elapsedTime * 0.8) % 2;
     }
   });
 
   return (
-    <group ref={gridRef} position={[0, -4, 0]} rotation={[-Math.PI / 2, 0, 0]}>
-      <gridHelper args={[40, 40, '#6366F1', '#6366F1']}>
-        <meshBasicMaterial transparent opacity={0.08} />
+    <group ref={gridRef} position={[0, -5, 0]} rotation={[-Math.PI / 2, 0, 0]}>
+      <gridHelper args={[50, 50, '#6366F1', '#1E293B']}>
+        <meshBasicMaterial transparent opacity={0.1} />
       </gridHelper>
     </group>
   );
@@ -164,55 +104,45 @@ export function BackgroundScene({ variant = 'default' }: { variant?: 'default' |
       secondary: '#A78BFA',
       accent: '#F472B6',
       tertiary: '#22D3EE',
-      quaternary: '#34D399'
     },
     light: {
       primary: '#6366F1',
       secondary: '#8B5CF6',
       accent: '#EC4899',
       tertiary: '#06B6D4',
-      quaternary: '#10B981'
     },
     accent: {
       primary: '#F472B6',
       secondary: '#FB923C',
       accent: '#F43F5E',
       tertiary: '#FBBF24',
-      quaternary: '#A78BFA'
     }
   };
 
   const colors = colorSchemes[variant];
-  const shapes = [
-    { position: [-6, 2, -6] as [number, number, number], color: colors.primary, geometry: 'icosahedron' as const, speed: 0.7, delay: 0 },
-    { position: [5, -1, -5] as [number, number, number], color: colors.secondary, geometry: 'sphere' as const, speed: 1, delay: 1 },
-    { position: [-4, -2, -4] as [number, number, number], color: colors.accent, geometry: 'octahedron' as const, speed: 0.8, delay: 2 },
-    { position: [4, 2, -5] as [number, number, number], color: colors.tertiary, geometry: 'torus' as const, speed: 0.9, delay: 1.5 },
-    { position: [-5, 0, -7] as [number, number, number], color: colors.quaternary, geometry: 'sphere' as const, speed: 0.6, delay: 3 },
-    { position: [3, -2, -6] as [number, number, number], color: colors.primary, geometry: 'icosahedron' as const, speed: 1.1, delay: 0.5 },
-  ];
 
   return (
     <Canvas
-      camera={{ position: [0, 0, 10], fov: 55 }}
       gl={{ antialias: true, alpha: true, powerPreference: 'high-performance' }}
       style={{ position: 'absolute', top: 0, left: 0, width: '100%', height: '100%', pointerEvents: 'none' }}
     >
-      <ambientLight intensity={0.3} />
-      <directionalLight position={[10, 10, 5]} intensity={0.5} />
-      <pointLight position={[-10, -10, -5]} intensity={0.3} color="#818CF8" />
+      <PerspectiveCamera makeDefault position={[0, 0, 10]} fov={50} />
+      <ambientLight intensity={0.5} />
+      <pointLight position={[10, 10, 10]} intensity={1} color={colors.primary} />
+      <pointLight position={[-10, -10, -10]} intensity={0.5} color={colors.tertiary} />
+      <spotLight position={[0, 5, 0]} intensity={0.5} color={colors.accent} />
 
-      <ParticleField count={100} />
-      <GridFloor />
-      <FloatingRing position={[-3, 1, -3]} color={colors.primary} speed={0.5} />
-      <FloatingRing position={[4, -1, -4]} color={colors.accent} speed={0.7} />
+      <MovingStars />
+      <FuturisticGrid />
 
-      {shapes.map((shape, index) => (
-        <FloatingGeometricShape key={index} {...shape} />
-      ))}
+      <ResponsiveFloatingShape offset={[-4, 3, -2]} color={colors.primary} geometry="icosahedron" speed={0.8} delay={0} scale={1.2} />
+      <ResponsiveFloatingShape offset={[5, -2, -3]} color={colors.secondary} geometry="torus" speed={1.2} delay={1} scale={1} />
+      <ResponsiveFloatingShape offset={[-6, -3, -4]} color={colors.accent} geometry="octahedron" speed={0.9} delay={2} scale={0.8} />
+      <ResponsiveFloatingShape offset={[4, 4, -5]} color={colors.tertiary} geometry="sphere" speed={1} delay={1.5} scale={1.1} />
     </Canvas>
   );
 }
+
 
 export function MiniScene({ color = '#6366F1' }: { color?: string }) {
   return (

@@ -27,6 +27,7 @@ export interface CollegeProjectItem {
   github?: string;
   demo?: string;
   award?: string;
+  featured?: boolean;
 }
 
 // For business websites

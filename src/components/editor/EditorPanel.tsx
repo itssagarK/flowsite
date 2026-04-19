@@ -1,6 +1,6 @@
 import React, { useState, useRef } from 'react';
 import { useBuilder, WebsiteType } from '../../context/BuilderContext';
-import { User, FolderOpen, Palette, Scan, Image, Plus, Trash2, GraduationCap, Building2, AppWindow, Code, Layers, Sparkles, Mail, MapPin, Settings2, X, ChevronDown, GripVertical, Edit3 } from 'lucide-react';
+import { User, FolderOpen, Palette, Scan, Image, Plus, Trash2, GraduationCap, Building2, AppWindow, Code, Layers, Sparkles, Mail, MapPin, Settings2, X, ChevronDown, GripVertical, Edit3, Zap, Moon, Sun, Upload, Video, Type, Layout, Move, Sliders, Eye, Clock, Wand2, ChevronRight, Check, Briefcase } from 'lucide-react';
 import { motion, AnimatePresence } from 'motion/react';
 
 type EditorTab = 'profile' | 'content' | 'theme';
@@ -41,9 +41,34 @@ export function EditorPanel() {
   const [activeTab, setActiveTab] = useState<EditorTab>('profile');
   const [isScanning, setIsScanning] = useState(false);
   const [projectExpand, setProjectExpand] = useState<number | null>(null);
+  const [sectionExpand, setSectionExpand] = useState<string | null>('hero');
   const fileInputRef = useRef<HTMLInputElement>(null);
+  const avatarInputRef = useRef<HTMLInputElement>(null);
 
   const TypeIcon = typeIcons[websiteType];
+
+  // Avatar upload handler
+  const handleAvatarUpload = (e: React.ChangeEvent<HTMLInputElement>) => {
+    const file = e.target.files?.[0];
+    if (file) {
+      const imageUrl = URL.createObjectURL(file);
+      updateUser({ avatar: imageUrl });
+    }
+  };
+
+  // Animation speed options
+  const animationSpeeds = [
+    { id: 'slow', label: 'Slow', desc: 'Gentle transitions' },
+    { id: 'normal', label: 'Normal', desc: 'Balanced feel' },
+    { id: 'fast', label: 'Fast', desc: 'Snappy & responsive' },
+  ];
+
+  // Canvas layout options
+  const canvasLayouts = [
+    { id: 'full', label: 'Full Width', desc: 'Edge to edge content' },
+    { id: 'boxed', label: 'Boxed', desc: 'Contained layout' },
+    { id: 'centered', label: 'Centered', desc: 'Focused single column' },
+  ];
 
   const colorOptions = [
     { color: '#6366F1', name: 'Indigo' },
@@ -140,6 +165,38 @@ export function EditorPanel() {
               exit={{ opacity: 0, x: 20 }}
               className="space-y-4"
             >
+              {/* Avatar Upload */}
+              <div className="p-4 bg-muted/30 rounded-xl border border-border">
+                <div className="flex items-center gap-2 mb-3">
+                  <User size={14} className="text-blue-500" />
+                  <h4 className="font-semibold text-xs text-foreground">Profile Picture</h4>
+                </div>
+                <div className="flex items-center gap-4">
+                  <div className="relative">
+                    <div className="w-20 h-20 rounded-2xl bg-gradient-to-br from-primary/20 to-violet-500/20 border-2 border-dashed border-border overflow-hidden flex items-center justify-center">
+                      {data.user.avatar ? (
+                        <img src={data.user.avatar} alt="Avatar" className="w-full h-full object-cover" />
+                      ) : (
+                        <User size={32} className="text-muted-foreground" />
+                      )}
+                    </div>
+                    <input type="file" ref={avatarInputRef} accept="image/*" onChange={handleAvatarUpload} className="hidden" />
+                    <motion.button
+                      whileHover={{ scale: 1.1 }}
+                      whileTap={{ scale: 0.9 }}
+                      onClick={() => avatarInputRef.current?.click()}
+                      className="absolute -bottom-2 -right-2 w-8 h-8 bg-primary rounded-full flex items-center justify-center shadow-lg"
+                    >
+                      <Upload size={14} className="text-white" />
+                    </motion.button>
+                  </div>
+                  <div className="flex-1">
+                    <p className="text-xs text-muted-foreground mb-1">Upload your photo</p>
+                    <p className="text-[10px] text-muted-foreground">JPG, PNG up to 2MB</p>
+                  </div>
+                </div>
+              </div>
+
               {/* AI Scanner */}
               <div className="p-4 bg-gradient-to-r from-primary/10 to-violet-500/10 rounded-xl border border-primary/20">
                 <div className="flex items-center gap-2 mb-2">
@@ -181,18 +238,33 @@ export function EditorPanel() {
                 />
               </div>
 
+              {/* Role/Title */}
+              <div className="space-y-2">
+                <label className="text-xs font-medium flex items-center gap-1.5">
+                  <Briefcase size={12} className="text-violet-500" />
+                  {websiteType === 'business' || websiteType === 'app' ? 'Tagline' : 'Professional Title'}
+                </label>
+                <input
+                  type="text"
+                  value={data.user.role}
+                  onChange={(e) => updateUser({ role: e.target.value })}
+                  className="w-full rounded-xl border border-border bg-background px-4 py-3 text-sm focus:outline-none focus:ring-2 focus:ring-primary/30 focus:border-primary transition-all"
+                  placeholder={websiteType === 'business' ? 'Your tagline' : 'Full Stack Developer'}
+                />
+              </div>
+
               {/* Tagline */}
               <div className="space-y-2">
                 <label className="text-xs font-medium flex items-center gap-1.5">
                   <Sparkles size={12} className="text-amber-500" />
-                  Tagline
+                  Headline
                 </label>
                 <input
                   type="text"
                   value={data.user.tagline || ''}
                   onChange={(e) => updateUser({ tagline: e.target.value })}
                   className="w-full rounded-xl border border-border bg-background px-4 py-3 text-sm focus:outline-none focus:ring-2 focus:ring-primary/30"
-                  placeholder="Your tagline (optional)"
+                  placeholder="A catchy headline (optional)"
                 />
               </div>
 
@@ -253,6 +325,60 @@ export function EditorPanel() {
               exit={{ opacity: 0, x: 20 }}
               className="space-y-5"
             >
+              {/* Website Sections Toggle */}
+              <div className="p-4 bg-muted/30 rounded-xl border border-border">
+                <div className="flex items-center gap-2 mb-3">
+                  <Layers size={14} className="text-blue-500" />
+                  <h4 className="font-semibold text-xs text-foreground uppercase tracking-wider">Website Sections</h4>
+                </div>
+                <p className="text-xs text-muted-foreground mb-3">Toggle sections to show/hide on your site</p>
+                <div className="space-y-2">
+                  {[
+                    { id: 'hero', label: 'Hero Section', icon: Layout },
+                    { id: 'projects', label: 'Projects', icon: FolderOpen },
+                    { id: 'skills', label: 'Skills', icon: Sparkles },
+                    { id: 'experience', label: 'Experience', icon: Briefcase },
+                    { id: 'services', label: 'Services', icon: Building2 },
+                    { id: 'contact', label: 'Contact', icon: Mail },
+                  ].map((section) => {
+                    const Icon = section.icon;
+                    const isEnabled = (data.settings as any).visibleSections?.[section.id] !== false;
+                    return (
+                      <motion.div
+                        key={section.id}
+                        whileTap={{ scale: 0.98 }}
+                        onClick={() => {
+                          const currentSections = (data.settings as any).visibleSections || {};
+                          updateData({
+                            settings: {
+                              ...data.settings,
+                              visibleSections: {
+                                ...currentSections,
+                                [section.id]: !isEnabled
+                              }
+                            }
+                          });
+                        }}
+                        className={`flex items-center justify-between p-3 rounded-lg cursor-pointer transition-all ${
+                          isEnabled ? 'bg-emerald-500/10 border border-emerald-500/30' : 'bg-muted/40 border border-border'
+                        }`}
+                      >
+                        <div className="flex items-center gap-2">
+                          <Icon size={14} className={isEnabled ? 'text-emerald-500' : 'text-muted-foreground'} />
+                          <span className={`text-sm ${isEnabled ? 'text-foreground' : 'text-muted-foreground'}`}>{section.label}</span>
+                        </div>
+                        <div className={`w-10 h-5 rounded-full relative transition-all ${isEnabled ? 'bg-emerald-500' : 'bg-muted'}`}>
+                          <motion.div
+                            animate={{ x: isEnabled ? 20 : 2 }}
+                            className="absolute top-1 w-3 h-3 rounded-full bg-white"
+                          />
+                        </div>
+                      </motion.div>
+                    );
+                  })}
+                </div>
+              </div>
+
               {/* Projects (Portfolio/College) */}
               {(websiteType === 'portfolio' || websiteType === 'college') && (
                 <div>
@@ -435,6 +561,42 @@ export function EditorPanel() {
               exit={{ opacity: 0, x: 20 }}
               className="space-y-6"
             >
+              {/* Theme Mode */}
+              <div>
+                <h4 className="font-semibold text-xs text-foreground uppercase tracking-wider mb-3 flex items-center gap-2">
+                  <Sun size={14} className="text-amber-500" />
+                  Appearance
+                </h4>
+                <div className="grid grid-cols-2 gap-2">
+                  <motion.button
+                    whileHover={{ scale: 1.02 }}
+                    whileTap={{ scale: 0.98 }}
+                    onClick={() => updateData({ settings: { ...data.settings, theme: 'light' } })}
+                    className={`p-4 rounded-xl text-center transition-all ${
+                      data.settings.theme === 'light'
+                        ? 'bg-amber-500/20 border-2 border-amber-500'
+                        : 'bg-muted/40 border border-border hover:border-amber-500/50'
+                    }`}
+                  >
+                    <Sun size={24} className={`mx-auto mb-2 ${data.settings.theme === 'light' ? 'text-amber-500' : 'text-muted-foreground'}`} />
+                    <div className="font-semibold text-sm text-foreground">Light</div>
+                  </motion.button>
+                  <motion.button
+                    whileHover={{ scale: 1.02 }}
+                    whileTap={{ scale: 0.98 }}
+                    onClick={() => updateData({ settings: { ...data.settings, theme: 'dark' } })}
+                    className={`p-4 rounded-xl text-center transition-all ${
+                      data.settings.theme === 'dark'
+                        ? 'bg-violet-500/20 border-2 border-violet-500'
+                        : 'bg-muted/40 border border-border hover:border-violet-500/50'
+                    }`}
+                  >
+                    <Moon size={24} className={`mx-auto mb-2 ${data.settings.theme === 'dark' ? 'text-violet-500' : 'text-muted-foreground'}`} />
+                    <div className="font-semibold text-sm text-foreground">Dark</div>
+                  </motion.button>
+                </div>
+              </div>
+
               {/* Accent Colors */}
               <div>
                 <h4 className="font-semibold text-xs text-foreground uppercase tracking-wider mb-3 flex items-center gap-2">
@@ -458,11 +620,67 @@ export function EditorPanel() {
                 </div>
               </div>
 
+              {/* Animation Speed */}
+              <div>
+                <h4 className="font-semibold text-xs text-foreground uppercase tracking-wider mb-3 flex items-center gap-2">
+                  <Zap size={14} className="text-emerald-500" />
+                  Animation Speed
+                </h4>
+                <div className="grid grid-cols-3 gap-2">
+                  {animationSpeeds.map(({ id, label }) => (
+                    <motion.button
+                      key={id}
+                      whileHover={{ scale: 1.03 }}
+                      whileTap={{ scale: 0.97 }}
+                      onClick={() => updateData({ settings: { ...data.settings, animationSpeed: id as any } })}
+                      className={`p-3 rounded-xl text-center transition-all ${
+                        (data.settings as any).animationSpeed === id || !(data.settings as any).animationSpeed
+                          ? 'bg-emerald-500/20 border-2 border-emerald-500'
+                          : 'bg-muted/40 border border-border hover:border-emerald-500/50'
+                      }`}
+                    >
+                      <div className={`font-semibold text-xs ${(data.settings as any).animationSpeed === id ? 'text-emerald-600' : 'text-foreground'}`}>{label}</div>
+                    </motion.button>
+                  ))}
+                </div>
+              </div>
+
+              {/* Canvas Layout */}
+              <div>
+                <h4 className="font-semibold text-xs text-foreground uppercase tracking-wider mb-3 flex items-center gap-2">
+                  <Layout size={14} className="text-blue-500" />
+                  Canvas Layout
+                </h4>
+                <div className="space-y-2">
+                  {canvasLayouts.map(({ id, label, desc }) => (
+                    <motion.button
+                      key={id}
+                      whileHover={{ scale: 1.01 }}
+                      whileTap={{ scale: 0.99 }}
+                      onClick={() => updateData({ settings: { ...data.settings, canvasLayout: id as any } })}
+                      className={`w-full p-3 rounded-xl text-left transition-all flex items-center justify-between ${
+                        (data.settings as any).canvasLayout === id
+                          ? 'bg-blue-500/20 border-2 border-blue-500'
+                          : 'bg-muted/40 border border-border hover:border-blue-500/50'
+                      }`}
+                    >
+                      <div>
+                        <div className="font-semibold text-sm text-foreground">{label}</div>
+                        <div className="text-xs text-muted-foreground">{desc}</div>
+                      </div>
+                      {(data.settings as any).canvasLayout === id && (
+                        <Check size={16} className="text-blue-500" />
+                      )}
+                    </motion.button>
+                  ))}
+                </div>
+              </div>
+
               {/* Layout Styles */}
               <div>
                 <h4 className="font-semibold text-xs text-foreground uppercase tracking-wider mb-3 flex items-center gap-2">
                   <Layers size={14} className="text-violet-500" />
-                  Layout Style
+                  Section Style
                 </h4>
                 <div className="space-y-2">
                   {layoutOptions.map(({ id, label, desc, icon: Icon }) => (
