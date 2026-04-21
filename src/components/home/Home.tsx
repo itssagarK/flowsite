@@ -12,17 +12,17 @@ import {
 
 function SectionHeading({ title, subtitle, centered = true }: { title: string; subtitle?: string; centered?: boolean }) {
   return (
-    <div className={`space-y-4 mb-16 ${centered ? 'text-center' : 'text-left'}`}>
+    <div className={`space-y-6 mb-20 ${centered ? 'text-center' : 'text-left'}`}>
       <motion.div
-        initial={{ opacity: 0, y: 20 }}
-        whileInView={{ opacity: 1, y: 0 }}
+        initial={{ opacity: 0, scale: 0.8 }}
+        whileInView={{ opacity: 1, scale: 1 }}
         viewport={{ once: true }}
-        className="inline-flex items-center gap-2 px-3 py-1 bg-primary/10 border border-primary/20 rounded-full"
+        className="inline-flex items-center gap-3 px-4 py-1.5 bg-primary/10 border border-primary/20 rounded-full"
       >
-        <div className="w-1.5 h-1.5 rounded-full bg-primary animate-pulse" />
-        <span className="text-[10px] font-black uppercase tracking-widest text-primary">{subtitle || 'Feature'}</span>
+        <div className="w-2 h-2 rounded-full bg-primary animate-pulse shadow-[0_0_10px_rgba(124,58,237,0.8)]" />
+        <span className="text-[11px] font-black uppercase tracking-[0.2em] text-primary">{subtitle || 'Feature'}</span>
       </motion.div>
-      <h2 className="text-4xl md:text-6xl font-black tracking-tighter text-foreground">{title}</h2>
+      <h2 className="text-5xl md:text-7xl font-black tracking-tighter text-white leading-[0.9] text-glow">{title}</h2>
     </div>
   );
 }
@@ -137,50 +137,51 @@ export function Home({ onNavigate }: { onNavigate: () => void }) {
         </nav>
 
         {/* Hero Section */}
-        <section className="relative pt-56 pb-32 px-6 overflow-hidden min-h-screen flex flex-col items-center">
-          <div className="max-w-7xl mx-auto text-center space-y-12">
+        <section className="relative pt-56 pb-32 px-6 overflow-hidden min-h-screen flex flex-col items-center justify-center">
+          <div className="max-w-7xl mx-auto text-center space-y-16">
             <motion.div
               initial={{ opacity: 0, scale: 0.9 }}
               animate={{ opacity: 1, scale: 1 }}
-              className="inline-flex items-center gap-3 px-4 py-2 glass rounded-full border-white/10"
+              className="inline-flex items-center gap-3 px-6 py-2 glass-premium rounded-full border-white/10"
             >
-              <Users size={16} className="text-primary" />
-              <span className="text-[11px] font-black uppercase tracking-[0.2em] text-muted-foreground">Used by 10K+ visionaries</span>
+              <Users size={18} className="text-primary" />
+              <span className="text-[12px] font-black uppercase tracking-[0.3em] text-white">Join 10K+ Digital Visionaries</span>
             </motion.div>
 
-            <motion.h1
-              initial={{ opacity: 0, y: 30 }}
-              animate={{ opacity: 1, y: 0 }}
-              transition={{ duration: 0.8 }}
-              className="text-huge"
-            >
-              BUILD YOUR <br />
-              <span className="gradient-text">DIGITAL WORLD.</span>
-            </motion.h1>
+            <div className="space-y-8">
+              <motion.h1
+                initial={{ opacity: 0, y: 50 }}
+                animate={{ opacity: 1, y: 0 }}
+                transition={{ duration: 1, ease: [0.16, 1, 0.3, 1] }}
+                className="heading-huge text-glow"
+              >
+                BUILD YOUR <br />
+                <span className="gradient-text">DIGITAL WORLD.</span>
+              </motion.h1>
 
-            <motion.p
-              initial={{ opacity: 0, y: 20 }}
-              animate={{ opacity: 1, y: 0 }}
-              transition={{ delay: 0.2 }}
-              className="text-xl md:text-2xl text-muted-foreground max-w-3xl mx-auto leading-relaxed"
-            >
-              The premium website builder for creators. Combine 3D interactive canvases, 
-              AI intelligence, and high-performance export in seconds.
-            </motion.p>
+              <motion.p
+                initial={{ opacity: 0, y: 20 }}
+                animate={{ opacity: 1, y: 0 }}
+                transition={{ delay: 0.2, duration: 0.8 }}
+                className="subheading mx-auto text-white/90 font-medium"
+              >
+                The premium website builder for creators. Combine high-fidelity 3D interactive canvases, 
+                AI intelligence, and production-ready export in seconds.
+              </motion.p>
+            </div>
 
             <motion.div
-              initial={{ opacity: 0, y: 20 }}
+              initial={{ opacity: 0, y: 30 }}
               animate={{ opacity: 1, y: 0 }}
-              transition={{ delay: 0.4 }}
-              className="flex flex-col sm:flex-row items-center justify-center gap-6 pt-4"
+              transition={{ delay: 0.4, duration: 0.8 }}
+              className="flex flex-col sm:flex-row items-center justify-center gap-8 pt-6"
             >
-              <button onClick={handleBlank} className="group relative w-full sm:w-auto px-10 py-5 bg-primary rounded-2xl font-black text-lg shadow-glow hover:shadow-primary/50 hover:-translate-y-1 transition-all flex items-center justify-center gap-3 overflow-hidden">
-                <span className="relative z-10">Start Free</span>
-                <ArrowRight size={20} className="group-hover:translate-x-1 transition-transform" />
-                <div className="absolute inset-0 bg-white/20 translate-x-[-100%] group-hover:translate-x-[100%] transition-transform duration-700" />
+              <button onClick={handleBlank} className="btn-premium group relative w-full sm:w-auto px-12 py-6 bg-primary rounded-2xl font-black text-xl shadow-[0_20px_50px_rgba(124,58,237,0.4)] hover:shadow-[0_20px_60px_rgba(124,58,237,0.6)] hover:-translate-y-2 transition-all flex items-center justify-center gap-4 text-white">
+                <span>Start Free</span>
+                <ArrowRight size={24} className="group-hover:translate-x-2 transition-transform" />
               </button>
-              <button className="w-full sm:w-auto px-10 py-5 glass rounded-2xl font-black text-lg hover:bg-white/5 transition-all flex items-center justify-center gap-2">
-                <Play size={20} className="fill-white" />
+              <button className="w-full sm:w-auto px-12 py-6 glass-premium rounded-2xl font-black text-xl hover:bg-white/10 transition-all flex items-center justify-center gap-3 text-white">
+                <Play size={24} className="fill-white" />
                 Watch Demo
               </button>
             </motion.div>
@@ -188,28 +189,28 @@ export function Home({ onNavigate }: { onNavigate: () => void }) {
             <motion.div
               initial={{ opacity: 0 }}
               animate={{ opacity: 1 }}
-              transition={{ delay: 1, duration: 1.5 }}
-              className="absolute bottom-12 left-1/2 -translate-x-1/2 flex flex-col items-center gap-2 text-muted-foreground"
+              transition={{ delay: 1.2, duration: 1.5 }}
+              className="absolute bottom-12 left-1/2 -translate-x-1/2 flex flex-col items-center gap-4 text-white/40"
             >
-              <span className="text-[10px] font-bold uppercase tracking-widest">Scroll to Explore</span>
-              <div className="w-[1px] h-12 bg-gradient-to-b from-primary to-transparent" />
+              <span className="text-[10px] font-black uppercase tracking-[0.5em]">Scroll to Explore</span>
+              <div className="w-[1px] h-16 bg-gradient-to-b from-primary via-primary/50 to-transparent" />
             </motion.div>
           </div>
         </section>
 
         {/* Template Showcase */}
-        <section id="templates" className="py-32 px-6">
+        <section id="templates" className="py-44 px-6 relative">
           <div className="max-w-7xl mx-auto">
-            <div className="flex flex-col md:flex-row items-end justify-between mb-20 gap-8">
-              <SectionHeading title="CHOOSE YOUR BASE." subtitle="Templates" centered={false} />
+            <div className="flex flex-col lg:flex-row items-end justify-between mb-24 gap-12">
+              <SectionHeading title="CHOOSE YOUR BASE." subtitle="Foundations" centered={false} />
               
-              <div className="flex gap-2 p-1.5 bg-white/5 rounded-2xl border border-white/5 overflow-x-auto no-scrollbar">
+              <div className="flex gap-3 p-2 bg-white/5 rounded-3xl border border-white/10 backdrop-blur-xl overflow-x-auto no-scrollbar">
                 {websiteTypes.map((type) => (
                   <button
                     key={type.id}
                     onClick={() => handleSelectType(type.id)}
-                    className={`px-6 py-3 rounded-xl text-xs font-black uppercase tracking-widest transition-all whitespace-nowrap ${
-                      activeWebsiteType === type.id ? 'bg-primary text-white shadow-glow' : 'hover:bg-white/5 text-muted-foreground'
+                    className={`px-8 py-4 rounded-2xl text-[11px] font-black uppercase tracking-[0.2em] transition-all whitespace-nowrap ${
+                      activeWebsiteType === type.id ? 'bg-primary text-white shadow-[0_10px_20px_rgba(124,58,237,0.3)]' : 'hover:bg-white/5 text-white/50'
                     }`}
                   >
                     {type.title}
@@ -388,40 +389,51 @@ export function Home({ onNavigate }: { onNavigate: () => void }) {
         </section>
 
         {/* Pricing Section */}
-        <section id="pricing" className="py-32 px-6 bg-primary/5">
+        <section id="pricing" className="py-44 px-6 relative overflow-hidden">
+          <div className="absolute top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2 w-[1200px] h-[1200px] bg-primary/10 rounded-full blur-[160px] -z-10" />
+          
           <div className="max-w-7xl mx-auto">
-            <SectionHeading title="TRANSPARENT PRICING." subtitle="Investment" />
-            <div className="grid grid-cols-1 md:grid-cols-3 gap-8">
-              {[
-                { name: 'Starter', price: '$0', desc: 'Perfect for exploring', features: ['3 Templates', 'Standard Export', 'Community Support'] },
-                { name: 'Pro', price: '$19', desc: 'Most popular choice', features: ['All Templates', 'Premium Assets', 'Priority AI access', '3D Components'], featured: true },
-                { name: 'Studio', price: '$49', desc: 'For power users', features: ['White Label', 'Custom Domains', 'Direct Dev Support', 'API Access'] },
-              ].map((plan, i) => (
-                <div key={i} className={`p-12 rounded-[3rem] flex flex-col justify-between transition-all ${
-                  plan.featured ? 'bg-primary text-white shadow-glow scale-105 z-10' : 'glass-premium'
-                }`}>
-                  <div className="space-y-6">
-                    <div className="space-y-2">
-                      <h3 className="text-2xl font-black uppercase">{plan.name}</h3>
-                      <p className={plan.featured ? 'text-white/70' : 'text-muted-foreground'}>{plan.desc}</p>
-                    </div>
-                    <div className="text-6xl font-black">{plan.price}</div>
-                    <ul className="space-y-4 pt-6">
-                      {plan.features.map(f => (
-                        <li key={f} className="flex items-center gap-3 text-sm font-bold">
-                          <Check size={16} className={plan.featured ? 'text-white' : 'text-primary'} />
-                          {f}
-                        </li>
-                      ))}
-                    </ul>
+            <SectionHeading title="FREE FOR EVERYONE." subtitle="Access" />
+            
+            <div className="max-w-4xl mx-auto">
+              <motion.div 
+                whileHover={{ y: -10 }}
+                className="glass-premium p-16 md:p-24 rounded-[4rem] text-center border-primary/20 shadow-[0_40px_100px_rgba(0,0,0,0.6)] relative overflow-hidden group"
+              >
+                <div className="absolute top-0 right-0 w-64 h-64 bg-primary/20 blur-[100px] -mr-32 -mt-32 group-hover:bg-primary/40 transition-colors" />
+                
+                <div className="space-y-12 relative z-10">
+                  <div className="space-y-4">
+                    <h3 className="text-4xl md:text-6xl font-black text-white tracking-tighter">ZERO COST. <br /><span className="text-primary">FOREVER.</span></h3>
+                    <p className="text-xl text-white/60 font-medium">We believe high-end design should be accessible to all visionaries.</p>
                   </div>
-                  <button className={`w-full py-4 rounded-2xl font-black text-sm mt-12 transition-all ${
-                    plan.featured ? 'bg-white text-black hover:scale-105' : 'bg-white/5 hover:bg-white/10'
-                  }`}>
-                    Choose {plan.name}
-                  </button>
+
+                  <div className="grid grid-cols-1 md:grid-cols-2 gap-8 text-left py-12 border-y border-white/10">
+                    {[
+                      'Unlimited Premium Templates',
+                      'Full 3D Interactive Canvas',
+                      'AI Intelligence Integration',
+                      'Production-Ready Code Export',
+                      'Zero Dependency Output',
+                      'Community & Dev Support'
+                    ].map(feature => (
+                      <div key={feature} className="flex items-center gap-4">
+                        <div className="w-6 h-6 rounded-full bg-primary/20 flex items-center justify-center border border-primary/40">
+                          <Check size={14} className="text-primary" />
+                        </div>
+                        <span className="text-lg font-bold text-white/90">{feature}</span>
+                      </div>
+                    ))}
+                  </div>
+
+                  <div className="pt-8">
+                    <button onClick={handleBlank} className="btn-premium px-16 py-8 bg-white text-black rounded-3xl font-black text-2xl hover:scale-105 transition-all shadow-xl">
+                      Start Building Now
+                    </button>
+                    <p className="text-sm text-white/40 mt-6 font-black uppercase tracking-[0.2em]">No Credit Card Required • Instant Access</p>
+                  </div>
                 </div>
-              ))}
+              </motion.div>
             </div>
           </div>
         </section>

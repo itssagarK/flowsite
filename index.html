@@ -19,37 +19,36 @@
     
     <style>
       /* Critical CSS for initial load */
-      html { background: #0F172A; }
-      body { margin: 0; font-family: 'Poppins', sans-serif; color: white; }
+      html { background: #020617; }
+      body { margin: 0; font-family: 'Poppins', sans-serif; color: white; overflow: hidden; }
     </style>
   </head>
   <body>
-    <!-- FlowSite Loader -->
+    <!-- FlowSite Cinematic Loader -->
     <div class="inline-loader" id="loader">
-      <div class="inline-loader__content">
-        <div class="inline-loader__title">
-          <!-- FlowSite Logo placeholder -->
-          <div style="width: 20vw; height: 10vw; background: rgba(255,255,255,0.05); border-radius: 1vw; display: flex; items-center justify-center; font-size: 2vw; font-weight: 900; color: #7C3AED;">
-            FS
+      <div class="loader-bg"></div>
+      <div class="loader-grid"></div>
+      <div class="loader-scanline"></div>
+      
+      <div class="loader-content">
+        <div class="loader-header">
+          <div class="loader-logo">FLOW<span>SITE</span></div>
+          <div class="loader-version">v2.0.4-STABLE / NEURAL ENGINE ACTIVE</div>
+        </div>
+
+        <div class="loader-terminal" id="loader-terminal">
+          <!-- Lines injected by script -->
+        </div>
+
+        <div class="loader-footer">
+          <div class="loader-status-text">
+            <span id="loader-msg">INITIALIZING SYSTEM...</span>
+            <span id="loader-pct-text">0%</span>
+          </div>
+          <div class="loader-bar-wrap">
+            <div class="loader-bar-fill" id="loader-progress"></div>
           </div>
         </div>
-        <div class="inline-loader__pct">
-          [ BUILDING ... <span id="inline-loader-pct">0</span>% ]
-        </div>
-        <div class="inline-loader__bar">
-          <div class="inline-loader__progress" id="loader-progress"></div>
-        </div>
-      </div>
-    </div>
-
-    <!-- Cookie Banner -->
-    <div class="cookie-banner" id="cookie-banner">
-      <div class="cookie-banner__text">
-        We use cookies to enhance your experience and analyze site traffic. Your privacy matters.
-      </div>
-      <div class="cookie-banner__actions">
-        <button class="cookie-banner__btn cookie-banner__btn--accept" onclick="document.getElementById('cookie-banner').style.display='none'">Accept</button>
-        <button class="cookie-banner__btn cookie-banner__btn--decline" onclick="document.getElementById('cookie-banner').style.display='none'">Decline</button>
       </div>
     </div>
 
@@ -57,26 +56,86 @@
     <script type="module" src="/src/main.tsx"></script>
 
     <script>
-      // Simple loader simulation
       (function() {
         const progress = document.getElementById('loader-progress');
-        const pct = document.getElementById('inline-loader-pct');
+        const pctText = document.getElementById('loader-pct-text');
+        const msg = document.getElementById('loader-msg');
+        const terminal = document.getElementById('loader-terminal');
         const loader = document.getElementById('loader');
+        
+        const logs = [
+          "CONNECTING TO FLOWSITE NEURAL NETWORK...",
+          "HANDSHAKE: [SUCCESS]",
+          "USER AUTHORIZED: [GUEST_SESSION_ID_042]",
+          "INITIALIZING 3D RENDER CANVAS...",
+          "LOADING GEOMETRY BUFFERS...",
+          "SYNTHESIZING DESIGN PATTERNS...",
+          "BOOTING GEMINI AI ADAPTER...",
+          "MODEL: [GEMINI-1.5-PRO-VISION]",
+          "OPTIMIZING WEBGL FRAGMENT SHADERS...",
+          "PRE-RENDERING TEMPLATE MANIFESTS...",
+          "ESTABLISHING SECURE EXPORT TUNNEL...",
+          "SYNCING LOCAL STORAGE DATA...",
+          "FINALIZING ASSET COMPRESSION...",
+          "SYSTEM READY. DEPLOYING WORKSPACE."
+        ];
+
+        const statusMsgs = [
+          "AUTHENTICATING...",
+          "BOOTING CANVAS...",
+          "INJECTING AI...",
+          "SYNTHESIZING DESIGN...",
+          "PREPARING SPACE..."
+        ];
+
+        let logIndex = 0;
         let count = 0;
         
+        function addTerminalLine(text) {
+          const line = document.createElement('div');
+          line.className = 'terminal-line';
+          line.innerHTML = `<span>[${new Date().toLocaleTimeString()}]</span> <span>${text}</span>`;
+          terminal.appendChild(line);
+          terminal.scrollTop = terminal.scrollHeight;
+          if (terminal.childNodes.length > 6) {
+            terminal.removeChild(terminal.firstChild);
+          }
+        }
+
         const interval = setInterval(() => {
-          count += Math.random() * 15;
+          count += Math.random() * 4 + 1;
+          
+          // Randomly add logs
+          if (Math.random() > 0.7 && logIndex < logs.length) {
+            addTerminalLine(logs[logIndex]);
+            logIndex++;
+          }
+
+          // Update status message
+          const msgIndex = Math.floor((count / 101) * statusMsgs.length);
+          if (statusMsgs[msgIndex]) msg.innerText = statusMsgs[msgIndex];
+
           if (count >= 100) {
             count = 100;
             clearInterval(interval);
+            addTerminalLine("WORKSPACE INITIALIZED.");
             setTimeout(() => {
               loader.style.opacity = '0';
-              loader.style.visibility = 'hidden';
-            }, 500);
+              loader.style.transform = 'scale(1.1)';
+              loader.style.filter = 'blur(20px)';
+              setTimeout(() => {
+                loader.style.display = 'none';
+                document.body.style.overflow = 'auto';
+              }, 500);
+            }, 800);
           }
+          
           progress.style.width = count + '%';
-          pct.innerText = Math.floor(count);
-        }, 100);
+          pctText.innerText = Math.floor(count) + '%';
+        }, 120);
+
+        // Initial log
+        addTerminalLine("FLOWSITE KERNEL LOADED.");
       })();
     </script>
   </body>
