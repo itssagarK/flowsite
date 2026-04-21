@@ -588,18 +588,18 @@ export function BuilderProvider({ children }: { children: React.ReactNode }) {
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
   <title>${user.name || 'My Website'} | FlowSite</title>
-  <link href="https://fonts.googleapis.com/css2?family=Outfit:wght@300;400;500;600;700;800&display=swap" rel="stylesheet">
+  <link href="https://fonts.googleapis.com/css2?family=Poppins:wght@300;400;500;600;700;800&family=Inter:wght@300;400;500;600&display=swap" rel="stylesheet">
   <style>
     :root {
       --primary: ${settings.accentColor};
-      --bg: ${isDark ? '#030712' : '#FAFBFC'};
-      --fg: ${isDark ? '#F8FAFC' : '#0F172A'};
-      --card-bg: ${isDark ? '#111827' : '#FFFFFF'};
+      --bg: ${isDark ? '#0F172A' : '#FAFBFC'};
+      --fg: ${isDark ? '#FFFFFF' : '#0F172A'};
+      --card-bg: ${isDark ? '#1E293B' : '#FFFFFF'};
       --border: ${isDark ? 'rgba(255,255,255,0.1)' : 'rgba(0,0,0,0.1)'};
       --muted: ${isDark ? '#94A3B8' : '#64748B'};
     }
     * { margin: 0; padding: 0; box-sizing: border-box; }
-    body { font-family: 'Outfit', sans-serif; background: var(--bg); color: var(--fg); line-height: 1.6; }
+    body { font-family: 'Poppins', 'Inter', sans-serif; background: var(--bg); color: var(--fg); line-height: 1.6; }
     .container { max-width: 1100px; margin: 0 auto; padding: 0 2rem; }
     section { padding: 8rem 0; border-bottom: 1px solid var(--border); }
     h1 { font-size: 4rem; font-weight: 800; margin-bottom: 1rem; }
