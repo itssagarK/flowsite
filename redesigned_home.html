@@ -1,0 +1,793 @@
+<!DOCTYPE html>
+<html lang="en" class="scroll-smooth">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>FlowSite | Build Your Digital World</title>
+    <meta name="description" content="Premium website builder for creators. Combine 3D canvases and AI intelligence.">
+    <!-- Fonts -->
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500&family=Poppins:wght@600;900&display=swap" rel="stylesheet">
+    
+    <style>
+        :root {
+            /* Colors */
+            --primary: #6366F1;
+            --primary-dark: #4F46E5;
+            --secondary: #8B5CF6;
+            --accent: #06B6D4;
+            --background: #0F172A;
+            --card-bg: #111827;
+            --footer-bg: #0a0e27;
+            --text-primary: #F8FAFC;
+            --text-secondary: #A0AEC0;
+            --border: rgba(139, 92, 246, 0.2);
+            --glass-border: rgba(255, 255, 255, 0.1);
+            
+            /* Spacing (8px unit) */
+            --sp-1: 8px; --sp-2: 16px; --sp-3: 24px; --sp-4: 32px;
+            --sp-6: 48px; --sp-8: 64px; --sp-10: 80px; --sp-12: 100px; --sp-15: 120px;
+        }
+
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+            -webkit-font-smoothing: antialiased;
+        }
+
+        body {
+            font-family: 'Inter', sans-serif;
+            background-color: var(--background);
+            color: var(--text-primary);
+            line-height: 1.6;
+            overflow-x: hidden;
+        }
+
+        h1, h2, h3, h4 {
+            font-family: 'Poppins', sans-serif;
+            font-weight: 900;
+            line-height: 1.2;
+            letter-spacing: -0.02em;
+        }
+
+        /* --- UTILITIES --- */
+        .container {
+            max-width: 1200px;
+            margin: 0 auto;
+            padding: 0 var(--sp-4);
+        }
+
+        .glass {
+            background: linear-gradient(135deg, rgba(99, 102, 241, 0.1), rgba(139, 92, 246, 0.05));
+            backdrop-filter: blur(10px);
+            -webkit-backdrop-filter: blur(10px);
+            border: 1px solid var(--border);
+        }
+
+        .gradient-text {
+            background: linear-gradient(to bottom, #fff, var(--secondary));
+            -webkit-background-clip: text;
+            -webkit-text-fill-color: transparent;
+        }
+
+        .reveal {
+            opacity: 0;
+            transform: translateY(30px);
+            transition: all 0.5s cubic-bezier(0.4, 0, 0.2, 1);
+        }
+
+        .reveal.active {
+            opacity: 1;
+            transform: translateY(0);
+        }
+
+        /* --- NAVIGATION --- */
+        nav {
+            position: fixed;
+            top: 0;
+            width: 100%;
+            z-index: 1000;
+            padding: var(--sp-2) var(--sp-4);
+            border-bottom: 1px solid rgba(255,255,255,0.1);
+            backdrop-filter: blur(12px);
+            transition: all 0.3s ease;
+        }
+
+        nav .container {
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+        }
+
+        .logo {
+            display: flex;
+            align-items: center;
+            gap: var(--sp-2);
+            text-decoration: none;
+            color: white;
+        }
+
+        .logo-box {
+            width: 32px;
+            height: 32px;
+            background: linear-gradient(135deg, var(--primary), var(--secondary));
+            border-radius: 6px;
+        }
+
+        .logo-text {
+            font-weight: 900;
+            font-size: 20px;
+            letter-spacing: 1px;
+        }
+
+        .nav-links {
+            display: none;
+            gap: var(--sp-4);
+        }
+
+        @media (min-width: 768px) { .nav-links { display: flex; } }
+
+        .nav-links a {
+            text-decoration: none;
+            color: var(--text-secondary);
+            font-size: 14px;
+            font-weight: 600;
+            position: relative;
+            padding-bottom: 4px;
+        }
+
+        .nav-links a::after {
+            content: '';
+            position: absolute;
+            bottom: 0; left: 0;
+            width: 0; height: 2px;
+            background: var(--primary);
+            transition: width 0.3s ease;
+        }
+
+        .nav-links a:hover::after { width: 100%; }
+        .nav-links a:hover { color: white; }
+
+        .nav-actions {
+            display: flex;
+            align-items: center;
+            gap: var(--sp-3);
+        }
+
+        .nav-actions a {
+            text-decoration: none;
+            color: var(--text-primary);
+            font-size: 14px;
+            font-weight: 600;
+        }
+
+        .btn-sm {
+            padding: 8px 16px;
+            border-radius: 8px;
+            font-weight: 600;
+            font-size: 14px;
+            cursor: pointer;
+            transition: all 0.3s ease;
+        }
+
+        .btn-nav {
+            background: white;
+            color: var(--background) !important;
+            border: none;
+        }
+
+        .btn-nav:hover { transform: scale(1.05); }
+
+        /* --- HERO --- */
+        .hero {
+            position: relative;
+            padding-top: 180px;
+            padding-bottom: var(--sp-15);
+            text-align: center;
+            overflow: hidden;
+        }
+
+        .grid-bg {
+            position: absolute;
+            inset: 0;
+            background-image: linear-gradient(rgba(255,255,255,0.02) 1px, transparent 1px), linear-gradient(90deg, rgba(255,255,255,0.02) 1px, transparent 1px);
+            background-size: 40px 40px;
+            z-index: -2;
+        }
+
+        .orb {
+            position: absolute;
+            width: 40vw;
+            height: 40vw;
+            border-radius: 50%;
+            filter: blur(120px);
+            opacity: 0.2;
+            z-index: -1;
+            animation: float 10s infinite alternate;
+        }
+
+        .orb-1 { top: -10%; right: -10%; background: var(--primary); }
+        .orb-2 { bottom: -10%; left: -10%; background: var(--secondary); animation-delay: -5s; }
+
+        @keyframes float {
+            from { transform: translate(0, 0); }
+            to { transform: translate(30px, 50px); }
+        }
+
+        .badge {
+            display: inline-block;
+            padding: 6px 16px;
+            border: 1px solid var(--secondary);
+            border-radius: 100px;
+            font-size: 10px;
+            font-weight: 900;
+            letter-spacing: 2px;
+            margin-bottom: var(--sp-4);
+        }
+
+        .hero h1 {
+            font-size: 48px;
+            margin-bottom: var(--sp-3);
+            max-width: 1000px;
+            margin-left: auto;
+            margin-right: auto;
+        }
+
+        @media (min-width: 768px) { .hero h1 { font-size: 72px; } }
+
+        .hero p {
+            color: #E2E8F0;
+            font-size: 18px;
+            max-width: 800px;
+            margin: 0 auto var(--sp-6);
+        }
+
+        .hero-btns {
+            display: flex;
+            justify-content: center;
+            gap: var(--sp-3);
+            flex-wrap: wrap;
+        }
+
+        .btn-primary {
+            background: linear-gradient(135deg, var(--primary), var(--secondary));
+            color: white;
+            border: none;
+            padding: 16px 32px;
+            border-radius: 8px;
+            font-weight: 600;
+            font-size: 16px;
+            cursor: pointer;
+            display: flex;
+            align-items: center;
+            gap: 8px;
+            box-shadow: 0 10px 20px rgba(99, 102, 241, 0.2);
+            transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+        }
+
+        .btn-primary:hover {
+            transform: translateY(-4px) scale(1.02);
+            box-shadow: 0 20px 40px rgba(99, 102, 241, 0.4);
+        }
+
+        .btn-outline {
+            background: transparent;
+            color: white;
+            border: 1px solid white;
+            padding: 16px 32px;
+            border-radius: 8px;
+            font-weight: 600;
+            font-size: 16px;
+            cursor: pointer;
+            display: flex;
+            align-items: center;
+            gap: 8px;
+            transition: all 0.3s ease;
+        }
+
+        .btn-outline:hover {
+            background: rgba(139, 92, 246, 0.2);
+            border-color: var(--secondary);
+        }
+
+        .scroll-indicator {
+            position: absolute;
+            bottom: var(--sp-4);
+            left: 50%;
+            transform: translateX(-50%);
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            gap: 8px;
+            animation: bounce 2s infinite;
+        }
+
+        .scroll-indicator span {
+            font-size: 10px;
+            font-weight: 900;
+            letter-spacing: 1px;
+            color: var(--text-secondary);
+        }
+
+        @keyframes bounce {
+            0%, 20%, 50%, 80%, 100% {transform: translateX(-50%) translateY(0);}
+            40% {transform: translateX(-50%) translateY(-10px);}
+            60% {transform: translateX(-50%) translateY(-5px);}
+        }
+
+        /* --- STATS --- */
+        .stats {
+            background: linear-gradient(to right, var(--background), #1e1b4b, var(--background));
+            padding: var(--sp-10) 0;
+            border-top: 1px solid var(--border);
+            border-bottom: 1px solid var(--border);
+        }
+
+        .stats-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
+            gap: var(--sp-6);
+            text-align: center;
+        }
+
+        .stat-item h3 { font-size: 40px; margin-bottom: 4px; }
+        .stat-item p { color: var(--text-secondary); font-weight: 600; font-size: 14px; text-transform: uppercase; }
+
+        /* --- FEATURES --- */
+        .features {
+            background-color: var(--card-bg);
+            padding: var(--sp-15) 0;
+        }
+
+        .section-header {
+            text-align: center;
+            margin-bottom: var(--sp-10);
+        }
+
+        .section-header h2 {
+            font-size: 36px;
+            text-transform: uppercase;
+            letter-spacing: 2px;
+            background: linear-gradient(to bottom, #fff, #6366f1);
+            -webkit-background-clip: text;
+            -webkit-text-fill-color: transparent;
+        }
+
+        @media (min-width: 768px) { .section-header h2 { font-size: 48px; } }
+
+        .features-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(280px, 1fr));
+            gap: var(--sp-4);
+        }
+
+        .feature-card {
+            padding: var(--sp-4);
+            border-radius: 12px;
+            transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+        }
+
+        .feature-card:hover {
+            transform: translateY(-10px);
+            box-shadow: 0 20px 40px rgba(139, 92, 246, 0.2);
+            border-color: rgba(139, 92, 246, 0.6);
+        }
+
+        .feature-icon {
+            font-size: 32px;
+            margin-bottom: var(--sp-3);
+            width: 48px;
+            height: 48px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            border-radius: 12px;
+            background: rgba(255,255,255,0.05);
+        }
+
+        .feature-card h4 { font-size: 20px; margin-bottom: var(--sp-2); }
+        .feature-card p { font-size: 14px; color: var(--text-secondary); }
+
+        /* --- TEMPLATES --- */
+        .templates {
+            padding: var(--sp-15) 0;
+            background-color: var(--background);
+        }
+
+        .filter-tabs {
+            display: flex;
+            justify-content: center;
+            gap: var(--sp-2);
+            margin-bottom: var(--sp-8);
+            flex-wrap: wrap;
+        }
+
+        .tab {
+            padding: 8px 24px;
+            border-radius: 100px;
+            font-size: 12px;
+            font-weight: 700;
+            cursor: pointer;
+            border: 1px solid var(--border);
+            color: var(--text-secondary);
+            transition: all 0.3s ease;
+            text-transform: uppercase;
+        }
+
+        .tab.active {
+            background: var(--secondary);
+            color: white;
+            border-color: var(--secondary);
+        }
+
+        .template-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(300px, 1fr));
+            gap: var(--sp-4);
+        }
+
+        .template-card {
+            position: relative;
+            border-radius: 12px;
+            overflow: hidden;
+            background: var(--card-bg);
+            transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+        }
+
+        .template-img {
+            width: 100%;
+            height: 200px;
+            object-fit: cover;
+            background: #2D3748; /* Placeholder */
+        }
+
+        .template-overlay {
+            position: absolute;
+            inset: 0;
+            background: linear-gradient(to top, rgba(0,0,0,0.9), transparent);
+            display: flex;
+            flex-direction: column;
+            justify-content: flex-end;
+            padding: var(--sp-3);
+            opacity: 1;
+            transition: all 0.3s ease;
+        }
+
+        .template-hover-actions {
+            position: absolute;
+            inset: 0;
+            background: rgba(0,0,0,0.6);
+            backdrop-filter: blur(4px);
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            gap: var(--sp-2);
+            opacity: 0;
+            transition: all 0.3s ease;
+        }
+
+        .template-card:hover .template-hover-actions { opacity: 1; }
+        .template-card:hover { transform: translateY(-10px); }
+
+        .badge-small {
+            font-size: 10px;
+            font-weight: 800;
+            text-transform: uppercase;
+            color: var(--accent);
+        }
+
+        /* --- CTA --- */
+        .cta {
+            padding: var(--sp-15) 0;
+            background: linear-gradient(135deg, var(--primary), var(--secondary));
+            text-align: center;
+        }
+
+        .cta h2 { font-size: 48px; margin-bottom: var(--sp-2); }
+        .cta p { color: rgba(255,255,255,0.8); margin-bottom: var(--sp-6); }
+
+        .cta-form {
+            max-width: 500px;
+            margin: 0 auto;
+            display: flex;
+            gap: var(--sp-2);
+            padding: 8px;
+            background: rgba(255,255,255,0.1);
+            border-radius: 12px;
+            border: 1px solid rgba(255,255,255,0.2);
+        }
+
+        .cta-form input {
+            flex: 1;
+            background: transparent;
+            border: none;
+            color: white;
+            padding-left: 12px;
+            font-weight: 500;
+        }
+
+        .cta-form input:focus { outline: none; }
+        .cta-form input::placeholder { color: rgba(255,255,255,0.5); }
+
+        /* --- FOOTER --- */
+        footer {
+            background-color: var(--footer-bg);
+            padding: var(--sp-12) 0 var(--sp-4);
+            border-top: 1px solid rgba(255,255,255,0.1);
+        }
+
+        .footer-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(150px, 1fr));
+            gap: var(--sp-8);
+            margin-bottom: var(--sp-10);
+        }
+
+        .footer-col h4 { font-size: 14px; text-transform: uppercase; letter-spacing: 1px; margin-bottom: var(--sp-4); }
+        .footer-col ul { list-style: none; }
+        .footer-col ul li { margin-bottom: 12px; }
+        .footer-col ul li a { 
+            text-decoration: none; color: var(--text-secondary); font-size: 14px; 
+            transition: all 0.3s ease; position: relative;
+        }
+        .footer-col ul li a:hover { color: white; }
+        .footer-col ul li a:hover::after { width: 100%; }
+
+        .footer-bottom {
+            padding-top: var(--sp-4);
+            border-top: 1px solid rgba(255,255,255,0.05);
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            color: var(--text-secondary);
+            font-size: 12px;
+        }
+    </style>
+</head>
+<body>
+
+    <!-- Grid Background -->
+    <div class="grid-bg"></div>
+
+    <!-- Navigation -->
+    <nav id="main-nav">
+        <div class="container">
+            <a href="#" class="logo">
+                <div class="logo-box"></div>
+                <span class="logo-text uppercase">FlowSite</span>
+            </a>
+            <div class="nav-links">
+                <a href="#templates">Templates</a>
+                <a href="#features">Features</a>
+                <a href="#pricing">Pricing</a>
+            </div>
+            <div class="nav-actions">
+                <a href="#">Login</a>
+                <button class="btn-sm btn-nav">Start Building</button>
+            </div>
+        </div>
+    </nav>
+
+    <!-- Hero Section -->
+    <section class="hero">
+        <div class="orb orb-1"></div>
+        <div class="orb orb-2"></div>
+        <div class="container">
+            <div class="badge">✨ USED BY 10K+ VISIONARIES</div>
+            <h1 class="gradient-text">BUILD YOUR <br>DIGITAL WORLD.</h1>
+            <p>The premium website builder for creators. Combine 3D interactive canvases, AI intelligence, and high-performance export in seconds.</p>
+            <div class="hero-btns">
+                <button class="btn-primary">
+                    Start Free
+                    <svg width="20" height="20" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M14 5l7 7m0 0l-7 7m7-7H3"/></svg>
+                </button>
+                <button class="btn-outline">
+                    <svg width="20" height="20" fill="currentColor" viewBox="0 0 24 24"><path d="M8 5v14l11-7z"/></svg>
+                    Watch Demo
+                </button>
+            </div>
+        </div>
+        <div class="scroll-indicator">
+            <span>SCROLL TO EXPLORE</span>
+            <svg width="20" height="20" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 14l-7 7m0 0l-7-7m7 7V3"/></svg>
+        </div>
+    </section>
+
+    <!-- Stats Section -->
+    <section class="stats reveal">
+        <div class="container">
+            <div class="stats-grid">
+                <div class="stat-item">
+                    <h3>10K+</h3>
+                    <p>Creators</p>
+                </div>
+                <div class="stat-item">
+                    <h3>500+</h3>
+                    <p>Sites Per Week</p>
+                </div>
+                <div class="stat-item">
+                    <h3>99.9%</h3>
+                    <p>Uptime</p>
+                </div>
+            </div>
+        </div>
+    </section>
+
+    <!-- Features Section -->
+    <section class="features" id="features">
+        <div class="container">
+            <div class="section-header reveal">
+                <h2>Everything you need to launch</h2>
+            </div>
+            <div class="features-grid">
+                <!-- Card 1 -->
+                <div class="feature-card glass reveal">
+                    <div class="feature-icon" style="color: var(--accent)">🎨</div>
+                    <h4>AI Content</h4>
+                    <p>Auto-populate fields with intelligent suggestions and content generation.</p>
+                </div>
+                <!-- Card 2 -->
+                <div class="feature-card glass reveal">
+                    <div class="feature-icon" style="color: #6366f1">💻</div>
+                    <h4>Clean Code</h4>
+                    <p>Export production-ready HTML/CSS/JS instantly without dependencies.</p>
+                </div>
+                <!-- Card 3 -->
+                <div class="feature-card glass reveal">
+                    <div class="feature-icon" style="color: #8b5cf6">📐</div>
+                    <h4>Layouts</h4>
+                    <p>Modern & minimal responsive templates designed for high performance.</p>
+                </div>
+                <!-- Card 4 -->
+                <div class="feature-card glass reveal">
+                    <div class="feature-icon" style="color: #f59e0b">⚡</div>
+                    <h4>Live Sync</h4>
+                    <p>Real-time preview with instant feedback as you design your world.</p>
+                </div>
+            </div>
+        </div>
+    </section>
+
+    <!-- Templates Section -->
+    <section class="templates" id="templates">
+        <div class="container">
+            <div class="section-header reveal">
+                <h2>Choose Your Base</h2>
+            </div>
+            
+            <div class="filter-tabs reveal">
+                <div class="tab active">All Templates</div>
+                <div class="tab">Designers</div>
+                <div class="tab">Students</div>
+                <div class="tab">Projects</div>
+            </div>
+
+            <div class="template-grid">
+                <!-- Template 1 -->
+                <div class="template-card reveal">
+                    <div style="height: 200px; background: linear-gradient(45deg, #1e293b, #334155);"></div>
+                    <div class="template-overlay">
+                        <div class="badge-small">NEW</div>
+                        <h4>Start Blank</h4>
+                        <p style="font-size: 12px; color: var(--text-secondary)">Full creative freedom</p>
+                    </div>
+                    <div class="template-hover-actions">
+                        <button class="btn-sm btn-outline">Preview</button>
+                        <button class="btn-sm btn-primary">Customize</button>
+                    </div>
+                </div>
+                <!-- Template 2 -->
+                <div class="template-card reveal">
+                    <div style="height: 200px; background: linear-gradient(45deg, #4338ca, #6366f1);"></div>
+                    <div class="template-overlay">
+                        <div class="badge-small" style="color: #818cf8">DEVELOPERS</div>
+                        <h4>MidnightDev</h4>
+                        <p style="font-size: 12px; color: var(--text-secondary)">Professional portfolio</p>
+                    </div>
+                    <div class="template-hover-actions">
+                        <button class="btn-sm btn-outline">Preview</button>
+                        <button class="btn-sm btn-primary">Customize</button>
+                    </div>
+                </div>
+                <!-- Template 3 -->
+                <div class="template-card reveal">
+                    <div style="height: 200px; background: linear-gradient(45deg, #db2777, #ec4899);"></div>
+                    <div class="template-overlay">
+                        <div class="badge-small" style="color: #f472b6">DESIGNERS</div>
+                        <h4>Studio Canvas</h4>
+                        <p style="font-size: 12px; color: var(--text-secondary)">Elegant & modern</p>
+                    </div>
+                    <div class="template-hover-actions">
+                        <button class="btn-sm btn-outline">Preview</button>
+                        <button class="btn-sm btn-primary">Customize</button>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </section>
+
+    <!-- CTA Section -->
+    <section class="cta reveal">
+        <div class="container">
+            <h2>Ready to Build?</h2>
+            <p>Join thousands of creators launching stunning websites every week.</p>
+            <div class="cta-form">
+                <input type="email" placeholder="Enter your email">
+                <button class="btn-sm btn-nav">Start Free Now</button>
+            </div>
+        </div>
+    </section>
+
+    <!-- Footer -->
+    <footer>
+        <div class="container">
+            <div class="footer-grid">
+                <div class="footer-col" style="grid-column: span 2">
+                    <a href="#" class="logo" style="margin-bottom: 24px">
+                        <div class="logo-box"></div>
+                        <span class="logo-text uppercase">FlowSite</span>
+                    </a>
+                    <p style="font-size: 14px; color: var(--text-secondary); max-width: 250px">Building the future of the web, one pixel at a time.</p>
+                </div>
+                <div class="footer-col">
+                    <h4>Product</h4>
+                    <ul>
+                        <li><a href="#">Templates</a></li>
+                        <li><a href="#">Features</a></li>
+                        <li><a href="#">Pricing</a></li>
+                    </ul>
+                </div>
+                <div class="footer-col">
+                    <h4>Company</h4>
+                    <ul>
+                        <li><a href="#">About</a></li>
+                        <li><a href="#">Careers</a></li>
+                        <li><a href="#">Contact</a></li>
+                    </ul>
+                </div>
+            </div>
+            <div class="footer-bottom">
+                <p>&copy; 2026 FlowSite. Built for visionaries.</p>
+                <div style="display: flex; gap: 20px">
+                    <a href="#" style="color: inherit; text-decoration: none">Twitter</a>
+                    <a href="#" style="color: inherit; text-decoration: none">GitHub</a>
+                    <a href="#" style="color: inherit; text-decoration: none">Discord</a>
+                </div>
+            </div>
+        </div>
+    </footer>
+
+    <script>
+        // --- Scroll Reveal Logic ---
+        function reveal() {
+            var reveals = document.querySelectorAll(".reveal");
+            for (var i = 0; i < reveals.length; i++) {
+                var windowHeight = window.innerHeight;
+                var elementTop = reveals[i].getBoundingClientRect().top;
+                var elementVisible = 150;
+                if (elementTop < windowHeight - elementVisible) {
+                    reveals[i].classList.add("active");
+                }
+            }
+        }
+
+        window.addEventListener("scroll", reveal);
+        // Trigger once on load
+        reveal();
+
+        // --- Navbar transparency logic ---
+        window.onscroll = function() {
+            var nav = document.getElementById('main-nav');
+            if ( window.pageYOffset > 100 ) {
+                nav.style.background = "rgba(15, 23, 42, 0.95)";
+                nav.style.padding = "8px 16px";
+            } else {
+                nav.style.background = "transparent";
+                nav.style.padding = "16px 16px";
+            }
+        }
+    </script>
+</body>
+</html>

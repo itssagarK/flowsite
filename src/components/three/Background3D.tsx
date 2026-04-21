@@ -3,6 +3,9 @@ import { Canvas, useFrame, useThree } from '@react-three/fiber';
 import { Float, MeshDistortMaterial, Sphere, Torus, Icosahedron, Octahedron, MeshWobbleMaterial, Sparkles, PerspectiveCamera } from '@react-three/drei';
 import * as THREE from 'three';
 
+// Re-export from AdvancedBackground
+export { AdvancedBackground, SimpleBackground, MiniAdvancedScene } from './AdvancedBackground';
+
 function ResponsiveFloatingShape({ color, geometry, speed = 1, delay = 0, scale = 1, offset = [0, 0, 0] }: {
   color: string;
   geometry: 'sphere' | 'torus' | 'icosahedron' | 'octahedron';
@@ -98,6 +101,11 @@ function FuturisticGrid() {
 }
 
 export function BackgroundScene({ variant = 'default' }: { variant?: 'default' | 'light' | 'accent' }) {
+  // Use advanced background for default, simple for others
+  if (variant === 'default') {
+    return <AdvancedBackground />;
+  }
+
   const colorSchemes = {
     default: {
       primary: '#818CF8',

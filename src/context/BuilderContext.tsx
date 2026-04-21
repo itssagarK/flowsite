@@ -115,6 +115,8 @@ export interface PortfolioData {
     layout: SectionLayout;
     accentColor: string;
     visibleSections?: Record<string, boolean>;
+    animationSpeed?: 'slow' | 'normal' | 'fast';
+    canvasLayout?: 'full' | 'boxed' | 'centered';
   };
   // Portfolio specific
   projects?: ProjectItem[];

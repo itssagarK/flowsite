@@ -28,12 +28,18 @@ export function EditorPanel() {
     updateProject,
     updateCollegeProject,
     updateService,
+    updateSkill,
+    updateExperience,
     addProject,
     removeProject,
     addCollegeProject,
     removeCollegeProject,
     addService,
     removeService,
+    addSkill,
+    removeSkill,
+    addExperience,
+    removeExperience,
     updateData,
     scanImage
   } = useBuilder();

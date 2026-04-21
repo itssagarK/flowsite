@@ -1,400 +1,560 @@
-import React, { useState } from 'react';
-import { motion, AnimatePresence } from 'motion/react';
+import React, { useState, useEffect, useRef } from 'react';
+import { motion, AnimatePresence, useScroll, useTransform, useSpring } from 'motion/react';
 import { useBuilder, PortfolioData, WebsiteType } from '../../context/BuilderContext';
-import { BackgroundScene, MiniScene } from '../three/Background3D';
+import { AdvancedBackground, SimpleBackground, BackgroundScene } from '../three/Background3D';
 import {
   Plus, Code, Palette, Rocket, GraduationCap, Building2, AppWindow, Layers, Camera,
   Sparkles, ArrowRight, Wand2, Code2, Layers as LayersIcon, RefreshCw, Heart, Star, Zap,
-  Play, Check
+  Play, Check, Users, Globe, Shield, Zap as ZapIcon, ChevronRight, MessageSquare, Twitter, Github, Linkedin, Award, Layout, Briefcase, Mail, MapPin, Eye, MousePointer2, X
 } from 'lucide-react';
 
-// Website type definitions
-const websiteTypes: { id: WebsiteType; title: string; subtitle: string; icon: any; color: string; accent: string; features: string[] }[] = [
-  { id: 'portfolio', title: 'Personal Portfolio', subtitle: 'Showcase your work & skills', icon: Code, color: 'from-blue-500 to-indigo-600', accent: '#6366F1', features: ['Projects', 'Skills', 'Experience'] },
-  { id: 'college', title: 'College Projects', subtitle: 'Academic work & achievements', icon: GraduationCap, color: 'from-emerald-500 to-teal-600', accent: '#10B981', features: ['Projects', 'Education', 'Awards'] },
-  { id: 'business', title: 'Business Website', subtitle: 'Landing pages & services', icon: Building2, color: 'from-amber-500 to-orange-600', accent: '#F97316', features: ['Services', 'Stats', 'Team'] },
-  { id: 'app', title: 'App Landing Page', subtitle: 'Products & pricing', icon: AppWindow, color: 'from-violet-500 to-purple-600', accent: '#8B5CF6', features: ['Features', 'Pricing', 'FAQ'] },
-];
+// --- Components ---
 
-// Templates
-const allTemplates: Record<WebsiteType, { id: string; title: string; subtitle: string; icon: any; color: string; accent: string; data: PortfolioData }[]> = {
-  portfolio: [
-    { id: 'dev', title: 'Software Engineer', subtitle: 'Clean & professional', icon: Code, color: 'from-blue-500 to-indigo-600', accent: '#6366F1', data: { websiteType: 'portfolio', user: { name: 'Alex Chen', role: 'Full Stack Developer', bio: 'Building amazing web experiences.' }, settings: { theme: 'dark', layout: 'modern', accentColor: '#6366F1' }, projects: [], skills: [], experience: [] } },
-    { id: 'designer', title: 'UX/UI Designer', subtitle: 'Elegant & creative', icon: Palette, color: 'from-pink-500 to-rose-600', accent: '#EC4899', data: { websiteType: 'portfolio', user: { name: 'Sarah Miller', role: 'Product Designer', bio: 'Crafting beautiful interfaces.' }, settings: { theme: 'light', layout: 'modern', accentColor: '#EC4899' }, projects: [], skills: [] } },
-    { id: 'student', title: 'CS Student', subtitle: 'Perfect for students', icon: GraduationCap, color: 'from-cyan-500 to-blue-600', accent: '#06B6D4', data: { websiteType: 'portfolio', user: { name: 'Mike Johnson', role: 'CS Student', bio: 'Passionate about code.' }, settings: { theme: 'light', layout: 'modern', accentColor: '#06B6D4' }, projects: [], skills: [] } },
-  ],
-  college: [
-    { id: 'cs', title: 'CS Major', subtitle: 'For CS students', icon: Code, color: 'from-emerald-500 to-teal-600', accent: '#10B981', data: { websiteType: 'college', user: { name: 'Student Name', role: 'CS Student', bio: 'Building the future with code.' }, settings: { theme: 'dark', layout: 'modern', accentColor: '#10B981' }, collegeProjects: [], education: [] } },
-    { id: 'eng', title: 'Engineering', subtitle: 'For engineers', icon: Layers, color: 'from-cyan-500 to-blue-600', accent: '#06B6D4', data: { websiteType: 'college', user: { name: 'Engineer', role: 'Engineering Student', bio: 'Innovation through engineering.' }, settings: { theme: 'light', layout: 'modern', accentColor: '#06B6D4' }, collegeProjects: [] } },
-  ],
-  business: [
-    { id: 'agency', title: 'Agency', subtitle: 'For agencies', icon: Building2, color: 'from-amber-500 to-orange-600', accent: '#F97316', data: { websiteType: 'business', user: { name: 'Agency Name', role: '', bio: 'We deliver results.' }, settings: { theme: 'dark', layout: 'modern', accentColor: '#F97316' }, services: [], stats: [] } },
-    { id: 'startup', title: 'Startup', subtitle: 'For startups', icon: Rocket, color: 'from-violet-500 to-purple-600', accent: '#8B5CF6', data: { websiteType: 'business', user: { name: 'Startup', role: '', bio: 'Disrupting the industry.' }, settings: { theme: 'dark', layout: 'modern', accentColor: '#8B5CF6' }, services: [] } },
-  ],
-  app: [
-    { id: 'saas', title: 'SaaS Product', subtitle: 'For software', icon: AppWindow, color: 'from-violet-500 to-purple-600', accent: '#8B5CF6', data: { websiteType: 'app', user: { name: 'App Name', role: '', bio: 'Your solution.' }, settings: { theme: 'dark', layout: 'modern', accentColor: '#8B5CF6' }, appFeatures: [], pricing: [] } },
-    { id: 'mobile', title: 'Mobile App', subtitle: 'For mobile apps', icon: Camera, color: 'from-emerald-500 to-teal-600', accent: '#10B981', data: { websiteType: 'app', user: { name: 'Mobile App', role: '', bio: 'On-the-go solution.' }, settings: { theme: 'light', layout: 'modern', accentColor: '#10B981' }, appFeatures: [] } },
-  ],
-};
-
-function CursorFollower() {
-  const [position, setPosition] = useState({ x: 0, y: 0 });
-
-  React.useEffect(() => {
-    const handleMouseMove = (e: MouseEvent) => {
-      setPosition({ x: e.clientX, y: e.clientY });
-    };
-    window.addEventListener('mousemove', handleMouseMove);
-    return () => window.removeEventListener('mousemove', handleMouseMove);
-  }, []);
-
+function SectionHeading({ title, subtitle, centered = true }: { title: string; subtitle?: string; centered?: boolean }) {
   return (
-    <motion.div
-      className="fixed top-0 left-0 w-8 h-8 rounded-full border border-primary/50 pointer-events-none z-[9999] hidden lg:block"
-      animate={{ x: position.x - 16, y: position.y - 16 }}
-      transition={{ type: 'spring', damping: 20, stiffness: 250, mass: 0.5 }}
-    />
+    <div className={`space-y-4 mb-16 ${centered ? 'text-center' : 'text-left'}`}>
+      <motion.div
+        initial={{ opacity: 0, y: 20 }}
+        whileInView={{ opacity: 1, y: 0 }}
+        viewport={{ once: true }}
+        className="inline-flex items-center gap-2 px-3 py-1 bg-primary/10 border border-primary/20 rounded-full"
+      >
+        <div className="w-1.5 h-1.5 rounded-full bg-primary animate-pulse" />
+        <span className="text-[10px] font-black uppercase tracking-widest text-primary">{subtitle || 'Feature'}</span>
+      </motion.div>
+      <h2 className="text-4xl md:text-6xl font-black tracking-tighter text-foreground">{title}</h2>
+    </div>
   );
 }
 
-function TemplateCard({ template, index, accentColor }: { template: any; index: number; accentColor: string }) {
-  const [isHovered, setIsHovered] = useState(false);
-  const Icon = template.icon;
+function ThreeDCard({ children, className = "" }: { children: React.ReactNode, className?: string }) {
+  const cardRef = useRef<HTMLDivElement>(null);
+  const [rotate, setRotate] = useState({ x: 0, y: 0 });
+
+  const handleMouseMove = (e: React.MouseEvent<HTMLDivElement>) => {
+    if (!cardRef.current) return;
+    const rect = cardRef.current.getBoundingClientRect();
+    const x = e.clientX - rect.left;
+    const y = e.clientY - rect.top;
+    const centerX = rect.width / 2;
+    const centerY = rect.height / 2;
+    const rotateX = (y - centerY) / 10;
+    const rotateY = (centerX - x) / 10;
+    setRotate({ x: rotateX, y: rotateY });
+  };
+
+  const handleMouseLeave = () => {
+    setRotate({ x: 0, y: 0 });
+  };
 
   return (
     <motion.div
-      className="relative h-full"
-      onMouseEnter={() => setIsHovered(true)}
-      onMouseLeave={() => setIsHovered(false)}
+      ref={cardRef}
+      onMouseMove={handleMouseMove}
+      onMouseLeave={handleMouseLeave}
+      animate={{ rotateX: rotate.x, rotateY: rotate.y }}
+      transition={{ type: 'spring', stiffness: 300, damping: 30 }}
+      className={`perspective-1000 preserve-3d ${className}`}
     >
-      <motion.div
-        className="relative flex flex-col text-left bg-card border border-border rounded-[2rem] overflow-hidden hover:shadow-2xl hover:shadow-primary/10 transition-all duration-500 h-[400px] cursor-pointer group"
-        whileHover={{ y: -8 }}
-      >
-        <AnimatePresence>
-          {isHovered && (
-            <motion.div
-              initial={{ opacity: 0 }}
-              animate={{ opacity: 1 }}
-              exit={{ opacity: 0 }}
-              className="absolute inset-0 z-20"
-            >
-              <div className="absolute inset-0 bg-gradient-to-br from-black/90 via-black/70 to-black/40" />
-              <div className="absolute inset-0 flex items-center justify-center">
-                <div className="w-40 h-40 opacity-80">
-                  <MiniScene color={template.accent} />
-                </div>
-              </div>
-              <motion.div
-                className="absolute bottom-6 left-6 right-6"
-                initial={{ y: 20, opacity: 0 }}
-                animate={{ y: 0, opacity: 1 }}
-              >
-                <div className="flex items-center gap-2 text-white font-medium bg-white/10 backdrop-blur-md px-4 py-2 rounded-xl border border-white/20">
-                  <Play size={16} className="fill-white" />
-                  Try this template
-                </div>
-              </motion.div>
-            </motion.div>
-          )}
-        </AnimatePresence>
-
-        <div className={`h-[220px] bg-gradient-to-br ${template.color} relative overflow-hidden`}>
-          <div className="absolute inset-0 bg-black/5 mix-blend-overlay" />
-          <Icon size={120} className="absolute -bottom-6 -right-6 text-white/10 group-hover:scale-110 transition-transform duration-700" />
-          <div className="absolute top-6 left-6 px-4 py-2 bg-white/20 backdrop-blur-md rounded-full text-xs font-bold text-white border border-white/20">
-            {template.title}
-          </div>
-        </div>
-
-        <div className="flex-1 p-6 flex flex-col justify-between bg-card relative z-10">
-          <div>
-            <h3 className="font-bold text-xl text-foreground mb-2">{template.title}</h3>
-            <p className="text-sm text-muted-foreground line-clamp-2">{template.subtitle}</p>
-          </div>
-
-          <div className="flex gap-2">
-            <span className="text-[10px] font-bold uppercase tracking-wider px-3 py-1 bg-primary/10 text-primary rounded-lg border border-primary/10">
-              {template.data.settings.layout}
-            </span>
-            <span className="text-[10px] font-bold uppercase tracking-wider px-3 py-1 bg-muted rounded-lg border border-border">
-              {template.data.settings.theme}
-            </span>
-          </div>
-        </div>
-      </motion.div>
+      {children}
     </motion.div>
   );
 }
 
-function WebsiteTypeCard({ type, isActive, onClick, index }: { type: typeof websiteTypes[0]; isActive: boolean; onClick: () => void; index: number }) {
-  const Icon = type.icon;
-
-  return (
-    <motion.button
-      initial={{ opacity: 0, y: 20 }}
-      animate={{ opacity: 1, y: 0 }}
-      transition={{ delay: index * 0.1 }}
-      whileHover={{ scale: 1.02, y: -2 }}
-      whileTap={{ scale: 0.98 }}
-      onClick={onClick}
-      className={`relative p-6 rounded-3xl text-left transition-all ${
-        isActive
-          ? 'bg-card border-2 shadow-2xl shadow-primary/10'
-          : 'bg-card/40 border border-border/50 hover:bg-card hover:border-primary/30'
-      }`}
-      style={{ borderColor: isActive ? type.accent : undefined }}
-    >
-      <div className={`w-12 h-12 rounded-2xl bg-gradient-to-br ${type.color} flex items-center justify-center mb-4 shadow-lg`}>
-        <Icon size={24} className="text-white" />
-      </div>
-      <h3 className="font-bold text-foreground mb-1">{type.title}</h3>
-      <p className="text-xs text-muted-foreground leading-relaxed">{type.subtitle}</p>
-      {isActive && (
-        <motion.div
-          layoutId="activeIndicator"
-          className="absolute -bottom-1 left-1/2 -translate-x-1/2 w-16 h-1 rounded-full"
-          style={{ backgroundColor: type.accent }}
-        />
-      )}
-    </motion.button>
-  );
-}
+// --- Sections ---
 
 export function Home({ onNavigate }: { onNavigate: () => void }) {
-  const { updateData, setWebsiteType, resetToBlank } = useBuilder();
+  const { updateData, setWebsiteType, resetToBlank, data } = useBuilder();
   const [activeWebsiteType, setActiveWebsiteType] = useState<WebsiteType>('portfolio');
+  const { scrollYProgress } = useScroll();
+  const scaleProgress = useSpring(scrollYProgress, { stiffness: 100, damping: 30 });
 
-  const handleSelectType = (type: WebsiteType) => {
-    setActiveWebsiteType(type);
-  };
-
+  const handleSelectType = (type: WebsiteType) => setActiveWebsiteType(type);
   const handleSelectTemplate = (templateData: any) => {
     updateData(templateData);
     setWebsiteType(activeWebsiteType);
     onNavigate();
   };
-
   const handleBlank = () => {
     setWebsiteType(activeWebsiteType);
     resetToBlank();
     onNavigate();
   };
 
+  // Website type definitions
+  const websiteTypes: { id: WebsiteType; title: string; subtitle: string; icon: any; color: string; accent: string }[] = [
+    { id: 'portfolio', title: 'Developer', subtitle: 'Showcase work', icon: Code, color: 'from-blue-500', accent: '#3B82F6' },
+    { id: 'college', title: 'Student', subtitle: 'Academic win', icon: GraduationCap, color: 'from-emerald-500', accent: '#10B981' },
+    { id: 'business', title: 'Business', subtitle: 'Scale fast', icon: Building2, color: 'from-orange-500', accent: '#F97316' },
+    { id: 'app', title: 'Product', subtitle: 'App landing', icon: AppWindow, color: 'from-violet-500', accent: '#7C3AED' },
+  ];
+
   const templates = allTemplates[activeWebsiteType];
-  const currentType = websiteTypes.find(t => t.id === activeWebsiteType);
 
   return (
-    <div className="min-h-screen w-full overflow-x-hidden relative bg-background selection:bg-primary/30">
-      <CursorFollower />
+    <div className="min-h-screen w-full bg-background selection:bg-primary/30 font-sans">
+      {/* Scroll Progress Bar */}
+      <motion.div className="fixed top-0 left-0 right-0 h-1 bg-primary z-[100] origin-left" style={{ scaleX: scaleProgress }} />
 
-      {/* 3D Background - Adjusted for less visual noise */}
-      <div className="fixed inset-0 z-0 opacity-40">
-        <BackgroundScene variant="default" />
+      {/* Background Layer - Responsive */}
+      <div className="fixed inset-0 z-0">
+        {/* Desktop: Full advanced background */}
+        <div className="hidden md:block">
+          <AdvancedBackground />
+        </div>
+        {/* Tablet: Simplified but still feature-rich */}
+        <div className="hidden sm:block md:hidden">
+          <SimpleBackground />
+        </div>
+        {/* Mobile: Very simple background for performance */}
+        <div className="block sm:hidden">
+          <SimpleBackground />
+        </div>
       </div>
 
-      <div className="relative z-10 flex flex-col min-h-screen">
+      <div className="relative z-10">
         {/* Navigation */}
-        <motion.nav
-          initial={{ opacity: 0, y: -20 }}
-          animate={{ opacity: 1, y: 0 }}
-          className="sticky top-0 z-50 w-full px-6 py-4 lg:px-12 backdrop-blur-md border-b border-border/50 bg-background/50"
-        >
+        <nav className="fixed top-0 w-full z-50 px-6 py-6 transition-all border-b border-white/5 backdrop-blur-xl bg-background/50">
           <div className="max-w-7xl mx-auto flex items-center justify-between">
-            <div className="flex items-center gap-3">
-              <div className="w-10 h-10 rounded-xl bg-gradient-to-br from-primary to-violet-500 flex items-center justify-center shadow-lg shadow-primary/20">
+            <div className="flex items-center gap-3 group cursor-pointer" onClick={() => window.scrollTo(0, 0)}>
+              <div className="w-10 h-10 rounded-xl bg-gradient-to-br from-indigo-600 to-purple-600 flex items-center justify-center shadow-glow group-hover:rotate-12 transition-transform">
                 <Sparkles size={20} className="text-white" />
               </div>
-              <span className="font-bold text-2xl tracking-tight text-foreground hidden sm:block">FlowSite</span>
+              <span className="text-2xl font-black tracking-tighter uppercase hidden sm:block">FlowSite</span>
+            </div>
+            
+            <div className="hidden md:flex items-center gap-8 glass px-8 py-3 rounded-full border-white/5">
+              <a href="#templates" className="text-sm font-bold hover:text-primary transition-colors">Templates</a>
+              <a href="#features" className="text-sm font-bold hover:text-primary transition-colors">Features</a>
+              <a href="#pricing" className="text-sm font-bold hover:text-primary transition-colors">Pricing</a>
             </div>
 
             <div className="flex items-center gap-4">
-              <motion.button
-                whileHover={{ scale: 1.05 }}
-                whileTap={{ scale: 0.95 }}
-                className="px-5 py-2 text-sm font-semibold rounded-full border border-border hover:bg-muted transition-colors"
-              >
-                Log In
-              </motion.button>
-              <motion.button
-                whileHover={{ scale: 1.05 }}
-                whileTap={{ scale: 0.95 }}
-                onClick={handleBlank}
-                className="px-5 py-2 text-sm font-semibold rounded-full bg-foreground text-background transition-shadow hover:shadow-lg"
-              >
-                Start Free
-              </motion.button>
+              <button className="px-6 py-2 text-sm font-bold hover:text-primary transition-colors hidden sm:block">Login</button>
+              <button onClick={handleBlank} className="px-6 py-2.5 bg-white text-black rounded-full text-sm font-black shadow-lg hover:scale-105 active:scale-95 transition-all">Start Building</button>
             </div>
           </div>
-        </motion.nav>
+        </nav>
 
-        <main className="flex-1 max-w-7xl mx-auto w-full px-6 py-12 lg:py-20 space-y-24">
-          {/* Hero Section */}
-          <section className="text-center space-y-8 max-w-4xl mx-auto">
+        {/* Hero Section */}
+        <section className="relative pt-56 pb-32 px-6 overflow-hidden min-h-screen flex flex-col items-center">
+          <div className="max-w-7xl mx-auto text-center space-y-12">
             <motion.div
               initial={{ opacity: 0, scale: 0.9 }}
               animate={{ opacity: 1, scale: 1 }}
-              className="inline-flex items-center gap-2 px-4 py-1.5 bg-primary/10 rounded-full border border-primary/20"
+              className="inline-flex items-center gap-3 px-4 py-2 glass rounded-full border-white/10"
             >
-              <Zap size={14} className="text-primary" />
-              <span className="text-[12px] font-bold uppercase tracking-wider text-primary">v2.0 is now live</span>
+              <Users size={16} className="text-primary" />
+              <span className="text-[11px] font-black uppercase tracking-[0.2em] text-muted-foreground">Used by 10K+ visionaries</span>
             </motion.div>
 
-            <h1 className="text-5xl md:text-7xl lg:text-8xl font-black tracking-tight text-foreground leading-[1.1] md:leading-[1]">
-              Build your <span className="gradient-text">digital world</span><br />
-              in minutes.
-            </h1>
+            <motion.h1
+              initial={{ opacity: 0, y: 30 }}
+              animate={{ opacity: 1, y: 0 }}
+              transition={{ duration: 0.8 }}
+              className="text-huge"
+            >
+              BUILD YOUR <br />
+              <span className="gradient-text">DIGITAL WORLD.</span>
+            </motion.h1>
 
-            <p className="text-xl text-muted-foreground max-w-2xl mx-auto leading-relaxed">
-              The professional website builder for creators, students, and startups. 
-              No code, just pure creativity.
-            </p>
+            <motion.p
+              initial={{ opacity: 0, y: 20 }}
+              animate={{ opacity: 1, y: 0 }}
+              transition={{ delay: 0.2 }}
+              className="text-xl md:text-2xl text-muted-foreground max-w-3xl mx-auto leading-relaxed"
+            >
+              The premium website builder for creators. Combine 3D interactive canvases, 
+              AI intelligence, and high-performance export in seconds.
+            </motion.p>
 
-            <div className="flex flex-col sm:flex-row items-center justify-center gap-4 pt-4">
-              <motion.button
-                whileHover={{ scale: 1.02, y: -2 }}
-                whileTap={{ scale: 0.98 }}
-                onClick={handleBlank}
-                className="w-full sm:w-auto px-8 py-4 bg-primary text-white font-bold rounded-2xl shadow-xl shadow-primary/25 flex items-center justify-center gap-2"
-              >
-                Create Website Now
-                <ArrowRight size={20} />
-              </motion.button>
-              <motion.button
-                whileHover={{ scale: 1.02 }}
-                whileTap={{ scale: 0.98 }}
-                className="w-full sm:w-auto px-8 py-4 bg-muted text-foreground font-bold rounded-2xl transition-colors hover:bg-muted/80"
-              >
+            <motion.div
+              initial={{ opacity: 0, y: 20 }}
+              animate={{ opacity: 1, y: 0 }}
+              transition={{ delay: 0.4 }}
+              className="flex flex-col sm:flex-row items-center justify-center gap-6 pt-4"
+            >
+              <button onClick={handleBlank} className="group relative w-full sm:w-auto px-10 py-5 bg-primary rounded-2xl font-black text-lg shadow-glow hover:shadow-primary/50 hover:-translate-y-1 transition-all flex items-center justify-center gap-3 overflow-hidden">
+                <span className="relative z-10">Start Free</span>
+                <ArrowRight size={20} className="group-hover:translate-x-1 transition-transform" />
+                <div className="absolute inset-0 bg-white/20 translate-x-[-100%] group-hover:translate-x-[100%] transition-transform duration-700" />
+              </button>
+              <button className="w-full sm:w-auto px-10 py-5 glass rounded-2xl font-black text-lg hover:bg-white/5 transition-all flex items-center justify-center gap-2">
+                <Play size={20} className="fill-white" />
                 Watch Demo
-              </motion.button>
-            </div>
-          </section>
+              </button>
+            </motion.div>
 
-          {/* Website Type Selector */}
-          <section className="space-y-8">
-            <div className="text-center space-y-2">
-              <h2 className="text-3xl font-bold">What are you building?</h2>
-              <p className="text-muted-foreground">Choose a path to get specialized templates</p>
-            </div>
+            <motion.div
+              initial={{ opacity: 0 }}
+              animate={{ opacity: 1 }}
+              transition={{ delay: 1, duration: 1.5 }}
+              className="absolute bottom-12 left-1/2 -translate-x-1/2 flex flex-col items-center gap-2 text-muted-foreground"
+            >
+              <span className="text-[10px] font-bold uppercase tracking-widest">Scroll to Explore</span>
+              <div className="w-[1px] h-12 bg-gradient-to-b from-primary to-transparent" />
+            </motion.div>
+          </div>
+        </section>
 
-            <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-4">
-              {websiteTypes.map((type, index) => (
-                <WebsiteTypeCard
-                  key={type.id}
-                  type={type}
-                  isActive={activeWebsiteType === type.id}
-                  onClick={() => handleSelectType(type.id)}
-                  index={index}
-                />
-              ))}
-            </div>
-          </section>
-
-          {/* Templates Grid */}
-          <section className="space-y-8">
-            <div className="flex flex-col sm:flex-row items-end justify-between gap-4 border-b border-border pb-6">
-              <div className="space-y-1">
-                <h2 className="text-3xl font-bold capitalize">{currentType?.title} Templates</h2>
-                <p className="text-muted-foreground">Select a starter or begin with a blank canvas</p>
+        {/* Template Showcase */}
+        <section id="templates" className="py-32 px-6">
+          <div className="max-w-7xl mx-auto">
+            <div className="flex flex-col md:flex-row items-end justify-between mb-20 gap-8">
+              <SectionHeading title="CHOOSE YOUR BASE." subtitle="Templates" centered={false} />
+              
+              <div className="flex gap-2 p-1.5 bg-white/5 rounded-2xl border border-white/5 overflow-x-auto no-scrollbar">
+                {websiteTypes.map((type) => (
+                  <button
+                    key={type.id}
+                    onClick={() => handleSelectType(type.id)}
+                    className={`px-6 py-3 rounded-xl text-xs font-black uppercase tracking-widest transition-all whitespace-nowrap ${
+                      activeWebsiteType === type.id ? 'bg-primary text-white shadow-glow' : 'hover:bg-white/5 text-muted-foreground'
+                    }`}
+                  >
+                    {type.title}
+                  </button>
+                ))}
               </div>
-              <div className="flex items-center gap-2 text-sm font-medium text-muted-foreground bg-muted/50 px-3 py-1.5 rounded-lg">
-                <LayersIcon size={16} />
-                {templates.length + 1} Options available
-              </div>
             </div>
 
-            <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-8">
-              {/* Blank Template */}
-              <motion.div
-                initial={{ opacity: 0, y: 20 }}
-                animate={{ opacity: 1, y: 0 }}
-                onClick={handleBlank}
-                className="group relative flex flex-col items-center justify-center h-[400px] rounded-3xl border-2 border-dashed border-border hover:border-primary/50 hover:bg-primary/5 transition-all cursor-pointer"
-              >
-                <div className="w-16 h-16 rounded-full bg-muted flex items-center justify-center group-hover:bg-primary/10 transition-colors">
-                  <Plus size={32} className="text-muted-foreground group-hover:text-primary transition-colors" />
+            <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-10">
+              {/* Start Blank Card */}
+              <ThreeDCard className="h-full">
+                <div 
+                  onClick={handleBlank}
+                  className="h-[500px] rounded-[2.5rem] border-2 border-dashed border-white/10 hover:border-primary/50 flex flex-col items-center justify-center gap-6 cursor-pointer group transition-all hover:bg-primary/5"
+                >
+                  <div className="w-20 h-20 rounded-full bg-white/5 flex items-center justify-center group-hover:scale-110 transition-transform">
+                    <Plus size={40} className="text-muted-foreground group-hover:text-primary transition-colors" />
+                  </div>
+                  <div className="text-center">
+                    <h3 className="text-2xl font-black">Start Blank</h3>
+                    <p className="text-muted-foreground text-sm">Full creative freedom</p>
+                  </div>
                 </div>
-                <div className="mt-4 text-center">
-                  <h3 className="text-xl font-bold">Start Blank</h3>
-                  <p className="text-sm text-muted-foreground mt-1">Full creative control</p>
-                </div>
-              </motion.div>
+              </ThreeDCard>
 
               {/* Template Cards */}
               <AnimatePresence mode="popLayout">
                 {templates.map((template, i) => (
                   <motion.div
                     key={template.id}
-                    layout
-                    initial={{ opacity: 0, scale: 0.9 }}
-                    animate={{ opacity: 1, scale: 1 }}
-                    exit={{ opacity: 0, scale: 0.9 }}
-                    transition={{ delay: i * 0.05 }}
+                    initial={{ opacity: 0, y: 20 }}
+                    animate={{ opacity: 1, y: 0 }}
+                    exit={{ opacity: 0, scale: 0.95 }}
+                    whileHover={{ scale: 1.02 }}
+                    transition={{ duration: 0.3 }}
                     onClick={() => handleSelectTemplate(template.data)}
+                    className="group relative h-[480px] rounded-[2rem] overflow-hidden cursor-pointer bg-[#0A0F1E] border border-white/5 hover:border-primary/50 hover:shadow-[0_0_30px_rgba(99,102,241,0.2)] transition-all duration-300"
                   >
-                    <TemplateCard template={template} index={i} accentColor={template.accent} />
+                    {/* Header with Logo */}
+                    <div className="absolute top-6 left-6 right-6 z-20 flex justify-between items-center">
+                      <div className="flex items-center gap-2 px-3 py-1.5 bg-black/40 backdrop-blur-md rounded-xl border border-white/10">
+                        {template.logo ? (
+                           <img src={template.logo} className="w-5 h-5 object-contain" alt="Logo" />
+                        ) : (
+                           <Sparkles size={14} className="text-primary" />
+                        )}
+                        <span className="text-[10px] font-black uppercase tracking-wider text-white">{template.brand || 'Premium'}</span>
+                      </div>
+                      <div className="px-3 py-1.5 bg-primary/20 backdrop-blur-md rounded-xl border border-primary/30">
+                        <span className="text-[10px] font-bold uppercase tracking-wider text-primary">Pro</span>
+                      </div>
+                    </div>
+
+                    {/* Preview Image Container */}
+                    <div className={`h-[260px] bg-gradient-to-br ${template.color} relative overflow-hidden`}>
+                      <div className="absolute inset-0 bg-black/20 mix-blend-overlay" />
+                      {template.previewImg ? (
+                        <img src={template.previewImg} className="w-full h-full object-cover group-hover:scale-110 transition-transform duration-700" alt={template.title} />
+                      ) : (
+                        <div className="absolute inset-0 flex items-center justify-center opacity-20 group-hover:opacity-40 transition-opacity">
+                           {React.createElement(template.icon, { size: 140, className: "text-white" })}
+                        </div>
+                      )}
+                      
+                      {/* Interaction Overlay */}
+                      <div className="absolute inset-0 bg-primary/40 opacity-0 group-hover:opacity-100 transition-opacity flex items-center justify-center backdrop-blur-[2px]">
+                        <div className="px-6 py-3 bg-white text-black rounded-full font-black text-xs uppercase tracking-widest shadow-xl transform translate-y-4 group-hover:translate-y-0 transition-transform duration-300">
+                          Select Base
+                        </div>
+                      </div>
+                    </div>
+
+                    {/* Content */}
+                    <div className="p-8 space-y-4">
+                      <div>
+                        <h3 className="text-2xl font-black text-foreground group-hover:text-primary transition-colors">{template.title}</h3>
+                        <p className="text-muted-foreground text-sm mt-2 leading-relaxed line-clamp-2">{template.subtitle}</p>
+                      </div>
+                      
+                      <div className="flex items-center gap-4 pt-4 border-t border-white/5">
+                        <div className="flex -space-x-2">
+                          {[1,2,3].map(j => (
+                            <div key={j} className="w-6 h-6 rounded-full border border-[#0A0F1E] bg-muted flex items-center justify-center">
+                              <Check size={10} className="text-primary" />
+                            </div>
+                          ))}
+                        </div>
+                        <span className="text-[10px] font-bold uppercase tracking-widest text-muted-foreground/60">Fully Responsive</span>
+                      </div>
+                    </div>
                   </motion.div>
                 ))}
               </AnimatePresence>
+
             </div>
-          </section>
+          </div>
+        </section>
 
-          {/* Features Grid */}
-          <section className="py-12 px-8 rounded-[40px] bg-gradient-to-br from-card to-background border border-border shadow-2xl relative overflow-hidden">
-            <div className="absolute top-0 right-0 w-96 h-96 bg-primary/5 rounded-full blur-[100px] -mr-48 -mt-48" />
+        {/* Features Grid */}
+        <section id="features" className="py-32 px-6 relative overflow-hidden">
+          <div className="absolute top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2 w-[1000px] h-[1000px] bg-primary/5 rounded-full blur-[150px] -z-10" />
+          
+          <div className="max-w-7xl mx-auto">
+            <SectionHeading title="UNMATCHED POWER." subtitle="Core Engine" />
             
-            <div className="relative z-10 grid lg:grid-cols-2 gap-16 items-center">
-              <div className="space-y-6 text-left">
-                <h2 className="text-4xl md:text-5xl font-bold tracking-tight">Everything you need<br />to <span className="text-primary">launch.</span></h2>
-                <p className="text-lg text-muted-foreground">
-                  FlowSite provides a professional suite of tools to take your idea from concept to a live website in record time.
-                </p>
-                <div className="grid grid-cols-2 gap-6 pt-4">
-                  {[
-                    { icon: Check, text: 'No setup required' },
-                    { icon: Check, text: 'Clean HTML export' },
-                    { icon: Check, text: 'Mobile responsive' },
-                    { icon: Check, text: '3D Animations' }
-                  ].map((item, i) => (
-                    <div key={i} className="flex items-center gap-2">
-                      <div className="w-5 h-5 rounded-full bg-emerald-500/10 flex items-center justify-center">
-                        <Check size={12} className="text-emerald-500" />
-                      </div>
-                      <span className="text-sm font-medium">{item.text}</span>
-                    </div>
-                  ))}
-                </div>
-              </div>
-
-              <div className="grid grid-cols-2 gap-4">
-                {[
-                  { icon: Wand2, title: 'AI Content', desc: 'Auto-populate fields', color: 'bg-violet-500' },
-                  { icon: Code2, title: 'Clean Code', desc: 'Ready to deploy', color: 'bg-blue-500' },
-                  { icon: LayersIcon, title: 'Layouts', desc: 'Modern & Minimal', color: 'bg-emerald-500' },
-                  { icon: RefreshCw, title: 'Live Sync', desc: 'Instant feedback', color: 'bg-orange-500' },
-                ].map((feature, i) => (
-                  <div key={i} className="p-6 bg-background rounded-3xl border border-border hover:shadow-xl transition-all">
-                    <div className={`w-12 h-12 rounded-2xl ${feature.color} flex items-center justify-center mb-4 text-white shadow-lg`}>
-                      <feature.icon size={24} />
-                    </div>
-                    <h3 className="font-bold mb-1">{feature.title}</h3>
-                    <p className="text-xs text-muted-foreground">{feature.desc}</p>
+            <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-8">
+              {[
+                { icon: Wand2, title: 'AI Logic', desc: 'Auto-generate SEO-optimized sections instantly.', color: 'text-violet-400', bg: 'bg-violet-400/10' },
+                { icon: Globe, title: 'Edge Export', desc: 'Deploy anywhere with clean, zero-dep code.', color: 'text-blue-400', bg: 'bg-blue-400/10' },
+                { icon: ZapIcon, title: 'Live Sync', desc: 'See changes in real-time with zero latency.', color: 'text-amber-400', bg: 'bg-amber-400/10' },
+                { icon: Shield, title: 'Secure Store', desc: 'End-to-end encryption for your digital assets.', color: 'text-emerald-400', bg: 'bg-emerald-400/10' },
+              ].map((f, i) => (
+                <motion.div 
+                  key={i}
+                  whileHover={{ y: -8 }}
+                  className="glass-premium p-10 rounded-[2.5rem] space-y-6 group"
+                >
+                  <div className={`w-16 h-16 rounded-2xl ${f.bg} flex items-center justify-center ${f.color} group-hover:scale-110 transition-transform`}>
+                    <f.icon size={32} />
                   </div>
+                  <h3 className="text-2xl font-black">{f.title}</h3>
+                  <p className="text-muted-foreground leading-relaxed text-sm">{f.desc}</p>
+                  <div className="pt-4 flex items-center gap-2 text-xs font-black uppercase tracking-widest text-primary opacity-0 group-hover:opacity-100 transition-opacity">
+                    Learn More <ChevronRight size={14} />
+                  </div>
+                </motion.div>
+              ))}
+            </div>
+          </div>
+        </section>
+
+        {/* Comparison Section */}
+        <section className="py-32 px-6">
+          <div className="max-w-5xl mx-auto glass-premium rounded-[3rem] overflow-hidden border-white/5">
+             <div className="grid md:grid-cols-2">
+                <div className="p-12 md:p-16 space-y-8 bg-white/[0.02]">
+                   <h2 className="text-3xl md:text-5xl font-black tracking-tighter">Why FlowSite?</h2>
+                   <p className="text-muted-foreground">We built the engine we always wanted. Fast, clean, and interactive.</p>
+                   <div className="space-y-4 pt-6">
+                      {[
+                        'Vanilla HTML/CSS Output',
+                        'Real-time 3D Preview',
+                        'No subscription lock-in',
+                        'Blazing fast performance'
+                      ].map(item => (
+                        <div key={item} className="flex items-center gap-3">
+                           <div className="w-5 h-5 rounded-full bg-emerald-500/20 flex items-center justify-center">
+                              <Check size={12} className="text-emerald-500" />
+                           </div>
+                           <span className="text-sm font-bold">{item}</span>
+                        </div>
+                      ))}
+                   </div>
+                </div>
+                <div className="p-12 md:p-16 border-l border-white/5 space-y-8">
+                   <h3 className="text-xl font-bold uppercase tracking-widest text-muted-foreground">The Competition</h3>
+                   <div className="space-y-4 opacity-50">
+                      {[
+                        'Proprietary messy code',
+                        'Flat 2D static builders',
+                        'High monthly fees',
+                        'Slow bloated scripts'
+                      ].map(item => (
+                        <div key={item} className="flex items-center gap-3 grayscale">
+                           <X size={16} className="text-red-500" />
+                           <span className="text-sm">{item}</span>
+                        </div>
+                      ))}
+                   </div>
+                   <button className="mt-8 text-primary font-black uppercase tracking-widest text-xs flex items-center gap-2">
+                      Join the movement <ArrowRight size={14} />
+                   </button>
+                </div>
+             </div>
+          </div>
+        </section>
+
+        {/* Pricing Section */}
+        <section id="pricing" className="py-32 px-6 bg-primary/5">
+          <div className="max-w-7xl mx-auto">
+            <SectionHeading title="TRANSPARENT PRICING." subtitle="Investment" />
+            <div className="grid grid-cols-1 md:grid-cols-3 gap-8">
+              {[
+                { name: 'Starter', price: '$0', desc: 'Perfect for exploring', features: ['3 Templates', 'Standard Export', 'Community Support'] },
+                { name: 'Pro', price: '$19', desc: 'Most popular choice', features: ['All Templates', 'Premium Assets', 'Priority AI access', '3D Components'], featured: true },
+                { name: 'Studio', price: '$49', desc: 'For power users', features: ['White Label', 'Custom Domains', 'Direct Dev Support', 'API Access'] },
+              ].map((plan, i) => (
+                <div key={i} className={`p-12 rounded-[3rem] flex flex-col justify-between transition-all ${
+                  plan.featured ? 'bg-primary text-white shadow-glow scale-105 z-10' : 'glass-premium'
+                }`}>
+                  <div className="space-y-6">
+                    <div className="space-y-2">
+                      <h3 className="text-2xl font-black uppercase">{plan.name}</h3>
+                      <p className={plan.featured ? 'text-white/70' : 'text-muted-foreground'}>{plan.desc}</p>
+                    </div>
+                    <div className="text-6xl font-black">{plan.price}</div>
+                    <ul className="space-y-4 pt-6">
+                      {plan.features.map(f => (
+                        <li key={f} className="flex items-center gap-3 text-sm font-bold">
+                          <Check size={16} className={plan.featured ? 'text-white' : 'text-primary'} />
+                          {f}
+                        </li>
+                      ))}
+                    </ul>
+                  </div>
+                  <button className={`w-full py-4 rounded-2xl font-black text-sm mt-12 transition-all ${
+                    plan.featured ? 'bg-white text-black hover:scale-105' : 'bg-white/5 hover:bg-white/10'
+                  }`}>
+                    Choose {plan.name}
+                  </button>
+                </div>
+              ))}
+            </div>
+          </div>
+        </section>
+
+        {/* Final CTA */}
+        <section className="py-44 px-6 text-center">
+          <div className="max-w-5xl mx-auto glass-premium p-16 md:p-32 rounded-[4rem] relative overflow-hidden shadow-glow">
+            <div className="absolute top-0 right-0 w-96 h-96 bg-primary/20 blur-[100px] -mr-48 -mt-48" />
+            <div className="relative z-10 space-y-12">
+               <h2 className="text-5xl md:text-8xl font-black tracking-tighter">READY TO <br /><span className="gradient-text">LAUNCH?</span></h2>
+               <p className="text-xl md:text-2xl text-muted-foreground max-w-2xl mx-auto leading-relaxed">
+                  Join 10,000+ creators who have already built their dream site. 
+                  Start building for free today.
+               </p>
+               <div className="flex flex-col sm:flex-row items-center justify-center gap-6">
+                  <button onClick={handleBlank} className="w-full sm:w-auto px-12 py-6 bg-white text-black rounded-full font-black text-xl hover:scale-105 transition-transform active:scale-95 shadow-xl">
+                    Create Website
+                  </button>
+                  <button className="w-full sm:w-auto px-12 py-6 glass rounded-full font-black text-xl hover:bg-white/5 transition-all">
+                    Talk to Us
+                  </button>
+               </div>
+            </div>
+          </div>
+        </section>
+
+        {/* Footer */}
+        <footer className="bg-[#000000] py-20 px-10 border-t border-white/5">
+          <div className="max-w-7xl mx-auto grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-16">
+            {/* ABOUT */}
+            <div className="space-y-6">
+              <div className="flex items-center gap-3">
+                <div className="w-8 h-8 rounded-sm bg-accent-purple flex items-center justify-center">
+                  <Sparkles size={16} className="text-white" />
+                </div>
+                <span className="font-black text-lg tracking-tighter uppercase text-white">FLOWSITE</span>
+              </div>
+              <p className="text-sm font-medium text-[#A0AEC0] max-w-[200px]">Build. Create. Launch.</p>
+              <div className="flex gap-4 pt-4">
+                {[Twitter, Github, Linkedin, MessageSquare].map((Icon, i) => (
+                  <motion.a 
+                    key={i} 
+                    href="#" 
+                    whileHover={{ y: -2, color: '#FFFFFF' }} 
+                    className="text-[#64748B] transition-colors"
+                  >
+                    <Icon size={16} />
+                  </motion.a>
                 ))}
               </div>
             </div>
-          </section>
-        </main>
-
-        <footer className="w-full py-12 px-6 lg:px-12 border-t border-border/50 text-center space-y-4">
-          <div className="flex items-center justify-center gap-6">
-            <a href="#" className="text-sm text-muted-foreground hover:text-foreground transition-colors">Privacy</a>
-            <a href="#" className="text-sm text-muted-foreground hover:text-foreground transition-colors">Terms</a>
-            <a href="#" className="text-sm text-muted-foreground hover:text-foreground transition-colors">Contact</a>
+            
+            {/* PRODUCT */}
+            <div>
+              <h5 className="text-[12px] font-bold uppercase tracking-[1.5px] text-white mb-8">Product</h5>
+              <ul className="space-y-4">
+                {['Features', 'Templates', 'Pricing', 'Export', 'Documentation'].map(link => (
+                  <li key={link}>
+                    <a href="#" className="text-sm text-[#A0AEC0] hover:text-white transition-all relative group inline-block">
+                      {link}
+                      <span className="absolute bottom-0 left-0 w-0 h-[1px] bg-white transition-all group-hover:w-full" />
+                    </a>
+                  </li>
+                ))}
+              </ul>
+            </div>
+            
+            {/* COMPANY */}
+            <div>
+              <h5 className="text-[12px] font-bold uppercase tracking-[1.5px] text-white mb-8">Company</h5>
+              <ul className="space-y-4">
+                {['About', 'Blog', 'Careers', 'Press Kit', 'Status'].map(link => (
+                  <li key={link}>
+                    <a href="#" className="text-sm text-[#A0AEC0] hover:text-white transition-all relative group inline-block">
+                      {link}
+                      <span className="absolute bottom-0 left-0 w-0 h-[1px] bg-white transition-all group-hover:w-full" />
+                    </a>
+                  </li>
+                ))}
+              </ul>
+            </div>
+            
+            {/* LEGAL */}
+            <div>
+              <h5 className="text-[12px] font-bold uppercase tracking-[1.5px] text-white mb-8">Legal</h5>
+              <ul className="space-y-4">
+                {['Privacy Policy', 'Terms of Service', 'Cookie Policy', 'Security'].map(link => (
+                  <li key={link}>
+                    <a href="#" className="text-sm text-[#A0AEC0] hover:text-white transition-all relative group inline-block">
+                      {link}
+                      <span className="absolute bottom-0 left-0 w-0 h-[1px] bg-white transition-all group-hover:w-full" />
+                    </a>
+                  </li>
+                ))}
+              </ul>
+            </div>
           </div>
-          <p className="text-sm text-muted-foreground/60">© 2026 FlowSite. Built for creators.</p>
+
+          <div className="max-w-7xl mx-auto pt-16 mt-16 border-t border-white/5 flex flex-col md:flex-row items-center justify-between gap-6">
+            <div className="flex flex-col md:flex-row items-center gap-4 text-center md:text-left">
+              <span className="text-[12px] text-[#64748B]">© 2026 FlowSite. Built for creators.</span>
+              <span className="hidden md:block w-1 h-1 rounded-full bg-white/10" />
+              <span className="text-[12px] text-[#64748B] font-medium">Instant Creation. Zero Dependencies.</span>
+            </div>
+            <div className="flex items-center gap-6">
+               <a href="#" className="text-[12px] font-bold text-[#64748B] hover:text-white transition-colors">TW</a>
+               <a href="#" className="text-[12px] font-bold text-[#64748B] hover:text-white transition-colors">GH</a>
+               <a href="#" className="text-[12px] font-bold text-[#64748B] hover:text-white transition-colors">DC</a>
+            </div>
+          </div>
         </footer>
       </div>
     </div>
   );
 }
+
+// --- Templates Configuration ---
+
+const allTemplates: Record<WebsiteType, { id: string; title: string; subtitle: string; icon: any; color: string; accent: string; brand?: string; logo?: string; previewImg?: string; data: PortfolioData }[]> = {
+  portfolio: [
+    { id: 'dev', title: 'Midnight Dev', brand: 'NEO-TECH', subtitle: 'Ultra-modern developer portfolio with grid layouts.', icon: Code, color: 'from-blue-600 to-indigo-700', accent: '#3B82F6', data: { websiteType: 'portfolio', user: { name: 'Alex Chen', role: 'Full Stack Developer', bio: 'Building amazing web experiences.' }, settings: { theme: 'dark', layout: 'modern', accentColor: '#3B82F6' }, projects: [], skills: [], experience: [] } },
+    { id: 'designer', title: 'Studio Canvas', brand: 'ART-FLOW', subtitle: 'Minimalist canvas for creative designers and artists.', icon: Palette, color: 'from-pink-600 to-rose-700', accent: '#EC4899', data: { websiteType: 'portfolio', user: { name: 'Sarah Miller', role: 'Product Designer', bio: 'Crafting beautiful interfaces.' }, settings: { theme: 'light', layout: 'modern', accentColor: '#EC4899' }, projects: [], skills: [] } },
+  ],
+  college: [
+    { id: 'cs', title: 'Scholar Port', brand: 'EDU-GRID', subtitle: 'Detailed academic and research-focused portfolio.', icon: Code, color: 'from-emerald-600 to-teal-700', accent: '#10B981', data: { websiteType: 'college', user: { name: 'Student Name', role: 'CS Student', bio: 'Building the future with code.' }, settings: { theme: 'dark', layout: 'modern', accentColor: '#10B981' }, collegeProjects: [], education: [] } },
+    { id: 'eng', title: 'Lab Deck', brand: 'LAB-WARE', subtitle: 'Industrial design and engineering documentation.', icon: Layers, color: 'from-cyan-600 to-blue-700', accent: '#06B6D4', data: { websiteType: 'college', user: { name: 'Engineer', role: 'Engineering Student', bio: 'Innovation through engineering.' }, settings: { theme: 'light', layout: 'modern', accentColor: '#06B6D4' }, collegeProjects: [] } },
+  ],
+  business: [
+    { id: 'agency', title: 'Nexus Agency', brand: 'NEXUS', subtitle: 'High-conversion business and service landing page.', icon: Building2, color: 'from-amber-600 to-orange-700', accent: '#F59E0B', data: { websiteType: 'business', user: { name: 'Agency Name', role: '', bio: 'We deliver results.' }, settings: { theme: 'dark', layout: 'modern', accentColor: '#F59E0B' }, services: [], stats: [] } },
+    { id: 'startup', title: 'Vision Launch', brand: 'VISION', subtitle: 'Disrupting industries with a bold startup presence.', icon: Rocket, color: 'from-violet-600 to-purple-700', accent: '#8B5CF6', data: { websiteType: 'business', user: { name: 'Startup', role: '', bio: 'Disrupting the industry.' }, settings: { theme: 'dark', layout: 'modern', accentColor: '#8B5CF6' }, services: [] } },
+  ],
+  app: [
+    { id: 'saas', title: 'SaaS Alpha', brand: 'ALPHA', subtitle: 'The definitive foundation for your software product.', icon: AppWindow, color: 'from-violet-600 to-purple-700', accent: '#8B5CF6', data: { websiteType: 'app', user: { name: 'App Name', role: '', bio: 'Your solution.' }, settings: { theme: 'dark', layout: 'modern', accentColor: '#8B5CF6' }, appFeatures: [], pricing: [] } },
+    { id: 'mobile', title: 'App Store Pro', brand: 'STORE', subtitle: 'Mobile-first showcase for iOS and Android apps.', icon: Camera, color: 'from-emerald-600 to-teal-700', accent: '#10B981', data: { websiteType: 'app', user: { name: 'Mobile App', role: '', bio: 'On-the-go solution.' }, settings: { theme: 'light', layout: 'modern', accentColor: '#10B981' }, appFeatures: [] } },
+  ],
+};

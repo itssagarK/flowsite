@@ -86,27 +86,6 @@ export function About() {
             When I'm not coding, you'll find me exploring new technologies, contributing to open source, or writing technical articles.
           </p>
         </div>
-
-        {/* Stats/Features */}
-        <motion.div
-          initial={{ opacity: 0, y: 20 }}
-          whileInView={{ opacity: 1, y: 0 }}
-          viewport={{ once: false }}
-          transition={{ delay: 0.2 }}
-          className="flex flex-wrap gap-8 mt-10"
-        >
-          {[
-            { value: '5+', label: 'Years Exp.' },
-            { value: '50+', label: 'Projects' },
-            { value: '30+', label: 'Clients' },
-            { value: '100%', label: 'Satisfaction' }
-          ].map((stat, i) => (
-            <div key={stat.label} className="flex flex-col">
-              <span className="text-3xl font-bold text-primary">{stat.value}</span>
-              <span className="text-sm text-muted-foreground">{stat.label}</span>
-            </div>
-          ))}
-        </motion.div>
       </motion.div>
     </section>
   );
