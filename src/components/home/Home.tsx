@@ -299,35 +299,6 @@ export function Home({ onNavigate }: { onNavigate: () => void }) {
           </div>
         </section>
 
-        {/* Live Demo Showcase Section */}
-        <section ref={demoRef} id="demo" className="py-60 relative">
-          <div className="section-wrapper space-y-32">
-            <RevealOnScroll direction="center">
-              <div className="text-center space-y-6">
-                <div className="inline-flex items-center gap-3 px-4 py-1.5 bg-primary/10 rounded-full">
-                  <span className="text-[11px] font-black uppercase tracking-[0.2em] text-primary">Live Experience</span>
-                </div>
-                <h2 className="text-6xl md:text-8xl font-black tracking-tighter text-white uppercase leading-none">Automated <br />Intelligence.</h2>
-                <p className="subheading mx-auto text-white/40">Witness the synergy of design and logic as FlowSite builds in real-time.</p>
-              </div>
-            </RevealOnScroll>
-
-            <div className="relative group">
-              <div className="absolute -inset-4 bg-gradient-to-r from-primary/20 via-purple-500/20 to-pink-500/20 rounded-[3rem] blur-2xl opacity-50 group-hover:opacity-100 transition-opacity" />
-              <div className="relative glass-premium p-4 md:p-8 border-white/10 bg-black/40 shadow-2xl overflow-hidden">
-                <AutoDemo />
-              </div>
-
-              {/* Mock Browser Controls Overlay */}
-              <div className="absolute top-12 left-16 hidden md:flex items-center gap-3 z-20">
-                <div className="px-4 py-1.5 rounded-full bg-white/10 backdrop-blur-md border border-white/10 text-[10px] font-bold text-white/40 uppercase tracking-widest flex items-center gap-2">
-                  <Globe size={10} /> flowsite.studio/preview-01
-                </div>
-              </div>
-            </div>
-          </div>
-        </section>
-
         {/* Templates Showcase */}
         <section id="templates" className="py-60 relative bg-black/20">
           <div className="section-wrapper">
@@ -399,6 +370,35 @@ export function Home({ onNavigate }: { onNavigate: () => void }) {
                   </ThreeDCard>
                 </RevealOnScroll>
               ))}
+            </div>
+          </div>
+        </section>
+
+        {/* Live Demo Showcase Section */}
+        <section ref={demoRef} id="demo" className="py-60 relative">
+          <div className="section-wrapper space-y-32">
+            <RevealOnScroll direction="center">
+              <div className="text-center space-y-6">
+                <div className="inline-flex items-center gap-3 px-4 py-1.5 bg-primary/10 rounded-full">
+                  <span className="text-[11px] font-black uppercase tracking-[0.2em] text-primary">Live Experience</span>
+                </div>
+                <h2 className="text-6xl md:text-8xl font-black tracking-tighter text-white uppercase leading-none">Automated <br />Intelligence.</h2>
+                <p className="subheading mx-auto text-white/40">Witness the synergy of design and logic as FlowSite builds in real-time.</p>
+              </div>
+            </RevealOnScroll>
+
+            <div className="relative group">
+              <div className="absolute -inset-4 bg-gradient-to-r from-primary/20 via-purple-500/20 to-pink-500/20 rounded-[3rem] blur-2xl opacity-50 group-hover:opacity-100 transition-opacity" />
+              <div className="relative glass-premium p-4 md:p-8 border-white/10 bg-black/40 shadow-2xl overflow-hidden">
+                <AutoDemo onTryYourself={handleBlank} />
+              </div>
+
+              {/* Mock Browser Controls Overlay */}
+              <div className="absolute top-12 left-16 hidden md:flex items-center gap-3 z-20">
+                <div className="px-4 py-1.5 rounded-full bg-white/10 backdrop-blur-md border border-white/10 text-[10px] font-bold text-white/40 uppercase tracking-widest flex items-center gap-2">
+                  <Globe size={10} /> flowsite.studio/preview-01
+                </div>
+              </div>
             </div>
           </div>
         </section>
