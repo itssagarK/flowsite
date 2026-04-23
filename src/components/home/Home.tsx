@@ -197,7 +197,13 @@ export function Home({ onNavigate }: { onNavigate: () => void }) {
                 <a key={item} href={`#${item.toLowerCase()}`} className="text-sm font-black uppercase tracking-[0.2em] text-white/40 hover:text-white transition-colors">{item}</a>
               ))}
             </div>
-            <button onClick={handleBlank} className="px-10 py-4 bg-white text-black rounded-2xl text-sm font-black uppercase tracking-[0.1em] shadow-xl hover:scale-105 transition-all">
+            <button 
+              onClick={(e) => {
+                e.stopPropagation();
+                handleBlank();
+              }} 
+              className="px-10 py-4 bg-white text-black rounded-2xl text-sm font-black uppercase tracking-[0.1em] shadow-xl hover:scale-105 transition-all cursor-pointer relative z-20"
+            >
               Launch App
             </button>
           </div>
@@ -222,7 +228,7 @@ export function Home({ onNavigate }: { onNavigate: () => void }) {
                 transition={{ delay: 0.2 }}
                 className="text-7xl md:text-9xl font-black tracking-tighter text-white leading-[0.85] uppercase"
               >
-                The Future of <br /><span className="gradient-text">Visual</span> <br />Building.
+                Build your <br /><span className="gradient-text">Vision,</span> <br />Beautifully.
               </motion.h1>
               <motion.p 
                 initial={{ opacity: 0, y: 20 }}
@@ -230,8 +236,8 @@ export function Home({ onNavigate }: { onNavigate: () => void }) {
                 transition={{ delay: 0.3 }}
                 className="subheading mx-auto text-white/40"
               >
-                A high-performance, gravity-defying workspace where AI-powered logic 
-                meets cinematic design. Build your legacy in weightless space.
+                The most intuitive way to design, build, and deploy your next project. 
+                Experience a workspace where your ideas flow without limits.
               </motion.p>
             </div>
 
@@ -239,12 +245,24 @@ export function Home({ onNavigate }: { onNavigate: () => void }) {
               initial={{ opacity: 0, y: 20 }}
               animate={{ opacity: 1, y: 0 }}
               transition={{ delay: 0.4 }}
-              className="flex flex-wrap justify-center gap-6"
+              className="flex flex-wrap justify-center gap-6 relative z-20"
             >
-              <button onClick={handleBlank} className="px-12 py-6 bg-primary text-white rounded-2xl font-black text-xl shadow-[0_20px_40px_#7C3AED40] hover:shadow-[0_20px_50px_#7C3AED60] hover:-translate-y-1 transition-all flex items-center gap-3">
+              <button 
+                onClick={(e) => {
+                  e.stopPropagation();
+                  handleBlank();
+                }} 
+                className="px-12 py-6 bg-primary text-white rounded-2xl font-black text-xl shadow-[0_20px_40px_#7C3AED40] hover:shadow-[0_20px_50px_#7C3AED60] hover:-translate-y-1 transition-all flex items-center gap-3 cursor-pointer"
+              >
                 Start Building <ArrowRight size={20} />
               </button>
-              <button onClick={scrollToDemo} className="px-12 py-6 glass-premium text-white rounded-2xl font-black text-xl border-white/10 hover:bg-white/5 transition-all flex items-center gap-3">
+              <button 
+                onClick={(e) => {
+                  e.stopPropagation();
+                  scrollToDemo();
+                }} 
+                className="px-12 py-6 glass-premium text-white rounded-2xl font-black text-xl border-white/10 hover:bg-white/5 transition-all flex items-center gap-3 cursor-pointer"
+              >
                 Watch Demo <Play size={20} fill="currentColor" />
               </button>
             </motion.div>
@@ -342,9 +360,9 @@ export function Home({ onNavigate }: { onNavigate: () => void }) {
               </div>
             </RevealOnScroll>
 
-            <div className="grid grid-cols-1 md:grid-cols-2 gap-12">
+            <div className="grid grid-cols-1 md:grid-cols-2 gap-12 relative z-20">
               <ThreeDCard>
-                <div onClick={handleBlank} className="glass-premium p-12 h-full flex flex-col items-center justify-center border-dashed border-white/20 hover:border-primary/50 cursor-pointer group gap-6 min-h-[500px]">
+                <div onClick={(e) => { e.stopPropagation(); handleBlank(); }} className="glass-premium p-12 h-full flex flex-col items-center justify-center border-dashed border-white/20 hover:border-primary/50 cursor-pointer group gap-6 min-h-[500px]">
                   <div className="w-20 h-20 rounded-full bg-white/5 flex items-center justify-center border border-white/10 group-hover:scale-110 transition-transform">
                     <Plus size={40} className="text-white/20 group-hover:text-primary transition-colors" />
                   </div>
@@ -358,7 +376,7 @@ export function Home({ onNavigate }: { onNavigate: () => void }) {
               {templates.map((template, i) => (
                 <RevealOnScroll key={i} delay={i * 0.1} direction="center">
                   <ThreeDCard className="h-full">
-                    <div onClick={() => handleSelectTemplate(template.data)} className="glass-premium p-12 h-full flex flex-col justify-between border-white/5 hover:border-primary/50 cursor-pointer group min-h-[500px]">
+                    <div onClick={(e) => { e.stopPropagation(); handleSelectTemplate(template.data); }} className="glass-premium p-12 h-full flex flex-col justify-between border-white/5 hover:border-primary/50 cursor-pointer group min-h-[500px]">
                       <div className="space-y-10">
                         <div className="flex items-center justify-between">
                           <div className={`p-5 rounded-3xl bg-gradient-to-br ${template.color} shadow-lg`}>
@@ -383,28 +401,6 @@ export function Home({ onNavigate }: { onNavigate: () => void }) {
               ))}
             </div>
           </div>
-        </section>
-
-        {/* Stats / Features Grid */}
-        <section id="features" className="py-60 relative overflow-hidden">
-           <div className="section-wrapper">
-             <div className="grid grid-cols-1 md:grid-cols-3 gap-8">
-                {[
-                  { icon: Zap, title: "Speed", value: "0.4s", desc: "Production-ready build times." },
-                  { icon: Shield, title: "Security", value: "99.9%", desc: "Enterprise-grade encryption." },
-                  { icon: Users, title: "Growth", value: "12M+", desc: "Digital products launched." }
-                ].map((stat, i) => (
-                  <RevealOnScroll key={i} delay={i * 0.1}>
-                    <div className="glass-premium p-12 border-white/5 hover:bg-white/5 transition-colors">
-                      <stat.icon className="text-primary mb-8" size={32} />
-                      <div className="text-5xl font-black text-white mb-2 uppercase">{stat.value}</div>
-                      <div className="text-lg font-bold text-white uppercase tracking-widest mb-4">{stat.title}</div>
-                      <p className="text-white/40 font-medium">{stat.desc}</p>
-                    </div>
-                  </RevealOnScroll>
-                ))}
-             </div>
-           </div>
         </section>
 
         {/* Pricing Section */}
