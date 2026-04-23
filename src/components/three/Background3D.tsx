@@ -2,6 +2,7 @@ import React, { useRef, useMemo, useState, useEffect } from 'react';
 import { Canvas, useFrame, useThree } from '@react-three/fiber';
 import { Float, MeshDistortMaterial, Sphere, Torus, Icosahedron, Octahedron, MeshWobbleMaterial, Sparkles, PerspectiveCamera } from '@react-three/drei';
 import * as THREE from 'three';
+import { AdvancedBackground } from './AdvancedBackground';
 
 // Re-export from AdvancedBackground
 export { AdvancedBackground, SimpleBackground, MiniAdvancedScene } from './AdvancedBackground';
