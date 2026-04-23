@@ -64,34 +64,34 @@
 }
 
 .glass-premium {
-  background: rgba(15, 23, 42, 0.4);
-  backdrop-filter: blur(24px) saturate(150%);
-  border: 1px solid rgba(255, 255, 255, 0.1);
-  border-radius: 32px;
+  background: rgba(15, 23, 42, 0.3);
+  backdrop-filter: blur(20px) saturate(160%);
+  border: 1px solid rgba(255, 255, 255, 0.05);
+  border-radius: 28px;
 }
 
 .text-glow {
-  text-shadow: 0 0 30px rgba(124, 58, 237, 0.5);
+  text-shadow: 0 0 20px rgba(124, 58, 237, 0.3);
 }
 
 .heading-huge {
-  font-size: clamp(3rem, 10vw, 8rem);
-  line-height: 0.9;
-  letter-spacing: -0.06em;
+  font-size: clamp(2.5rem, 8vw, 6.5rem);
+  line-height: 0.95;
+  letter-spacing: -0.05em;
   font-weight: 900;
   text-transform: uppercase;
 }
 
 .subheading {
-  font-size: 1.25rem;
+  font-size: 1.15rem;
   line-height: 1.6;
   color: #94A3B8;
-  max-width: 650px;
+  max-width: 600px;
   font-weight: 500;
 }
 
 .gradient-text {
-  background: linear-gradient(135deg, #3B82F6 0%, #7C3AED 50%, #EC4899 100%);
+  background: linear-gradient(135deg, #6366F1 0%, #A855F7 50%, #EC4899 100%);
   -webkit-background-clip: text;
   -webkit-text-fill-color: transparent;
   background-clip: text;
@@ -100,6 +100,34 @@
 /* 3D Card Interactions */
 .perspective-1000 { perspective: 1000px; }
 .preserve-3d { transform-style: preserve-3d; }
+
+/* Anti-Gravity Workspace & Digital Void */
+.digital-void {
+  background: radial-gradient(circle at 50% 50%, #080c1d 0%, #020617 100%);
+  position: fixed;
+  inset: 0;
+  z-index: -2;
+}
+
+/* Hyper-realistic Hand Glow (Subtle) */
+.touch-glow {
+  position: absolute;
+  width: 200px;
+  height: 200px;
+  background: radial-gradient(circle, rgba(99, 102, 241, 0.15) 0%, transparent 70%);
+  border-radius: 50%;
+  pointer-events: none;
+  z-index: 50;
+  mix-blend-mode: screen;
+}
+
+/* Grid Wireframe Style */
+.wireframe-grid {
+  background-image: 
+    linear-gradient(rgba(255,255,255,0.05) 1px, transparent 1px),
+    linear-gradient(90deg, rgba(255,255,255,0.05) 1px, transparent 1px);
+  background-size: 20px 20px;
+}
 
 /* Custom Scrollbar */
 ::-webkit-scrollbar { width: 6px; }
