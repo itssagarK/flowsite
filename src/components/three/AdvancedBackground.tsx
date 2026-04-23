@@ -1,6 +1,6 @@
 import React, { useRef, useMemo, useEffect, useState } from 'react';
 import { Canvas, useFrame, useThree } from '@react-three/fiber';
-import { Float, Sparkles, MeshDistortMaterial, Sphere, Torus, Icosahedron, Box, Ring, Plane, Text } from '@react-three/drei';
+import { Float, Sparkles, MeshDistortMaterial, MeshWobbleMaterial, Sphere, Torus, Icosahedron, Box, Ring, Plane, Text } from '@react-three/drei';
 import * as THREE from 'three';
 
 // ============================================
