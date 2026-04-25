@@ -7,7 +7,8 @@ import { CinematicLoader } from './CinematicLoader';
 import {
   Plus, Sparkles, Check, ArrowRight, Play, Users,
   Code, Palette, Building2, AppWindow, Layers,
-  Rocket, Wand2, Globe, Zap, Shield, Twitter, Github, Linkedin, MessageSquare, Loader2, ChevronRight, MousePointer2, ExternalLink, Layout, Type
+  Rocket, Wand2, Globe, Zap, Shield, Twitter, Github, Linkedin, MessageSquare, Loader2, ChevronRight, MousePointer2, ExternalLink, Layout, Type,
+  Smartphone, Moon, FlaskConical, Calendar, Briefcase, ShoppingBag, TrendingUp, UtensilsCrossed, LayoutDashboard, CreditCard, BookOpen, X, Lightbulb
 } from 'lucide-react';
 
 // --- Reusable Components ---
@@ -174,6 +175,9 @@ export function Home({ onNavigate }: { onNavigate: () => void }) {
   const { updateData, setWebsiteType, resetToBlank } = useBuilder();
   const [activeWebsiteType, setActiveWebsiteType] = useState<WebsiteType>('portfolio');
   const [isLoading, setIsLoading] = useState(true);
+  const [showMoreTemplates, setShowMoreTemplates] = useState(false);
+  const [showSuggestTemplate, setShowSuggestTemplate] = useState(false);
+  const [suggestionText, setSuggestionText] = useState('');
   const demoRef = useRef<HTMLDivElement>(null);
 
   const mouseX = useMotionValue(0);
@@ -414,6 +418,7 @@ export function Home({ onNavigate }: { onNavigate: () => void }) {
             </RevealOnScroll>
 
             <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6 relative z-20">
+              {/* Start Blank */}
               <ThreeDCard>
                 <div onClick={(e) => { e.stopPropagation(); handleBlank(); }} className="glass-premium p-8 h-full flex flex-col items-center justify-center border-dashed border-white/20 hover:border-primary/50 cursor-pointer group gap-4 min-h-[280px]">
                   <div className="w-16 h-16 rounded-2xl bg-white/5 flex items-center justify-center border border-white/10 group-hover:scale-110 group-hover:border-primary/30 transition-all">
@@ -426,7 +431,8 @@ export function Home({ onNavigate }: { onNavigate: () => void }) {
                 </div>
               </ThreeDCard>
 
-              {templates.map((template: any, i: number) => (
+              {/* Pre-built Templates (2 per category) */}
+              {templates.slice(0, 2).map((template: any, i: number) => (
                 <RevealOnScroll key={i} delay={i * 0.1} direction="center">
                   <ThreeDCard className="h-full">
                     <div onClick={(e) => { e.stopPropagation(); handleSelectTemplate(template.data); }} className="glass-premium p-6 h-full flex flex-col justify-between border-white/5 hover:border-primary/50 cursor-pointer group min-h-[280px]">
@@ -452,6 +458,32 @@ export function Home({ onNavigate }: { onNavigate: () => void }) {
                   </ThreeDCard>
                 </RevealOnScroll>
               ))}
+
+              {/* More Templates Card */}
+              <ThreeDCard>
+                <div onClick={() => setShowMoreTemplates(true)} className="glass-premium p-6 h-full flex flex-col items-center justify-center border-white/10 hover:border-primary/50 cursor-pointer group gap-4 min-h-[280px]">
+                  <div className="w-16 h-16 rounded-2xl bg-primary/10 flex items-center justify-center border border-primary/20 group-hover:scale-110 group-hover:bg-primary/20 transition-all">
+                    <Layers size={32} className="text-primary group-hover:text-white transition-colors" />
+                  </div>
+                  <div className="text-center">
+                    <h3 className="text-xl font-bold text-white">More Templates</h3>
+                    <p className="text-sm text-white/40 mt-1">Browse additional options</p>
+                  </div>
+                </div>
+              </ThreeDCard>
+
+              {/* Suggest Template Card */}
+              <ThreeDCard>
+                <div onClick={() => setShowSuggestTemplate(true)} className="glass-premium p-6 h-full flex flex-col items-center justify-center border-white/10 hover:border-yellow-500/50 cursor-pointer group gap-4 min-h-[280px]">
+                  <div className="w-16 h-16 rounded-2xl bg-yellow-500/10 flex items-center justify-center border border-yellow-500/20 group-hover:scale-110 group-hover:bg-yellow-500/20 transition-all">
+                    <Lightbulb size={32} className="text-yellow-400 group-hover:text-white transition-colors" />
+                  </div>
+                  <div className="text-center">
+                    <h3 className="text-xl font-bold text-white">Suggest Template</h3>
+                    <p className="text-sm text-white/40 mt-1">Request a custom template</p>
+                  </div>
+                </div>
+              </ThreeDCard>
             </div>
           </div>
         </section>
@@ -541,6 +573,118 @@ export function Home({ onNavigate }: { onNavigate: () => void }) {
           </div>
         </section>
 
+        {/* More Templates Modal */}
+        <AnimatePresence>
+          {showMoreTemplates && (
+            <motion.div
+              initial={{ opacity: 0 }}
+              animate={{ opacity: 1 }}
+              exit={{ opacity: 0 }}
+              className="fixed inset-0 z-50 flex items-center justify-center p-4 bg-black/80 backdrop-blur-xl"
+              onClick={() => setShowMoreTemplates(false)}
+            >
+              <motion.div
+                initial={{ scale: 0.9, opacity: 0 }}
+                animate={{ scale: 1, opacity: 1 }}
+                exit={{ scale: 0.9, opacity: 0 }}
+                className="glass-premium p-8 rounded-3xl max-w-4xl w-full max-h-[80vh] overflow-y-auto"
+                onClick={(e) => e.stopPropagation()}
+              >
+                <div className="flex items-center justify-between mb-8">
+                  <div>
+                    <h3 className="text-2xl font-bold text-white">More Templates</h3>
+                    <p className="text-white/50 mt-1">Browse all available templates</p>
+                  </div>
+                  <button onClick={() => setShowMoreTemplates(false)} className="p-2 hover:bg-white/10 rounded-xl transition-colors">
+                    <X size={24} className="text-white/50" />
+                  </button>
+                </div>
+
+                <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+                  {(moreTemplates[activeWebsiteType] || moreTemplates.portfolio).map((template: any, i: number) => (
+                    <div key={i} className="glass-premium p-5 rounded-2xl border border-white/10 hover:border-primary/50 cursor-pointer group transition-all">
+                      <div className="flex items-start gap-4">
+                        <div className={`p-3 rounded-xl bg-gradient-to-br ${template.color} shrink-0`}>
+                          <template.icon size={24} className="text-white" />
+                        </div>
+                        <div className="flex-1">
+                          <h4 className="font-bold text-white">{template.title}</h4>
+                          <p className="text-sm text-white/40 mt-1">{template.subtitle}</p>
+                        </div>
+                      </div>
+                    </div>
+                  ))}
+                </div>
+
+                <div className="mt-8 pt-6 border-t border-white/10">
+                  <p className="text-center text-white/40 text-sm">More templates coming soon!</p>
+                </div>
+              </motion.div>
+            </motion.div>
+          )}
+        </AnimatePresence>
+
+        {/* Suggest Template Modal */}
+        <AnimatePresence>
+          {showSuggestTemplate && (
+            <motion.div
+              initial={{ opacity: 0 }}
+              animate={{ opacity: 1 }}
+              exit={{ opacity: 0 }}
+              className="fixed inset-0 z-50 flex items-center justify-center p-4 bg-black/80 backdrop-blur-xl"
+              onClick={() => setShowSuggestTemplate(false)}
+            >
+              <motion.div
+                initial={{ scale: 0.9, opacity: 0 }}
+                animate={{ scale: 1, opacity: 1 }}
+                exit={{ scale: 0.9, opacity: 0 }}
+                className="glass-premium p-8 rounded-3xl max-w-lg w-full"
+                onClick={(e) => e.stopPropagation()}
+              >
+                <div className="flex items-center justify-between mb-6">
+                  <div className="flex items-center gap-3">
+                    <div className="w-10 h-10 rounded-xl bg-yellow-500/20 flex items-center justify-center">
+                      <Lightbulb size={20} className="text-yellow-400" />
+                    </div>
+                    <div>
+                      <h3 className="text-xl font-bold text-white">Suggest Template</h3>
+                      <p className="text-white/40 text-sm">Request a custom template</p>
+                    </div>
+                  </div>
+                  <button onClick={() => setShowSuggestTemplate(false)} className="p-2 hover:bg-white/10 rounded-xl transition-colors">
+                    <X size={24} className="text-white/50" />
+                  </button>
+                </div>
+
+                <div className="space-y-4">
+                  <div>
+                    <label className="text-sm font-medium text-white/70 mb-2 block">Describe your ideal template</label>
+                    <textarea
+                      value={suggestionText}
+                      onChange={(e) => setSuggestionText(e.target.value)}
+                      placeholder="e.g., I need a template for a fitness gym website with bold colors and energetic vibe..."
+                      className="w-full h-32 p-4 bg-white/5 border border-white/10 rounded-xl text-white placeholder:text-white/20 focus:outline-none focus:border-primary/50 resize-none"
+                    />
+                  </div>
+
+                  <button
+                    onClick={() => {
+                      if (suggestionText.trim()) {
+                        alert('Thank you for your suggestion! We\'ll review it.');
+                        setSuggestionText('');
+                        setShowSuggestTemplate(false);
+                      }
+                    }}
+                    className="w-full py-4 bg-yellow-500 hover:bg-yellow-400 text-black font-bold rounded-xl transition-colors"
+                  >
+                    Submit Suggestion
+                  </button>
+                </div>
+              </motion.div>
+            </motion.div>
+          )}
+        </AnimatePresence>
+
         {/* Footer */}
         <footer className="py-20 border-t border-white/5">
           <div className="section-wrapper">
@@ -582,16 +726,47 @@ export function Home({ onNavigate }: { onNavigate: () => void }) {
 // --- Template Data ---
 const allTemplates: any = {
   portfolio: [
-    { title: 'Midnight Dev', subtitle: 'Ultra-modern grid architecture for developers.', icon: Code, color: 'from-blue-600 to-indigo-700', data: { websiteType: 'portfolio', settings: { theme: 'dark', accentColor: '#3B82F6' } } },
-    { title: 'Studio Canvas', subtitle: 'The elite foundation for visual artists and designers.', icon: Palette, color: 'from-pink-600 to-rose-700', data: { websiteType: 'portfolio', settings: { theme: 'light', accentColor: '#EC4899' } } },
+    { title: 'Midnight Dev', subtitle: 'Modern dark theme for developers', icon: Code, color: 'from-blue-600 to-indigo-700', data: { websiteType: 'portfolio', settings: { theme: 'dark', accentColor: '#3B82F6' } } },
+    { title: 'Clean Portfolio', subtitle: 'Minimalist portfolio design', icon: Palette, color: 'from-slate-600 to-gray-700', data: { websiteType: 'portfolio', settings: { theme: 'light', accentColor: '#64748B' } } },
   ],
   college: [
-    { title: 'Scholar Port', subtitle: 'Academic win through research-focused showcases.', icon: Rocket, color: 'from-emerald-600 to-teal-700', data: { websiteType: 'college', settings: { theme: 'dark', accentColor: '#10B981' } } },
+    { title: 'Scholar Port', subtitle: 'Academic research showcase', icon: Rocket, color: 'from-emerald-600 to-teal-700', data: { websiteType: 'college', settings: { theme: 'dark', accentColor: '#10B981' } } },
+    { title: 'Campus Life', subtitle: 'Student club & event site', icon: Building2, color: 'from-cyan-600 to-blue-700', data: { websiteType: 'college', settings: { theme: 'dark', accentColor: '#06B6D4' } } },
   ],
   business: [
-    { title: 'Nexus Agency', subtitle: 'High-conversion engine for modern service teams.', icon: Building2, color: 'from-amber-600 to-orange-700', data: { websiteType: 'business', settings: { theme: 'dark', accentColor: '#F59E0B' } } },
+    { title: 'Nexus Agency', subtitle: 'Professional agency website', icon: Building2, color: 'from-amber-600 to-orange-700', data: { websiteType: 'business', settings: { theme: 'dark', accentColor: '#F59E0B' } } },
+    { title: 'Startup Landing', subtitle: 'Modern startup website', icon: Rocket, color: 'from-rose-600 to-pink-700', data: { websiteType: 'business', settings: { theme: 'dark', accentColor: '#F43F5E' } } },
   ],
   app: [
-    { title: 'SaaS Alpha', subtitle: 'Definitive foundation for software product launches.', icon: AppWindow, color: 'from-violet-600 to-purple-700', data: { websiteType: 'app', settings: { theme: 'dark', accentColor: '#7C3AED' } } },
+    { title: 'SaaS Alpha', subtitle: 'SaaS product launch', icon: AppWindow, color: 'from-violet-600 to-purple-700', data: { websiteType: 'app', settings: { theme: 'dark', accentColor: '#7C3AED' } } },
+    { title: 'Mobile App', subtitle: 'Mobile app landing page', icon: Smartphone, color: 'from-cyan-600 to-teal-700', data: { websiteType: 'app', settings: { theme: 'dark', accentColor: '#22D3EE' } } },
+  ],
+};
+
+// More templates for each category
+const moreTemplates: any = {
+  portfolio: [
+    { title: 'Creative Pro', subtitle: 'For designers & creatives', icon: Palette, color: 'from-pink-500 to-rose-600' },
+    { title: 'Minimal Dev', subtitle: 'Clean developer portfolio', icon: Code, color: 'from-zinc-500 to-slate-600' },
+    { title: 'Dark Mode Pro', subtitle: 'Full dark portfolio', icon: Moon, color: 'from-purple-600 to-indigo-700' },
+    { title: 'Interactive', subtitle: 'Animation-heavy portfolio', icon: Sparkles, color: 'from-amber-500 to-orange-600' },
+  ],
+  college: [
+    { title: 'Research Lab', subtitle: 'Lab & research group', icon: FlaskConical, color: 'from-blue-500 to-cyan-600' },
+    { title: 'Department', subtitle: 'Department website', icon: Building2, color: 'from-indigo-500 to-purple-600' },
+    { title: 'Alumni Network', subtitle: 'Alumni portal design', icon: Users, color: 'from-teal-500 to-emerald-600' },
+    { title: 'Event Hub', subtitle: 'Conference & events', icon: Calendar, color: 'from-red-500 to-rose-600' },
+  ],
+  business: [
+    { title: 'Corporate', subtitle: 'Corporate business site', icon: Briefcase, color: 'from-slate-600 to-zinc-700' },
+    { title: 'E-Commerce', subtitle: 'Online store template', icon: ShoppingBag, color: 'from-green-500 to-emerald-600' },
+    { title: 'Consulting', subtitle: 'Consulting firm site', icon: TrendingUp, color: 'from-blue-500 to-indigo-600' },
+    { title: 'Restaurant', subtitle: 'Restaurant & cafe', icon: UtensilsCrossed, color: 'from-orange-500 to-amber-600' },
+  ],
+  app: [
+    { title: 'Dashboard', subtitle: 'Admin dashboard template', icon: LayoutDashboard, color: 'from-sky-500 to-blue-600' },
+    { title: 'SaaS Pricing', subtitle: 'Pricing page template', icon: CreditCard, color: 'from-violet-500 to-purple-600' },
+    { title: 'Landing Page', subtitle: 'App landing page', icon: Rocket, color: 'from-pink-500 to-rose-600' },
+    { title: 'Documentation', subtitle: 'Docs & help center', icon: BookOpen, color: 'from-teal-500 to-cyan-600' },
   ],
 };
