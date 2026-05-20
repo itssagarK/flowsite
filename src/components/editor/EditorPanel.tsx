@@ -1,8 +1,11 @@
 import React, { useState, useRef, useEffect } from 'react';
+import { useBuilder, WebsiteType } from '../../context/BuilderContext';
+import { User, FolderOpen, Palette, Scan, Image, Plus, Trash2, GraduationCap, Building2, AppWindow, Code, Layers, Sparkles, Mail, MapPin, Settings2, X, ChevronDown, GripVertical, Edit3, Zap, Moon, Sun, Upload, Video, Type, Layout, Move, Sliders, Eye, Clock, Wand2, ChevronRight, Check, Briefcase, RefreshCcw, AlertCircle, FileText, Loader2 } from 'lucide-react';
 import { createPortal } from 'react-dom';
 import { useBuilder, WebsiteType } from '../../context/BuilderContext';
 import { User, FolderOpen, Palette, Scan, Image, Plus, Trash2, GraduationCap, Building2, AppWindow, Code, Layers, Sparkles, Mail, MapPin, Settings2, X, ChevronDown, GripVertical, Edit3, Zap, Moon, Sun, Upload, Video, Type, Layout, Move, Sliders, Eye, Clock, Wand2, ChevronRight, Check, Briefcase, RefreshCcw, AlertCircle } from 'lucide-react';
 import { motion, AnimatePresence } from 'motion/react';
+import { isGeminiConfigured } from '../../lib/gemini';
 
 type EditorTab = 'profile' | 'content' | 'theme';
 
@@ -132,16 +135,72 @@ export function EditorPanel() {
     removeExperience,
     updateData,
     scanImage,
+    scanStatus,
+    scanError
     clearSavedData
   } = useBuilder();
 
   const [activeTab, setActiveTab] = useState<EditorTab>('profile');
-  const [isScanning, setIsScanning] = useState(false);
   const [projectExpand, setProjectExpand] = useState<number | null>(null);
   const [sectionExpand, setSectionExpand] = useState<string | null>('hero');
   const [showResetModal, setShowResetModal] = useState(false);
   const fileInputRef = useRef<HTMLInputElement>(null);
   const avatarInputRef = useRef<HTMLInputElement>(null);
+
+  // New AI Scanner State
+  const [isDragging, setIsDragging] = useState(false);
+  const [selectedFile, setSelectedFile] = useState<File | null>(null);
+  const [previewUrl, setPreviewUrl] = useState<string | null>(null);
+  const [cyclingStatusIndex, setCyclingStatusIndex] = useState(0);
+
+  const isScanning = scanStatus === 'scanning';
+  const statusMessages = ["Reading your profile...", "Extracting skills...", "Parsing experience...", "Writing bio..."];
+
+  useEffect(() => {
+    let interval: NodeJS.Timeout;
+    if (isScanning) {
+      interval = setInterval(() => {
+        setCyclingStatusIndex((prev) => (prev + 1) % statusMessages.length);
+      }, 1500);
+    }
+    return () => clearInterval(interval);
+  }, [isScanning]);
+
+  const handleFileSelect = (file: File) => {
+    if (file.size > 10 * 1024 * 1024) {
+      alert("File is too large. Max 10MB.");
+      return;
+    }
+    setSelectedFile(file);
+    if (file.type.startsWith('image/')) {
+      const url = URL.createObjectURL(file);
+      setPreviewUrl(url);
+    } else {
+      setPreviewUrl(null);
+    }
+  };
+
+  const onDragOver = (e: React.DragEvent) => {
+    e.preventDefault();
+    setIsDragging(true);
+  };
+
+  const onDragLeave = () => {
+    setIsDragging(false);
+  };
+
+  const onDrop = (e: React.DragEvent) => {
+    e.preventDefault();
+    setIsDragging(false);
+    const file = e.dataTransfer.files?.[0];
+    if (file) handleFileSelect(file);
+  };
+
+  const handleScannerReset = () => {
+    setSelectedFile(null);
+    setPreviewUrl(null);
+    if (fileInputRef.current) fileInputRef.current.value = '';
+  };
 
   const TypeIcon = typeIcons[websiteType];
 
@@ -187,21 +246,6 @@ export function EditorPanel() {
     { id: 'minimal', label: 'Minimal', desc: 'Simple & elegant', icon: Layers },
     { id: 'brutalist', label: 'Bold', desc: 'Strong & distinctive', icon: Code },
   ];
-
-  const handleScanImage = async (e: React.ChangeEvent<HTMLInputElement>) => {
-    const file = e.target.files?.[0];
-    if (!file) return;
-    setIsScanning(true);
-    const reader = new FileReader();
-    reader.onloadend = async () => {
-      try {
-        await scanImage(reader.result as string);
-      } finally {
-        setIsScanning(false);
-      }
-    };
-    reader.readAsDataURL(file);
-  };
 
   const projects = data.projects || [];
   const collegeProjects = data.collegeProjects || [];
@@ -302,29 +346,180 @@ export function EditorPanel() {
               </div>
 
               {/* AI Scanner */}
-              <div className="p-4 bg-gradient-to-r from-primary/10 to-violet-500/10 rounded-xl border border-primary/20">
-                <div className="flex items-center gap-2 mb-2">
+              <div className="p-4 bg-gradient-to-r from-primary/10 to-violet-500/10 rounded-xl border border-primary/20 overflow-hidden">
+                <div className="flex items-center gap-2 mb-3">
                   <Scan size={14} className="text-primary" />
-                  <h4 className="font-semibold text-xs text-foreground">AI Image Scanner</h4>
+                  <h4 className="font-semibold text-xs text-foreground">AI Profile Scanner</h4>
                 </div>
-                <p className="text-xs text-muted-foreground mb-3">Upload an image to auto-generate content</p>
-                <input type="file" ref={fileInputRef} accept="image/*" onChange={handleScanImage} className="hidden" />
-                <motion.button
-                  whileHover={{ scale: 1.02 }}
-                  whileTap={{ scale: 0.98 }}
-                  onClick={() => fileInputRef.current?.click()}
-                  disabled={isScanning}
-                  className="w-full py-2.5 bg-primary text-white text-sm font-semibold rounded-lg flex items-center justify-center gap-2 disabled:opacity-50"
-                >
-                  {isScanning ? (
-                    <motion.div animate={{ rotate: 360 }} transition={{ duration: 1, repeat: Infinity, ease: 'linear' }}>
-                      <Scan size={16} />
+
+                <AnimatePresence mode="wait">
+                  {scanStatus === 'idle' && !selectedFile && (
+                    <motion.div
+                      key="dropzone"
+                      initial={{ opacity: 0, y: 10 }}
+                      animate={{ opacity: 1, y: 0 }}
+                      exit={{ opacity: 0, scale: 0.95 }}
+                      onDragOver={onDragOver}
+                      onDragLeave={onDragLeave}
+                      onDrop={onDrop}
+                      className={`relative border-2 border-dashed rounded-xl p-6 text-center transition-all cursor-pointer group
+                        ${isDragging ? 'border-primary bg-primary/5 shadow-inner' : 'border-border hover:border-primary/50 bg-card/50'}`}
+                      onClick={() => fileInputRef.current?.click()}
+                    >
+                      <input
+                        type="file"
+                        ref={fileInputRef}
+                        className="hidden"
+                        accept=".png,.jpg,.jpeg,.webp,.pdf"
+                        onChange={(e) => {
+                          const file = e.target.files?.[0];
+                          if (file) handleFileSelect(file);
+                        }}
+                      />
+                      <div className="flex flex-col items-center gap-2">
+                        <div className="w-10 h-10 rounded-full bg-primary/10 flex items-center justify-center group-hover:scale-110 transition-transform">
+                          <Upload size={20} className="text-primary" />
+                        </div>
+                        <p className="text-[13px] font-medium text-foreground leading-tight">
+                          Drop your resume or LinkedIn screenshot
+                        </p>
+                        <p className="text-[10px] text-muted-foreground">
+                          PNG, JPG, PDF up to 10MB
+                        </p>
+                        <p className="text-[10px] text-primary font-semibold mt-1">
+                          or <span className="underline">browse files</span>
+                        </p>
+                      </div>
                     </motion.div>
-                  ) : (
-                    <Image size={16} />
                   )}
-                  {isScanning ? 'Analyzing...' : 'Upload Image'}
-                </motion.button>
+
+                  {selectedFile && !isScanning && scanStatus !== 'done' && (
+                    <motion.div
+                      key="preview"
+                      initial={{ opacity: 0, scale: 0.9 }}
+                      animate={{ opacity: 1, scale: 1 }}
+                      className="space-y-4"
+                    >
+                      <div className="relative group rounded-xl overflow-hidden border border-border aspect-video bg-muted/20 flex items-center justify-center">
+                        {previewUrl ? (
+                          <img src={previewUrl} alt="Preview" className="w-full h-full object-cover" />
+                        ) : (
+                          <div className="flex flex-col items-center gap-2">
+                            <FileText size={40} className="text-muted-foreground/50" />
+                            <p className="text-[11px] font-medium text-muted-foreground truncate max-w-[200px]">
+                              {selectedFile.name}
+                            </p>
+                          </div>
+                        )}
+                        <button
+                          onClick={handleScannerReset}
+                          className="absolute top-2 right-2 p-1.5 bg-black/50 text-white rounded-full opacity-0 group-hover:opacity-100 transition-opacity hover:bg-red-500"
+                        >
+                          <X size={14} />
+                        </button>
+                      </div>
+
+                      <motion.button
+                        whileHover={{ scale: 1.02 }}
+                        whileTap={{ scale: 0.98 }}
+                        onClick={() => scanImage(selectedFile)}
+                        disabled={!isGeminiConfigured}
+                        className="w-full py-2.5 bg-primary text-white text-sm font-semibold rounded-lg flex items-center justify-center gap-2 shadow-lg shadow-primary/20 disabled:opacity-50"
+                      >
+                        <Sparkles size={16} />
+                        Scan with AI
+                      </motion.button>
+                    </motion.div>
+                  )}
+
+                  {isScanning && (
+                    <motion.div
+                      key="scanning"
+                      initial={{ opacity: 0 }}
+                      animate={{ opacity: 1 }}
+                      className="py-6 space-y-4 text-center"
+                    >
+                      <div className="flex flex-col items-center gap-3">
+                        <div className="relative">
+                          <Loader2 size={32} className="text-primary animate-spin" />
+                          <Scan size={14} className="absolute inset-0 m-auto text-primary" />
+                        </div>
+                        <div className="space-y-1">
+                          <motion.p
+                            key={cyclingStatusIndex}
+                            initial={{ opacity: 0, y: 5 }}
+                            animate={{ opacity: 1, y: 0 }}
+                            exit={{ opacity: 0, y: -5 }}
+                            className="text-sm font-semibold text-foreground"
+                          >
+                            {statusMessages[cyclingStatusIndex]}
+                          </motion.p>
+                          <p className="text-[10px] text-muted-foreground">This usually takes 10-15 seconds</p>
+                        </div>
+                      </div>
+
+                      {/* Animated Progress Bar */}
+                      <div className="w-full h-1.5 bg-muted rounded-full overflow-hidden">
+                        <motion.div
+                          initial={{ x: '-100%' }}
+                          animate={{ x: '100%' }}
+                          transition={{ repeat: Infinity, duration: 1.5, ease: "linear" }}
+                          className="w-1/2 h-full bg-primary"
+                        />
+                      </div>
+                    </motion.div>
+                  )}
+
+                  {scanStatus === 'done' && (
+                    <motion.div
+                      key="success"
+                      initial={{ opacity: 0, y: 10 }}
+                      animate={{ opacity: 1, y: 0 }}
+                      className="space-y-3"
+                    >
+                      <div className="p-3 bg-emerald-500/10 border border-emerald-500/20 rounded-xl flex items-center gap-3">
+                        <div className="w-8 h-8 rounded-full bg-emerald-500 flex items-center justify-center shrink-0">
+                          <Check size={18} className="text-white" />
+                        </div>
+                        <div>
+                          <p className="text-[13px] font-bold text-emerald-600 leading-none mb-1">Profile filled!</p>
+                          <p className="text-[11px] text-emerald-600/80">Review and edit your details below.</p>
+                        </div>
+                      </div>
+                      <button
+                        onClick={handleScannerReset}
+                        className="w-full py-2 text-xs font-semibold text-primary hover:underline"
+                      >
+                        Scan another file
+                      </button>
+                    </motion.div>
+                  )}
+
+                  {scanStatus === 'error' && (
+                    <motion.div
+                      key="error"
+                      initial={{ opacity: 0, y: 10 }}
+                      animate={{ opacity: 1, y: 0 }}
+                      className="space-y-3"
+                    >
+                      <div className="p-3 bg-red-500/10 border border-red-500/20 rounded-xl flex items-center gap-3">
+                        <div className="w-8 h-8 rounded-full bg-red-500 flex items-center justify-center shrink-0">
+                          <AlertCircle size={18} className="text-white" />
+                        </div>
+                        <div className="flex-1">
+                          <p className="text-[13px] font-bold text-red-600 leading-none mb-1">Scanning failed</p>
+                          <p className="text-[10px] text-red-600/80 line-clamp-2">{scanError || 'Please try another image'}</p>
+                        </div>
+                      </div>
+                      <button
+                        onClick={handleScannerReset}
+                        className="w-full py-2 text-xs font-semibold text-primary hover:underline"
+                      >
+                        Try again
+                      </button>
+                    </motion.div>
+                  )}
+                </AnimatePresence>
               </div>
 
               {/* Name Field */}
