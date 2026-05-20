@@ -1,13 +1,15 @@
 import React, { useState, useRef, useEffect } from 'react';
-import { motion, AnimatePresence, useScroll, useSpring, useTransform } from 'motion/react';
+import { motion, AnimatePresence, useScroll, useSpring, useTransform, useMotionValue } from 'motion/react';
 import { useBuilder, PortfolioData, WebsiteType } from '../../context/BuilderContext';
-import { AdvancedBackground } from '../three/AdvancedBackground';
+// import { AdvancedBackground } from '../three/AdvancedBackground';
 import { AutoDemo } from './AutoDemo';
 import { CinematicLoader } from './CinematicLoader';
 import {
   Plus, Sparkles, Check, ArrowRight, Play, Users,
   Code, Palette, Building2, AppWindow, Layers,
-  Rocket, Wand2, Globe, Zap, Shield, Twitter, Github, Linkedin, MessageSquare, Loader2, ChevronRight, MousePointer2, ExternalLink
+  Rocket, Wand2, Globe, Zap, Shield, Twitter, Github, Linkedin, MessageSquare, Loader2, ChevronRight, MousePointer2, ExternalLink, Layout, Type,
+  Smartphone, Moon, FlaskConical, Calendar, Briefcase, ShoppingBag, TrendingUp, UtensilsCrossed, LayoutDashboard, CreditCard, BookOpen, X, Lightbulb
+  Rocket, Wand2, Globe, Zap, Shield, Twitter, Github, Linkedin, MessageSquare, Loader2, ChevronRight, MousePointer2, ExternalLink, Scan, Eye
 } from 'lucide-react';
 
 // --- Reusable Components ---
@@ -66,8 +68,8 @@ function ThreeDCard({ children, className = "" }: { children: React.ReactNode, c
 function RevealOnScroll({ children, delay = 0, direction = 'up' }: { children: React.ReactNode, delay?: number, direction?: 'up' | 'down' | 'left' | 'right' | 'center' }) {
   return (
     <motion.div
-      initial={{ 
-        opacity: 0, 
+      initial={{
+        opacity: 0,
         y: direction === 'up' ? 30 : direction === 'down' ? -30 : 0,
         x: direction === 'left' ? 30 : direction === 'right' ? -30 : 0,
         scale: direction === 'center' ? 0.95 : 1
@@ -81,15 +83,114 @@ function RevealOnScroll({ children, delay = 0, direction = 'up' }: { children: R
   );
 }
 
+function PreviewCard() {
+  const cardRef = useRef<HTMLDivElement>(null);
+  const [rotate, setRotate] = useState({ x: 0, y: 0 });
+  const [isHovered, setIsHovered] = useState(false);
+
+  const handleMouseMove = (e: React.MouseEvent<HTMLDivElement>) => {
+    if (!cardRef.current) return;
+    const rect = cardRef.current.getBoundingClientRect();
+    const x = e.clientX - rect.left;
+    const y = e.clientY - rect.top;
+    const centerX = rect.width / 2;
+    const centerY = rect.height / 2;
+    setRotate({ x: (y - centerY) / 20, y: (centerX - x) / 20 });
+  };
+
+  return (
+    <motion.div
+      initial={{ opacity: 0, x: 40, filter: 'blur(20px)' }}
+      animate={{ opacity: 1, x: 0, filter: 'blur(0px)' }}
+      transition={{ delay: 0.5, duration: 1.2, ease: [0.22, 1, 0.36, 1] }}
+      className="relative perspective-1000 hidden lg:block"
+    >
+      <motion.div
+        ref={cardRef}
+        onMouseMove={handleMouseMove}
+        onMouseEnter={() => setIsHovered(true)}
+        onMouseLeave={() => {
+          setRotate({ x: 0, y: 0 });
+          setIsHovered(false);
+        }}
+        animate={{ rotateX: rotate.x, rotateY: rotate.y }}
+        transition={{ type: 'spring', stiffness: 200, damping: 25 }}
+        className="preserve-3d relative"
+      >
+        {/* Glow effect */}
+        <motion.div
+          className="absolute -inset-6 bg-primary/20 rounded-[2.5rem] blur-3xl"
+          animate={{ opacity: isHovered ? 0.5 : 0.15 }}
+          transition={{ duration: 0.3 }}
+        />
+
+        {/* Subtle floating animation */}
+        <motion.div
+          animate={{ y: isHovered ? 0 : [-4, 4, -4] }}
+          transition={{ duration: 6, repeat: Infinity, ease: "easeInOut" }}
+          className="relative"
+        >
+          <div className="relative glass-premium border-white/10 bg-black/60 shadow-2xl overflow-hidden aspect-[4/3] flex flex-col">
+            {/* Mock Editor Navbar */}
+            <div className="h-12 border-b border-white/5 flex items-center justify-between px-6 bg-white/5 backdrop-blur-md">
+              <div className="flex gap-2">
+                <div className="w-3 h-3 rounded-full bg-red-500/50" />
+                <div className="w-3 h-3 rounded-full bg-yellow-500/50" />
+                <div className="w-3 h-3 rounded-full bg-green-500/50" />
+              </div>
+              <div className="px-6 py-1.5 bg-primary/20 border border-primary/30 rounded-lg text-[10px] font-bold text-primary uppercase tracking-widest flex items-center gap-2">
+                <Code size={12} /> Export Code
+              </div>
+            </div>
+
+            <div className="flex-1 flex overflow-hidden">
+              {/* Mock Sidebar */}
+              <div className="w-20 border-r border-white/5 flex flex-col items-center py-6 gap-6 bg-white/5">
+                <div className="w-8 h-8 rounded-xl bg-primary/20 flex items-center justify-center text-primary"><Layout size={18} /></div>
+                <div className="w-8 h-8 rounded-xl bg-white/5 flex items-center justify-center text-white/20"><Type size={18} /></div>
+                <div className="w-8 h-8 rounded-xl bg-white/5 flex items-center justify-center text-white/20"><Palette size={18} /></div>
+                <div className="w-8 h-8 rounded-xl bg-white/5 flex items-center justify-center text-white/20"><Layers size={18} /></div>
+              </div>
+
+              {/* Mock Canvas Area */}
+              <div className="flex-1 bg-[#030303] p-10 relative">
+                <div className="absolute inset-0 wireframe-grid opacity-[0.02]" />
+                <div className="space-y-6 relative z-10">
+                  <div className="w-2/3 h-12 bg-white/5 rounded-2xl border border-white/10" />
+                  <div className="grid grid-cols-2 gap-4">
+                    <div className="h-32 bg-primary/5 border border-primary/20 rounded-2xl" />
+                    <div className="h-32 bg-white/5 border border-white/10 rounded-2xl" />
+                  </div>
+                  <div className="w-full h-40 bg-white/5 rounded-2xl border border-white/10" />
+                </div>
+              </div>
+            </div>
+          </div>
+        </motion.div>
+      </motion.div>
+    </motion.div>
+  );
+}
+
 export function Home({ onNavigate }: { onNavigate: () => void }) {
   const { updateData, setWebsiteType, resetToBlank } = useBuilder();
   const [activeWebsiteType, setActiveWebsiteType] = useState<WebsiteType>('portfolio');
   const [isLoading, setIsLoading] = useState(true);
-  const [mousePos, setMousePos] = useState({ x: 0, y: 0 });
+  const [showMoreTemplates, setShowMoreTemplates] = useState(false);
+  const [showSuggestTemplate, setShowSuggestTemplate] = useState(false);
+  const [suggestionText, setSuggestionText] = useState('');
   const demoRef = useRef<HTMLDivElement>(null);
 
+  const mouseX = useMotionValue(0);
+  const mouseY = useMotionValue(0);
+  const gridX = useTransform(mouseX, [0, typeof window !== 'undefined' ? window.innerWidth : 1000], [-8, 8]);
+  const gridY = useTransform(mouseY, [0, typeof window !== 'undefined' ? window.innerHeight : 1000], [-8, 8]);
+  const gridSpringX = useSpring(gridX, { stiffness: 100, damping: 30 });
+  const gridSpringY = useSpring(gridY, { stiffness: 100, damping: 30 });
+
   const handleMouseMove = (e: React.MouseEvent) => {
-    setMousePos({ x: e.clientX, y: e.clientY });
+    mouseX.set(e.clientX);
+    mouseY.set(e.clientY);
   };
 
   const handleSelectTemplate = (templateData: any) => {
@@ -134,209 +235,228 @@ export function Home({ onNavigate }: { onNavigate: () => void }) {
             style={{ scaleX: scrollYProgress }}
           />
 
-          {/* Digital Void Background */}
+          {/* Main Background */}
           <div className="digital-void" />
-          <div className="fixed inset-0 z-0">
-            <AdvancedBackground />
-          </div>
+
+          {/* Ambient Glow Layer */}
+          <div className="ambient-glow" />
+
+          {/* Subtle Top Gradient */}
+          <div className="fixed inset-0 pointer-events-none z-0 bg-gradient-to-b from-primary/5 via-transparent to-transparent opacity-30" />
 
           {/* Interactive Background Grid */}
-          <motion.div
-            className="fixed inset-0 z-0 opacity-[0.03] pointer-events-none"
+          <div
+            className="fixed inset-0 z-0 opacity-[0.02] pointer-events-none"
             style={{
               backgroundImage: `linear-gradient(#fff 1px, transparent 1px), linear-gradient(90deg, #fff 1px, transparent 1px)`,
-              backgroundSize: '40px 40px',
-            }}
-            animate={{
-              x: (mousePos.x - window.innerWidth / 2) * 0.02,
-              y: (mousePos.y - window.innerHeight / 2) * 0.02,
+              backgroundSize: '50px 50px',
             }}
           />
-
-          {/* Depth Blur Layers */}
-          <div className="fixed inset-0 pointer-events-none z-[5]">
-            <div className="absolute top-[-10%] left-[-10%] w-[40%] h-[40%] bg-primary/10 rounded-full blur-[120px]" />
-            <div className="absolute bottom-[-10%] right-[-10%] w-[40%] h-[40%] bg-blue-500/10 rounded-full blur-[120px]" />
-          </div>
 
           {/* Hand Interaction Glow */}
           <motion.div
             className="touch-glow"
+            style={{ x: mouseX, y: mouseY }}
             animate={{
-              x: mousePos.x - 100,
-              y: mousePos.y - 100,
-              opacity: [0.15, 0.25, 0.15]
+              opacity: [0.1, 0.2, 0.1]
             }}
-            transition={{ opacity: { repeat: Infinity, duration: 3 } }}
+            transition={{ opacity: { repeat: Infinity, duration: 4 } }}
           />
 
           <div className="relative z-10">
         {/* Navigation */}
-        <nav className="fixed top-0 w-full z-50 px-10 py-8">
-          <div className="max-w-[1400px] mx-auto flex items-center justify-between">
-            <div className="flex items-center gap-4 group cursor-pointer" onClick={() => window.scrollTo(0, 0)}>
-              <div className="w-12 h-12 rounded-2xl bg-primary flex items-center justify-center shadow-[0_0_30px_#7C3AED80] group-hover:rotate-12 transition-transform">
-                <Sparkles size={24} className="text-white" />
+        <nav className="fixed top-0 w-full z-50 px-6 py-4 bg-black/80 backdrop-blur-xl border-b border-white/5">
+          <div className="max-w-7xl mx-auto flex items-center justify-between">
+            <div className="flex items-center gap-3 group cursor-pointer" onClick={() => window.scrollTo(0, 0)}>
+              <div className="w-10 h-10 rounded-xl bg-primary flex items-center justify-center shadow-lg shadow-primary/30 group-hover:scale-105 transition-transform">
+                <Sparkles size={20} className="text-white" />
               </div>
-              <span className="text-3xl font-black tracking-tighter uppercase text-white">FlowSite</span>
+              <span className="text-xl font-bold tracking-tight text-white">FlowSite</span>
             </div>
-            <div className="hidden lg:flex items-center gap-12">
-              {['Features', 'Templates', 'Pricing'].map(item => (
-                <a key={item} href={`#${item.toLowerCase()}`} className="text-sm font-black uppercase tracking-[0.2em] text-white/40 hover:text-white transition-colors">{item}</a>
+            <div className="hidden md:flex items-center gap-8">
+              {[
+                { name: 'Templates', href: '#templates' },
+                { name: 'Demo', href: '#demo' },
+                { name: 'Pricing', href: '#pricing' },
+              ].map(item => (
+                <a key={item.name} href={item.href} className="text-sm font-medium text-white/50 hover:text-white transition-colors">{item.name}</a>
               ))}
             </div>
-            <button 
+            <button
               onClick={(e) => {
                 e.stopPropagation();
                 handleBlank();
-              }} 
-              className="px-10 py-4 bg-white text-black rounded-2xl text-sm font-black uppercase tracking-[0.1em] shadow-xl hover:scale-105 transition-all cursor-pointer relative z-20"
+              }}
+              className="px-6 py-2.5 bg-white text-black rounded-xl text-sm font-semibold hover:scale-105 transition-all cursor-pointer"
             >
-              Launch App
+              Get Started
             </button>
           </div>
         </nav>
 
         {/* Hero Section */}
-        <section className="relative min-h-screen flex items-center justify-center pt-20 overflow-hidden">
-          <div className="section-wrapper text-center space-y-16">
-            <motion.div
-              initial={{ opacity: 0, y: 20 }}
-              animate={{ opacity: 1, y: 0 }}
-              className="inline-flex items-center gap-3 px-6 py-2 glass-premium rounded-full border-primary/20 bg-primary/5"
-            >
-              <div className="w-2 h-2 rounded-full bg-primary animate-pulse" />
-              <span className="text-[11px] font-black uppercase tracking-[0.3em] text-primary">Engineered for Creators</span>
-            </motion.div>
+        <section className="relative min-h-screen flex items-center justify-center pt-28 pb-16 overflow-hidden">
+          {/* Subtle Grid Background with Mouse Parallax */}
+          <motion.div
+            className="absolute inset-0 z-0 pointer-events-none"
+            style={{
+              backgroundImage: `linear-gradient(#fff 1px, transparent 1px), linear-gradient(90deg, #fff 1px, transparent 1px)`,
+              backgroundSize: '50px 50px',
+              opacity: 0.02,
+              x: gridSpringX,
+              y: gridSpringY,
+            }}
+          />
 
-            <div className="space-y-8">
-              <motion.h1 
-                initial={{ opacity: 0, y: 30 }}
-                animate={{ opacity: 1, y: 0 }}
-                transition={{ delay: 0.2 }}
-                className="text-7xl md:text-9xl font-black tracking-tighter text-white leading-[0.85] uppercase"
-              >
-                Design. Build. <br /><span className="gradient-text">Export.</span> <br />No Code. No Limits.
-              </motion.h1>
-              <motion.p 
-                initial={{ opacity: 0, y: 20 }}
-                animate={{ opacity: 1, y: 0 }}
-                transition={{ delay: 0.3 }}
-                className="subheading mx-auto text-white/60 text-lg md:text-xl"
-              >
-                Build production-ready websites visually and export clean HTML, CSS, and JS instantly. 
-                The most intuitive workspace for modern creators.
-              </motion.p>
-            </div>
+          {/* Hero Ambient Glow */}
+          <div className="absolute top-0 left-1/2 -translate-x-1/2 w-full max-w-3xl h-[500px] bg-primary/10 rounded-full blur-[150px] pointer-events-none" />
+          
+          <div className="section-wrapper relative z-10">
+            <div className="grid lg:grid-cols-2 gap-16 items-center">
+              {/* Left Side: Content */}
+              <div className="space-y-10 text-left">
+                <div className="space-y-6">
+                  <motion.h1 
+                    initial={{ opacity: 0, y: 20 }}
+                    animate={{ opacity: 1, y: 0 }}
+                    transition={{ duration: 0.8, ease: [0.22, 1, 0.36, 1] }}
+                    className="text-6xl md:text-7xl font-black tracking-tight text-white leading-[1.1]"
+                  >
+                    Build Websites Visually. <br />
+                    <span className="gradient-text">Export Real Code.</span>
+                  </motion.h1>
+                  
+                  <motion.p 
+                    initial={{ opacity: 0, y: 20 }}
+                    animate={{ opacity: 1, y: 0 }}
+                    transition={{ delay: 0.15, duration: 0.8, ease: [0.22, 1, 0.36, 1] }}
+                    className="text-lg md:text-xl text-white/50 max-w-lg font-medium leading-relaxed"
+                  >
+                    Design modern websites visually and export production-ready HTML, CSS, and JS instantly.
+                  </motion.p>
+                </div>
 
-            <motion.div 
-              initial={{ opacity: 0, y: 20 }}
-              animate={{ opacity: 1, y: 0 }}
-              transition={{ delay: 0.4 }}
-              className="flex flex-col items-center gap-8 relative z-20"
-            >
-              <div className="flex flex-wrap justify-center gap-6">
-                <motion.button 
-                  onClick={(e) => {
-                    e.stopPropagation();
-                    handleBlank();
-                  }} 
-                  animate={{ 
-                    boxShadow: ["0 20px 40px rgba(124, 58, 237, 0.4)", "0 20px 60px rgba(124, 58, 237, 0.6)", "0 20px 40px rgba(124, 58, 237, 0.4)"] 
-                  }}
-                  transition={{ duration: 2, repeat: Infinity, ease: "easeInOut" }}
-                  className="px-12 py-6 bg-primary text-white rounded-2xl font-black text-xl shadow-[0_20px_40px_#7C3AED40] hover:shadow-[0_20px_50px_#7C3AED60] hover:-translate-y-1 transition-all flex items-center gap-3 cursor-pointer group"
+                <motion.div 
+                  initial={{ opacity: 0, y: 20 }}
+                  animate={{ opacity: 1, y: 0 }}
+                  transition={{ delay: 0.3, duration: 0.8, ease: [0.22, 1, 0.36, 1] }}
+                  className="space-y-4"
                 >
-                  Start Building <span className="text-white/70 font-medium text-base ml-1 group-hover:text-white transition-colors">→ (No signup required)</span>
-                </motion.button>
-                <button 
-                  onClick={(e) => {
-                    e.stopPropagation();
-                    scrollToDemo();
-                  }} 
-                  className="px-12 py-6 glass-premium text-white rounded-2xl font-black text-xl border-white/10 hover:bg-white/5 transition-all flex items-center gap-3 cursor-pointer"
-                >
-                  See it in action <span className="text-white/50 font-medium text-base ml-1">(10s)</span> <Play size={20} fill="currentColor" />
-                </button>
+                  <div className="flex flex-wrap gap-6 items-center">
+                    <div className="space-y-2 text-center">
+                      <motion.button
+                        onClick={handleBlank}
+                        whileHover={{ scale: 1.02 }}
+                        whileTap={{ scale: 0.98 }}
+                        className="px-8 py-4 bg-primary text-white rounded-xl font-bold text-lg shadow-[0_10px_30px_rgba(124,58,237,0.3)] hover:shadow-[0_15px_40px_rgba(124,58,237,0.5),0_0_30px_rgba(124,58,237,0.3)] hover:-translate-y-0.5 transition-all flex items-center gap-2 group cursor-pointer"
+                      >
+                        Start Building <ArrowRight size={20} className="group-hover:translate-x-1 transition-transform" />
+                      </motion.button>
+                      <p className="text-[11px] font-bold uppercase tracking-widest text-white/20">No signup required</p>
+                    </div>
+
+                    <motion.button
+                      onClick={scrollToDemo}
+                      whileHover={{ scale: 1.02 }}
+                      whileTap={{ scale: 0.98 }}
+                      className="px-8 py-4 bg-white/5 border border-white/10 text-white rounded-xl font-bold text-lg hover:bg-white/10 hover:border-white/20 hover:shadow-[0_0_20px_rgba(255,255,255,0.1)] transition-all flex items-center gap-2 cursor-pointer"
+                    >
+                      See Live Demo <span className="text-white/40 text-sm font-medium ml-1">(10s)</span>
+                    </motion.button>
+                  </div>
+
+                  {/* Trust Strip */}
+                  <div className="flex items-center gap-4 text-[10px] font-black uppercase tracking-[0.2em] text-white/30 pt-4">
+                    <span>Export real code</span>
+                    <span className="w-1 h-1 rounded-full bg-white/10" />
+                    <span>No vendor lock-in</span>
+                    <span className="w-1 h-1 rounded-full bg-white/10" />
+                    <span>Instant preview</span>
+                  </div>
+                </motion.div>
               </div>
 
-              {/* Trust Indicators */}
-              <motion.div 
-                initial={{ opacity: 0 }}
-                animate={{ opacity: 1 }}
-                transition={{ delay: 0.6 }}
-                className="flex flex-wrap justify-center gap-8 text-[11px] font-black uppercase tracking-[0.2em] text-white/30"
-              >
-                <div className="flex items-center gap-2">
-                  <Check size={14} className="text-primary" /> Used by 500+ creators
-                </div>
-                <div className="flex items-center gap-2">
-                  <Check size={14} className="text-primary" /> Export real HTML/CSS
-                </div>
-                <div className="flex items-center gap-2">
-                  <Check size={14} className="text-primary" /> No vendor lock-in
-                </div>
-              </motion.div>
-            </motion.div>
+              {/* Right Side: Realistic Product UI Preview with Hover Tilt */}
+              <PreviewCard />
+            </div>
           </div>
+        </section>
 
-          {/* Floating UI Decorative Elements */}
-          <div className="absolute top-[20%] left-[10%] hidden 2xl:block">
-            <motion.div
-              style={{
-                y: yParallax1,
-                rotate: -10
-              }}
-            >
-              <ThreeDCard>
-                <div className="glass-premium p-6 w-64 space-y-4 border-primary/20">
-                  <div className="flex justify-between items-center">
-                    <div className="w-10 h-10 rounded-xl bg-primary/20 flex items-center justify-center text-primary"><Code size={20} /></div>
-                    <div className="px-2 py-0.5 rounded-md bg-green-500/20 text-green-500 text-[8px] font-bold">READY</div>
-                  </div>
-                  <div className="space-y-2">
-                    <div className="h-1.5 w-full bg-white/5 rounded-full" />
-                    <div className="h-1.5 w-3/4 bg-white/5 rounded-full" />
-                  </div>
+        {/* Features Showcase */}
+        <section id="features" className="py-60 relative">
+          <div className="section-wrapper">
+            <RevealOnScroll direction="center">
+              <div className="text-center space-y-6 mb-24">
+                <div className="inline-flex items-center gap-3 px-4 py-1.5 bg-primary/10 border border-primary/20 rounded-full">
+                  <Zap size={12} className="text-primary" />
+                  <span className="text-[11px] font-black uppercase tracking-[0.2em] text-primary">Powerful Features</span>
                 </div>
-              </ThreeDCard>
-            </motion.div>
-          </div>
+                <h2 className="text-5xl md:text-7xl font-black tracking-tighter text-white uppercase leading-none">
+                  Everything you need to<br />build stunning websites
+                </h2>
+                <p className="text-lg text-white/40 max-w-2xl mx-auto">
+                  From AI-powered content generation to instant export, FlowSite gives you all the tools to create professional websites without writing a single line of code.
+                </p>
+              </div>
+            </RevealOnScroll>
 
-          <div className="absolute bottom-[20%] right-[10%] hidden 2xl:block">
-            <motion.div
-              style={{
-                y: yParallax2,
-                rotate: 10
-              }}
-            >
-              <ThreeDCard>
-                <div className="glass-premium p-6 w-64 space-y-4 border-pink-500/20">
-                  <div className="flex justify-between items-center">
-                    <div className="w-10 h-10 rounded-xl bg-pink-500/20 flex items-center justify-center text-pink-500"><Palette size={20} /></div>
-                    <div className="px-2 py-0.5 rounded-md bg-pink-500/20 text-pink-500 text-[8px] font-bold">ACTIVE</div>
+            <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6">
+              {[
+                { icon: Wand2, title: 'AI Scanner', desc: 'Upload any image and let AI extract content, colors, and layout suggestions automatically.', color: 'from-violet-500 to-purple-600', glow: 'group-hover:shadow-[0_0_40px_rgba(168,85,247,0.3)]' },
+                { icon: Code, title: 'Export Code', desc: 'Download clean, production-ready HTML, CSS, and JavaScript. No dependencies, no lock-in.', color: 'from-blue-500 to-cyan-600', glow: 'group-hover:shadow-[0_0_40px_rgba(6,182,212,0.3)]' },
+                { icon: Eye, title: 'Live Preview', desc: 'See your changes instantly as you edit. Desktop, tablet, and mobile views in real-time.', color: 'from-emerald-500 to-teal-600', glow: 'group-hover:shadow-[0_0_40px_rgba(16,185,129,0.3)]' },
+                { icon: Layers, title: '4 Website Types', desc: 'Portfolio, College Projects, Business, or App Landing - choose the perfect template for your needs.', color: 'from-amber-500 to-orange-600', glow: 'group-hover:shadow-[0_0_40px_rgba(245,158,11,0.3)]' },
+                { icon: Palette, title: 'Theme Customizer', desc: 'Full control over colors, layouts, and styling. Dark mode, accent colors, and typography.', color: 'from-pink-500 to-rose-600', glow: 'group-hover:shadow-[0_0_40px_rgba(244,63,94,0.3)]' },
+                { icon: Sparkles, title: 'Instant Templates', desc: 'Start with professionally designed templates. Customize in seconds, not hours.', color: 'from-indigo-500 to-blue-600', glow: 'group-hover:shadow-[0_0_40px_rgba(99,102,241,0.3)]' },
+                { icon: Scan, title: 'Content Editor', desc: 'Edit projects, skills, experience, services and more with an intuitive visual editor.', color: 'from-cyan-500 to-sky-600', glow: 'group-hover:shadow-[0_0_40px_rgba(14,165,233,0.3)]' },
+                { icon: Rocket, title: 'No Signup Required', desc: 'Start building immediately. Your work is saved locally. Export when ready.', color: 'from-lime-500 to-green-600', glow: 'group-hover:shadow-[0_0_40px_rgba(132,204,22,0.3)]' },
+              ].map((feature, i) => (
+                <RevealOnScroll key={feature.title} delay={i * 0.1} direction="up">
+                  <ThreeDCard>
+                    <div className="glass-premium p-8 h-full border-white/5 hover:border-primary/30 cursor-pointer group transition-all">
+                      <div className={`w-14 h-14 rounded-2xl bg-gradient-to-br ${feature.color} flex items-center justify-center mb-6 shadow-lg transition-transform group-hover:scale-110 group-hover:rotate-6`}>
+                        <feature.icon size={28} className="text-white" />
+                      </div>
+                      <h3 className="text-xl font-black text-white uppercase mb-3 tracking-tight">{feature.title}</h3>
+                      <p className="text-sm text-white/40 font-medium leading-relaxed">{feature.desc}</p>
+                    </div>
+                  </ThreeDCard>
+                </RevealOnScroll>
+              ))}
+            </div>
+
+            {/* Quick Stats */}
+            <RevealOnScroll delay={0.3} direction="up">
+              <div className="mt-24 grid grid-cols-2 md:grid-cols-4 gap-8">
+                {[
+                  { value: '4', label: 'Website Types' },
+                  { value: '∞', label: 'Projects' },
+                  { value: '0', label: 'Cost' },
+                  { value: '100%', label: 'Export Ready' },
+                ].map((stat, i) => (
+                  <div key={stat.label} className="text-center p-8 rounded-3xl bg-white/5 border border-white/5">
+                    <div className="text-5xl font-black text-primary mb-2">{stat.value}</div>
+                    <div className="text-sm font-bold text-white/40 uppercase tracking-widest">{stat.label}</div>
                   </div>
-                  <div className="grid grid-cols-4 gap-2">
-                     {[1,2,3,4].map(i => <div key={i} className="aspect-square rounded-md bg-white/5" />)}
-                  </div>
-                </div>
-              </ThreeDCard>
-            </motion.div>
+                ))}
+              </div>
+            </RevealOnScroll>
           </div>
         </section>
 
         {/* Templates Showcase */}
-        <section id="templates" className="py-60 relative bg-black/20">
+        <section id="templates" className="py-40 relative bg-black/20">
           <div className="section-wrapper">
             <RevealOnScroll direction="left">
-              <div className="flex flex-col lg:flex-row items-end justify-between mb-32 gap-16">
-                <div className="space-y-6">
+              <div className="flex flex-col lg:flex-row items-end justify-between mb-20 gap-10">
+                <div className="space-y-4">
                   <div className="inline-flex items-center gap-3 px-4 py-1.5 bg-primary/10 rounded-full">
-                    <span className="text-[11px] font-black uppercase tracking-[0.2em] text-primary">Foundations</span>
+                    <span className="text-[11px] font-black uppercase tracking-[0.2em] text-primary">Templates</span>
                   </div>
-                  <h2 className="text-6xl md:text-8xl font-black tracking-tighter text-white uppercase leading-none">Choose Your <br />Architecture.</h2>
+                  <h2 className="text-4xl md:text-6xl font-black tracking-tighter text-white">Choose Your Template</h2>
+                  <p className="text-lg text-white/50 max-w-xl">Start with a professionally designed template and customize it to fit your needs.</p>
                 </div>
-                <div className="flex gap-4 p-3 glass-premium rounded-[2.5rem] border-white/5">
+                <div className="flex gap-2 p-1.5 glass-premium rounded-2xl border-white/5 bg-black/40">
                   {[
                     { id: 'portfolio', title: 'Developer', icon: Code },
                     { id: 'college', title: 'Student', icon: Rocket },
@@ -346,10 +466,13 @@ export function Home({ onNavigate }: { onNavigate: () => void }) {
                     <button
                       key={type.id}
                       onClick={() => setActiveWebsiteType(type.id as WebsiteType)}
-                      className={`px-10 py-5 rounded-[1.8rem] text-[12px] font-black uppercase tracking-[0.2em] transition-all ${
-                        activeWebsiteType === type.id ? 'bg-primary text-white' : 'text-white/40 hover:bg-white/5'
+                      className={`px-6 py-3 rounded-xl text-sm font-semibold transition-all flex items-center gap-2 ${
+                        activeWebsiteType === type.id
+                          ? 'bg-primary text-white shadow-lg shadow-primary/25'
+                          : 'text-white/50 hover:text-white hover:bg-white/5'
                       }`}
                     >
+                      <type.icon size={16} />
                       {type.title}
                     </button>
                   ))}
@@ -357,76 +480,112 @@ export function Home({ onNavigate }: { onNavigate: () => void }) {
               </div>
             </RevealOnScroll>
 
-            <div className="grid grid-cols-1 md:grid-cols-2 gap-12 relative z-20">
+            <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6 relative z-20">
+              {/* Start Blank */}
               <ThreeDCard>
-                <div onClick={(e) => { e.stopPropagation(); handleBlank(); }} className="glass-premium p-12 h-full flex flex-col items-center justify-center border-dashed border-white/20 hover:border-primary/50 cursor-pointer group gap-6 min-h-[500px]">
-                  <div className="w-20 h-20 rounded-full bg-white/5 flex items-center justify-center border border-white/10 group-hover:scale-110 transition-transform">
-                    <Plus size={40} className="text-white/20 group-hover:text-primary transition-colors" />
+                <div onClick={(e) => { e.stopPropagation(); handleBlank(); }} className="glass-premium p-8 h-full flex flex-col items-center justify-center border-dashed border-white/20 hover:border-primary/50 cursor-pointer group gap-4 min-h-[280px]">
+                  <div className="w-16 h-16 rounded-2xl bg-white/5 flex items-center justify-center border border-white/10 group-hover:scale-110 group-hover:border-primary/30 transition-all">
+                    <Plus size={32} className="text-white/30 group-hover:text-primary transition-colors" />
                   </div>
                   <div className="text-center">
-                    <h3 className="text-2xl font-black text-white uppercase">Start Blank</h3>
-                    <p className="text-white/40 font-medium">Total Creative Control</p>
+                    <h3 className="text-xl font-bold text-white">Start Blank</h3>
+                    <p className="text-sm text-white/40 mt-1">Empty canvas for full control</p>
                   </div>
                 </div>
               </ThreeDCard>
 
-              {templates.map((template, i) => (
+              {/* Pre-built Templates (2 per category) */}
+              {templates.slice(0, 2).map((template: any, i: number) => (
                 <RevealOnScroll key={i} delay={i * 0.1} direction="center">
                   <ThreeDCard className="h-full">
-                    <div onClick={(e) => { e.stopPropagation(); handleSelectTemplate(template.data); }} className="glass-premium p-12 h-full flex flex-col justify-between border-white/5 hover:border-primary/50 cursor-pointer group min-h-[500px]">
-                      <div className="space-y-10">
+                    <div onClick={(e) => { e.stopPropagation(); handleSelectTemplate(template.data); }} className="glass-premium p-6 h-full flex flex-col justify-between border-white/5 hover:border-primary/50 cursor-pointer group min-h-[280px]">
+                      <div className="space-y-4">
                         <div className="flex items-center justify-between">
-                          <div className={`p-5 rounded-3xl bg-gradient-to-br ${template.color} shadow-lg`}>
-                            <template.icon size={32} className="text-white" />
+                          <div className={`p-3 rounded-2xl bg-gradient-to-br ${template.color} shadow-lg`}>
+                            <template.icon size={24} className="text-white" />
                           </div>
-                          <span className="text-[10px] font-black uppercase tracking-[0.3em] text-white/20">Elite Base</span>
+                          <span className="text-[10px] font-semibold uppercase tracking-widest text-white/30">Template</span>
                         </div>
-                        <div className="space-y-4">
-                          <h3 className="text-4xl font-black text-white leading-tight uppercase">{template.title}</h3>
-                          <p className="text-lg text-white/40 font-medium leading-relaxed">{template.subtitle}</p>
+                        <div className="space-y-2">
+                          <h3 className="text-2xl font-bold text-white">{template.title}</h3>
+                          <p className="text-sm text-white/50 leading-relaxed">{template.subtitle}</p>
                         </div>
                       </div>
-                      <div className="flex items-center justify-between mt-10">
-                        <span className="text-sm font-black uppercase text-primary tracking-widest group-hover:translate-x-2 transition-transform">Select Base</span>
-                        <div className="w-12 h-12 rounded-full border border-white/10 flex items-center justify-center group-hover:bg-primary group-hover:border-transparent transition-all">
-                          <ArrowRight size={20} className="text-white" />
+                      <div className="flex items-center justify-between pt-4 border-t border-white/5">
+                        <span className="text-sm font-semibold text-primary">Use Template</span>
+                        <div className="w-8 h-8 rounded-lg border border-white/10 flex items-center justify-center group-hover:bg-primary group-hover:border-transparent transition-all">
+                          <ArrowRight size={16} className="text-white" />
                         </div>
                       </div>
                     </div>
                   </ThreeDCard>
                 </RevealOnScroll>
               ))}
+
+              {/* More Templates Card */}
+              <ThreeDCard>
+                <div onClick={() => setShowMoreTemplates(true)} className="glass-premium p-6 h-full flex flex-col items-center justify-center border-white/10 hover:border-primary/50 cursor-pointer group gap-4 min-h-[280px]">
+                  <div className="w-16 h-16 rounded-2xl bg-primary/10 flex items-center justify-center border border-primary/20 group-hover:scale-110 group-hover:bg-primary/20 transition-all">
+                    <Layers size={32} className="text-primary group-hover:text-white transition-colors" />
+                  </div>
+                  <div className="text-center">
+                    <h3 className="text-xl font-bold text-white">More Templates</h3>
+                    <p className="text-sm text-white/40 mt-1">Browse additional options</p>
+                  </div>
+                </div>
+              </ThreeDCard>
+
+              {/* Suggest Template Card */}
+              <ThreeDCard>
+                <div onClick={() => setShowSuggestTemplate(true)} className="glass-premium p-6 h-full flex flex-col items-center justify-center border-white/10 hover:border-yellow-500/50 cursor-pointer group gap-4 min-h-[280px]">
+                  <div className="w-16 h-16 rounded-2xl bg-yellow-500/10 flex items-center justify-center border border-yellow-500/20 group-hover:scale-110 group-hover:bg-yellow-500/20 transition-all">
+                    <Lightbulb size={32} className="text-yellow-400 group-hover:text-white transition-colors" />
+                  </div>
+                  <div className="text-center">
+                    <h3 className="text-xl font-bold text-white">Suggest Template</h3>
+                    <p className="text-sm text-white/40 mt-1">Request a custom template</p>
+                  </div>
+                </div>
+              </ThreeDCard>
             </div>
           </div>
         </section>
 
         {/* Live Demo Showcase Section */}
-        <section ref={demoRef} id="demo" className="py-60 relative">
-          <div className="section-wrapper space-y-32">
+        <section ref={demoRef} id="demo" className="py-40 relative">
+          <div className="section-wrapper space-y-16">
             <RevealOnScroll direction="center">
-              <div className="text-center space-y-6">
+              <div className="text-center space-y-4 max-w-2xl mx-auto">
                 <div className="inline-flex items-center gap-3 px-4 py-1.5 bg-primary/10 rounded-full">
-                  <span className="text-[11px] font-black uppercase tracking-[0.2em] text-primary">Experience Flow</span>
+                  <span className="text-[11px] font-black uppercase tracking-[0.2em] text-primary">Live Demo</span>
                 </div>
-                <h2 className="text-6xl md:text-8xl font-black tracking-tighter text-white uppercase leading-none">DEMO</h2>
-                <p className="subheading mx-auto text-white/40">From concept to creation, watch how FlowSite handles the heavy lifting while you focus on your vision.</p>
+                <h2 className="text-4xl md:text-6xl font-black tracking-tighter text-white">See It In Action</h2>
+                <p className="text-lg text-white/50">Watch how FlowSite transforms your ideas into production-ready websites in seconds.</p>
               </div>
             </RevealOnScroll>
 
             <div className="relative group">
-              {/* Wow Factor Badge */}
+              {/* Badge */}
               <motion.div
-                animate={{ 
-                  y: [0, -10, 0],
-                  rotate: [0, 5, -5, 0]
-                }}
-                transition={{ duration: 4, repeat: Infinity, ease: "easeInOut" }}
-                className="absolute -top-12 -right-4 z-30 px-6 py-2 bg-gradient-to-r from-pink-500 to-rose-500 text-white text-[10px] font-black uppercase tracking-[0.3em] rounded-full shadow-[0_10px_30px_rgba(244,63,94,0.4)] hidden md:block"
+                animate={{ y: [0, -8, 0] }}
+                transition={{ duration: 3, repeat: Infinity, ease: "easeInOut" }}
+                className="absolute -top-10 -right-4 z-30 px-4 py-2 bg-gradient-to-r from-emerald-500 to-teal-500 text-white text-xs font-bold uppercase tracking-wider rounded-full shadow-lg hidden md:block"
               >
-                100% Interactive
+                Fully Interactive
               </motion.div>
-              <div className="absolute -inset-4 bg-gradient-to-r from-primary/20 via-purple-500/20 to-pink-500/20 rounded-[3rem] blur-2xl opacity-50 group-hover:opacity-100 transition-opacity" />
-              <div className="relative glass-premium p-4 md:p-8 border-white/10 bg-black/40 shadow-2xl overflow-hidden">
+              <div className="absolute -inset-4 bg-gradient-to-r from-primary/20 via-purple-500/10 to-pink-500/20 rounded-3xl blur-2xl opacity-40 group-hover:opacity-70 transition-opacity" />
+              <div className="relative glass-premium p-2 md:p-3 border-white/10 bg-black/60 rounded-2xl shadow-2xl">
+                {/* Browser chrome */}
+                <div className="flex items-center gap-2 px-4 py-3 bg-white/5 rounded-t-xl border-b border-white/5">
+                  <div className="flex gap-1.5">
+                    <div className="w-3 h-3 rounded-full bg-red-500/60" />
+                    <div className="w-3 h-3 rounded-full bg-yellow-500/60" />
+                    <div className="w-3 h-3 rounded-full bg-green-500/60" />
+                  </div>
+                  <div className="flex-1 mx-4 px-4 py-1.5 bg-black/30 rounded-lg text-xs text-white/40 text-center">
+                    flowsite.studio/preview
+                  </div>
+                </div>
                 <AutoDemo onTryYourself={handleBlank} />
               </div>
 
@@ -441,46 +600,178 @@ export function Home({ onNavigate }: { onNavigate: () => void }) {
         </section>
 
         {/* Pricing Section */}
-        <section id="pricing" className="py-60">
-          <div className="section-wrapper text-center">
-            <SectionHeading title="FREE FOREVER." subtitle="Zero Boundaries" />
-            <div className="max-w-4xl mx-auto glass-premium p-20 border-primary/20 shadow-[0_50px_100px_#000000]">
-              <div className="grid grid-cols-1 md:grid-cols-2 gap-12 text-left mb-16">
-                {['Unlimited Projects', 'AI Core Synthesis', '3D Canvas Pro', 'Production Export', 'Zero Dependencies', 'Global Support'].map(f => (
-                  <div key={f} className="flex items-center gap-6">
-                    <div className="w-8 h-8 rounded-full bg-primary/20 flex items-center justify-center">
-                      <Check size={16} className="text-primary" />
+        <section id="pricing" className="py-40">
+          <div className="section-wrapper">
+            <div className="text-center space-y-4 mb-16">
+              <div className="inline-flex items-center gap-3 px-4 py-1.5 bg-emerald-500/10 rounded-full">
+                <span className="text-[11px] font-black uppercase tracking-[0.2em] text-emerald-400">Free Forever</span>
+              </div>
+              <h2 className="text-4xl md:text-6xl font-black tracking-tighter text-white">No Hidden Costs</h2>
+              <p className="text-lg text-white/50 max-w-xl mx-auto">Everything you need to build professional websites, completely free. No credit card required.</p>
+            </div>
+
+            <div className="max-w-3xl mx-auto glass-premium p-10 border-primary/20 rounded-3xl">
+              <div className="grid grid-cols-2 md:grid-cols-3 gap-8 mb-12">
+                {[
+                  { title: 'Unlimited Projects', desc: 'Create as many as you want' },
+                  { title: 'Export Code', desc: 'Yours forever, no lock-in' },
+                  { title: 'AI Assistance', desc: 'Smart suggestions' },
+                  { title: '3D Canvas', desc: 'Visual editing made easy' },
+                  { title: 'Production Ready', desc: 'Optimized output' },
+                  { title: 'Instant Preview', desc: 'Real-time changes' },
+                ].map((item) => (
+                  <div key={item.title} className="text-center space-y-2">
+                    <div className="w-10 h-10 mx-auto rounded-xl bg-primary/20 flex items-center justify-center">
+                      <Check size={18} className="text-primary" />
                     </div>
-                    <span className="text-xl font-bold text-white/80">{f}</span>
+                    <h4 className="font-bold text-white text-sm">{item.title}</h4>
+                    <p className="text-xs text-white/40">{item.desc}</p>
                   </div>
                 ))}
               </div>
-              <button onClick={handleBlank} className="w-full py-8 bg-white text-black rounded-3xl font-black text-2xl uppercase tracking-widest hover:scale-[1.02] transition-all shadow-2xl">
-                Start Building Now
+              <button onClick={handleBlank} className="w-full py-5 bg-white text-black rounded-2xl font-bold text-lg hover:scale-[1.01] transition-all shadow-lg">
+                Start Building Free
               </button>
             </div>
           </div>
         </section>
 
+        {/* More Templates Modal */}
+        <AnimatePresence>
+          {showMoreTemplates && (
+            <motion.div
+              initial={{ opacity: 0 }}
+              animate={{ opacity: 1 }}
+              exit={{ opacity: 0 }}
+              className="fixed inset-0 z-50 flex items-center justify-center p-4 bg-black/80 backdrop-blur-xl"
+              onClick={() => setShowMoreTemplates(false)}
+            >
+              <motion.div
+                initial={{ scale: 0.9, opacity: 0 }}
+                animate={{ scale: 1, opacity: 1 }}
+                exit={{ scale: 0.9, opacity: 0 }}
+                className="glass-premium p-8 rounded-3xl max-w-4xl w-full max-h-[80vh] overflow-y-auto"
+                onClick={(e) => e.stopPropagation()}
+              >
+                <div className="flex items-center justify-between mb-8">
+                  <div>
+                    <h3 className="text-2xl font-bold text-white">More Templates</h3>
+                    <p className="text-white/50 mt-1">Browse all available templates</p>
+                  </div>
+                  <button onClick={() => setShowMoreTemplates(false)} className="p-2 hover:bg-white/10 rounded-xl transition-colors">
+                    <X size={24} className="text-white/50" />
+                  </button>
+                </div>
+
+                <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+                  {(moreTemplates[activeWebsiteType] || moreTemplates.portfolio).map((template: any, i: number) => (
+                    <div key={i} className="glass-premium p-5 rounded-2xl border border-white/10 hover:border-primary/50 cursor-pointer group transition-all">
+                      <div className="flex items-start gap-4">
+                        <div className={`p-3 rounded-xl bg-gradient-to-br ${template.color} shrink-0`}>
+                          <template.icon size={24} className="text-white" />
+                        </div>
+                        <div className="flex-1">
+                          <h4 className="font-bold text-white">{template.title}</h4>
+                          <p className="text-sm text-white/40 mt-1">{template.subtitle}</p>
+                        </div>
+                      </div>
+                    </div>
+                  ))}
+                </div>
+
+                <div className="mt-8 pt-6 border-t border-white/10">
+                  <p className="text-center text-white/40 text-sm">More templates coming soon!</p>
+                </div>
+              </motion.div>
+            </motion.div>
+          )}
+        </AnimatePresence>
+
+        {/* Suggest Template Modal */}
+        <AnimatePresence>
+          {showSuggestTemplate && (
+            <motion.div
+              initial={{ opacity: 0 }}
+              animate={{ opacity: 1 }}
+              exit={{ opacity: 0 }}
+              className="fixed inset-0 z-50 flex items-center justify-center p-4 bg-black/80 backdrop-blur-xl"
+              onClick={() => setShowSuggestTemplate(false)}
+            >
+              <motion.div
+                initial={{ scale: 0.9, opacity: 0 }}
+                animate={{ scale: 1, opacity: 1 }}
+                exit={{ scale: 0.9, opacity: 0 }}
+                className="glass-premium p-8 rounded-3xl max-w-lg w-full"
+                onClick={(e) => e.stopPropagation()}
+              >
+                <div className="flex items-center justify-between mb-6">
+                  <div className="flex items-center gap-3">
+                    <div className="w-10 h-10 rounded-xl bg-yellow-500/20 flex items-center justify-center">
+                      <Lightbulb size={20} className="text-yellow-400" />
+                    </div>
+                    <div>
+                      <h3 className="text-xl font-bold text-white">Suggest Template</h3>
+                      <p className="text-white/40 text-sm">Request a custom template</p>
+                    </div>
+                  </div>
+                  <button onClick={() => setShowSuggestTemplate(false)} className="p-2 hover:bg-white/10 rounded-xl transition-colors">
+                    <X size={24} className="text-white/50" />
+                  </button>
+                </div>
+
+                <div className="space-y-4">
+                  <div>
+                    <label className="text-sm font-medium text-white/70 mb-2 block">Describe your ideal template</label>
+                    <textarea
+                      value={suggestionText}
+                      onChange={(e) => setSuggestionText(e.target.value)}
+                      placeholder="e.g., I need a template for a fitness gym website with bold colors and energetic vibe..."
+                      className="w-full h-32 p-4 bg-white/5 border border-white/10 rounded-xl text-white placeholder:text-white/20 focus:outline-none focus:border-primary/50 resize-none"
+                    />
+                  </div>
+
+                  <button
+                    onClick={() => {
+                      if (suggestionText.trim()) {
+                        alert('Thank you for your suggestion! We\'ll review it.');
+                        setSuggestionText('');
+                        setShowSuggestTemplate(false);
+                      }
+                    }}
+                    className="w-full py-4 bg-yellow-500 hover:bg-yellow-400 text-black font-bold rounded-xl transition-colors"
+                  >
+                    Submit Suggestion
+                  </button>
+                </div>
+              </motion.div>
+            </motion.div>
+          )}
+        </AnimatePresence>
+
         {/* Footer */}
-        <footer className="py-40 border-t border-white/5">
+        <footer className="py-20 border-t border-white/5">
           <div className="section-wrapper">
-            <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-20">
-              <div className="space-y-10">
-                <div className="flex items-center gap-4">
+            <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-12">
+              <div className="space-y-6">
+                <div className="flex items-center gap-3">
                   <div className="w-10 h-10 rounded-xl bg-primary flex items-center justify-center">
                     <Sparkles size={20} className="text-white" />
                   </div>
-                  <span className="font-black text-2xl tracking-tighter uppercase text-white">FLOWSITE</span>
+                  <span className="font-black text-xl tracking-tight text-white">FLOWSITE</span>
                 </div>
-                <p className="text-white/40 font-medium leading-relaxed max-w-[200px]">Architecting the next dimension of web experiences.</p>
+                <p className="text-white/40 text-sm leading-relaxed">Build beautiful websites visually. Export clean, production-ready code.</p>
+                <p className="text-xs text-white/20">© 2026 FlowSite. All rights reserved.</p>
               </div>
-              {['Product', 'Company', 'Legal'].map((col, i) => (
-                <div key={col} className="space-y-10">
-                  <h5 className="text-[12px] font-black uppercase tracking-[0.3em] text-white">{col}</h5>
-                  <ul className="space-y-6">
-                    {[['Features', 'Pricing', 'Docs'][i], ['About', 'Blog', 'Careers'][i], ['Privacy', 'Terms', 'Security'][i]].map(item => (
-                      <li key={item}><a href="#" className="text-sm font-bold text-white/30 hover:text-white transition-colors tracking-widest uppercase">{item}</a></li>
+              {[
+                { title: 'Product', items: ['Features', 'Templates', 'Pricing', 'Demo'] },
+                { title: 'Resources', items: ['Documentation', 'Blog', 'Community', 'Support'] },
+                { title: 'Company', items: ['About', 'Careers', 'Contact', 'Press'] },
+              ].map((col) => (
+                <div key={col.title} className="space-y-4">
+                  <h5 className="text-xs font-bold uppercase tracking-wider text-white/60">{col.title}</h5>
+                  <ul className="space-y-3">
+                    {col.items.map(item => (
+                      <li key={item}><a href="#" className="text-sm text-white/40 hover:text-white transition-colors">{item}</a></li>
                     ))}
                   </ul>
                 </div>
@@ -498,16 +789,47 @@ export function Home({ onNavigate }: { onNavigate: () => void }) {
 // --- Template Data ---
 const allTemplates: any = {
   portfolio: [
-    { title: 'Midnight Dev', subtitle: 'Ultra-modern grid architecture for developers.', icon: Code, color: 'from-blue-600 to-indigo-700', data: { websiteType: 'portfolio', settings: { theme: 'dark', accentColor: '#3B82F6' } } },
-    { title: 'Studio Canvas', subtitle: 'The elite foundation for visual artists and designers.', icon: Palette, color: 'from-pink-600 to-rose-700', data: { websiteType: 'portfolio', settings: { theme: 'light', accentColor: '#EC4899' } } },
+    { title: 'Midnight Dev', subtitle: 'Modern dark theme for developers', icon: Code, color: 'from-blue-600 to-indigo-700', data: { websiteType: 'portfolio', settings: { theme: 'dark', accentColor: '#3B82F6' } } },
+    { title: 'Clean Portfolio', subtitle: 'Minimalist portfolio design', icon: Palette, color: 'from-slate-600 to-gray-700', data: { websiteType: 'portfolio', settings: { theme: 'light', accentColor: '#64748B' } } },
   ],
   college: [
-    { title: 'Scholar Port', subtitle: 'Academic win through research-focused showcases.', icon: Rocket, color: 'from-emerald-600 to-teal-700', data: { websiteType: 'college', settings: { theme: 'dark', accentColor: '#10B981' } } },
+    { title: 'Scholar Port', subtitle: 'Academic research showcase', icon: Rocket, color: 'from-emerald-600 to-teal-700', data: { websiteType: 'college', settings: { theme: 'dark', accentColor: '#10B981' } } },
+    { title: 'Campus Life', subtitle: 'Student club & event site', icon: Building2, color: 'from-cyan-600 to-blue-700', data: { websiteType: 'college', settings: { theme: 'dark', accentColor: '#06B6D4' } } },
   ],
   business: [
-    { title: 'Nexus Agency', subtitle: 'High-conversion engine for modern service teams.', icon: Building2, color: 'from-amber-600 to-orange-700', data: { websiteType: 'business', settings: { theme: 'dark', accentColor: '#F59E0B' } } },
+    { title: 'Nexus Agency', subtitle: 'Professional agency website', icon: Building2, color: 'from-amber-600 to-orange-700', data: { websiteType: 'business', settings: { theme: 'dark', accentColor: '#F59E0B' } } },
+    { title: 'Startup Landing', subtitle: 'Modern startup website', icon: Rocket, color: 'from-rose-600 to-pink-700', data: { websiteType: 'business', settings: { theme: 'dark', accentColor: '#F43F5E' } } },
   ],
   app: [
-    { title: 'SaaS Alpha', subtitle: 'Definitive foundation for software product launches.', icon: AppWindow, color: 'from-violet-600 to-purple-700', data: { websiteType: 'app', settings: { theme: 'dark', accentColor: '#7C3AED' } } },
+    { title: 'SaaS Alpha', subtitle: 'SaaS product launch', icon: AppWindow, color: 'from-violet-600 to-purple-700', data: { websiteType: 'app', settings: { theme: 'dark', accentColor: '#7C3AED' } } },
+    { title: 'Mobile App', subtitle: 'Mobile app landing page', icon: Smartphone, color: 'from-cyan-600 to-teal-700', data: { websiteType: 'app', settings: { theme: 'dark', accentColor: '#22D3EE' } } },
+  ],
+};
+
+// More templates for each category
+const moreTemplates: any = {
+  portfolio: [
+    { title: 'Creative Pro', subtitle: 'For designers & creatives', icon: Palette, color: 'from-pink-500 to-rose-600' },
+    { title: 'Minimal Dev', subtitle: 'Clean developer portfolio', icon: Code, color: 'from-zinc-500 to-slate-600' },
+    { title: 'Dark Mode Pro', subtitle: 'Full dark portfolio', icon: Moon, color: 'from-purple-600 to-indigo-700' },
+    { title: 'Interactive', subtitle: 'Animation-heavy portfolio', icon: Sparkles, color: 'from-amber-500 to-orange-600' },
+  ],
+  college: [
+    { title: 'Research Lab', subtitle: 'Lab & research group', icon: FlaskConical, color: 'from-blue-500 to-cyan-600' },
+    { title: 'Department', subtitle: 'Department website', icon: Building2, color: 'from-indigo-500 to-purple-600' },
+    { title: 'Alumni Network', subtitle: 'Alumni portal design', icon: Users, color: 'from-teal-500 to-emerald-600' },
+    { title: 'Event Hub', subtitle: 'Conference & events', icon: Calendar, color: 'from-red-500 to-rose-600' },
+  ],
+  business: [
+    { title: 'Corporate', subtitle: 'Corporate business site', icon: Briefcase, color: 'from-slate-600 to-zinc-700' },
+    { title: 'E-Commerce', subtitle: 'Online store template', icon: ShoppingBag, color: 'from-green-500 to-emerald-600' },
+    { title: 'Consulting', subtitle: 'Consulting firm site', icon: TrendingUp, color: 'from-blue-500 to-indigo-600' },
+    { title: 'Restaurant', subtitle: 'Restaurant & cafe', icon: UtensilsCrossed, color: 'from-orange-500 to-amber-600' },
+  ],
+  app: [
+    { title: 'Dashboard', subtitle: 'Admin dashboard template', icon: LayoutDashboard, color: 'from-sky-500 to-blue-600' },
+    { title: 'SaaS Pricing', subtitle: 'Pricing page template', icon: CreditCard, color: 'from-violet-500 to-purple-600' },
+    { title: 'Landing Page', subtitle: 'App landing page', icon: Rocket, color: 'from-pink-500 to-rose-600' },
+    { title: 'Documentation', subtitle: 'Docs & help center', icon: BookOpen, color: 'from-teal-500 to-cyan-600' },
   ],
 };

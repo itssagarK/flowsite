@@ -294,9 +294,15 @@ interface BuilderContextType {
   resetToBlank: () => void;
   activeDevice: 'mobile' | 'tablet' | 'desktop';
   setActiveDevice: (device: 'mobile' | 'tablet' | 'desktop') => void;
+  clearSavedData: () => void;
+  saveStatus: 'idle' | 'saving' | 'saved';
 }
 
 const BuilderContext = createContext<BuilderContextType | undefined>(undefined);
+
+// Default data exported for reuse
+export const DEFAULT_DATA = getDefaultData('portfolio');
+const STORAGE_KEY = 'flowsite_data';
 
 export function BuilderProvider({ children }: { children: React.ReactNode }) {
   const [data, setData] = useState<PortfolioData>(getDefaultData('portfolio'));
@@ -304,6 +310,52 @@ export function BuilderProvider({ children }: { children: React.ReactNode }) {
   const [scanStatus, setScanStatus] = useState<'idle' | 'scanning' | 'done' | 'error'>('idle');
   const [scanError, setScanError] = useState<string | null>(null);
   const [activeDevice, setActiveDevice] = useState<'mobile' | 'tablet' | 'desktop'>('desktop');
+  // Initialize state from localStorage or default
+  const [data, setData] = useState<PortfolioData>(() => {
+    try {
+      const saved = localStorage.getItem(STORAGE_KEY);
+      return saved ? JSON.parse(saved) : DEFAULT_DATA;
+    } catch (e) {
+      console.error('Failed to load saved data:', e);
+      return DEFAULT_DATA;
+    }
+  });
+  const [websiteType, setWebsiteTypeState] = useState<WebsiteType>(data.websiteType);
+  const [saveStatus, setSaveStatus] = useState<'idle' | 'saving' | 'saved'>('idle');
+  const saveTimeoutRef = React.useRef<NodeJS.Timeout | null>(null);
+  const isInitialMount = React.useRef(true);
+
+  // Persistence logic with debounce
+  useEffect(() => {
+    if (isInitialMount.current) {
+      isInitialMount.current = false;
+      return;
+    }
+
+    setSaveStatus('saving');
+    
+    if (saveTimeoutRef.current) {
+      clearTimeout(saveTimeoutRef.current);
+    }
+
+    saveTimeoutRef.current = setTimeout(() => {
+      try {
+        localStorage.setItem(STORAGE_KEY, JSON.stringify(data));
+        setSaveStatus('saved');
+        // Reset to idle after 2 seconds to fade out the indicator
+        setTimeout(() => setSaveStatus('idle'), 2000);
+      } catch (e) {
+        console.error('Failed to save data to localStorage:', e);
+        setSaveStatus('idle');
+      }
+    }, 500);
+
+    return () => {
+      if (saveTimeoutRef.current) {
+        clearTimeout(saveTimeoutRef.current);
+      }
+    };
+  }, [data]);
 
   // Apply theme and color to document
   useEffect(() => {
@@ -319,6 +371,12 @@ export function BuilderProvider({ children }: { children: React.ReactNode }) {
   const setWebsiteType = useCallback((type: WebsiteType) => {
     setWebsiteTypeState(type);
     setData(getDefaultData(type));
+  }, []);
+
+  const clearSavedData = useCallback(() => {
+    localStorage.removeItem(STORAGE_KEY);
+    setData(DEFAULT_DATA);
+    setWebsiteTypeState(DEFAULT_DATA.websiteType);
   }, []);
 
   const updateData = useCallback((newData: Partial<PortfolioData> | ((prev: PortfolioData) => PortfolioData)) => {
@@ -771,6 +829,8 @@ Return ONLY the JSON. No markdown, no explanation, no code fences.
       resetToBlank,
       activeDevice,
       setActiveDevice,
+      clearSavedData,
+      saveStatus,
     }}>
       {children}
     </BuilderContext.Provider>
