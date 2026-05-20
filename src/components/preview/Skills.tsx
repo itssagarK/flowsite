@@ -1,129 +1,111 @@
 import React from 'react';
-import { motion } from 'motion/react';
+import { motion, AnimatePresence } from 'motion/react';
 import { useBuilder, defaultSkills } from '../../context/BuilderContext';
 
 export function Skills() {
   const { data } = useBuilder();
   const skills = data.skills || defaultSkills;
-  const { layout } = data.settings;
-
-  // Group skills by category
-  const groupedSkills = skills.reduce((acc, skill) => {
-    const category = skill.category || 'Other';
-    if (!acc[category]) acc[category] = [];
-    acc[category].push(skill);
-    return acc;
-  }, {} as Record<string, typeof skills>);
+  const { skillsVariant = 'tags', theme } = data.settings;
 
   if (skills.length === 0) return null;
 
-  if (layout === 'brutalist') {
-    return (
-      <section id="skills" className="py-20 px-6 md:px-12 bg-primary/5 border-y-4 border-foreground">
-        <motion.div
-          initial={{ opacity: 0, x: -20 }}
-          whileInView={{ opacity: 1, x: 0 }}
-          viewport={{ once: false }}
-          className="max-w-4xl mx-auto"
-        >
-          <h2 className="text-5xl md:text-7xl font-black uppercase tracking-tighter mb-12">Skills</h2>
-          <div className="grid grid-cols-2 md:grid-cols-3 gap-4">
-            {skills.map((skill) => (
-              <div key={skill.id} className="border-4 border-foreground p-4 text-center">
-                <div className="text-2xl font-black uppercase">{skill.name}</div>
-                <div className="mt-2 h-4 bg-foreground">
-                  <div className="h-full bg-primary" style={{ width: `${skill.level}%` }} />
-                </div>
-              </div>
-            ))}
-          </div>
-        </motion.div>
-      </section>
-    );
-  }
-
-  if (layout === 'minimal') {
-    return (
-      <section id="skills" className="py-20 px-8 md:px-20">
-        <motion.div
-          initial={{ opacity: 0, y: 30 }}
-          whileInView={{ opacity: 1, y: 0 }}
-          viewport={{ once: false }}
-          className="max-w-3xl mx-auto"
-        >
-          <span className="text-primary font-semibold text-sm tracking-wider uppercase mb-4 block">Expertise</span>
-          <h2 className="text-3xl md:text-4xl font-light tracking-tight mb-10">What I work with</h2>
-
-          <div className="space-y-8">
-            {Object.entries(groupedSkills).map(([category, categorySkills]) => (
-              <div key={category}>
-                <h3 className="text-sm font-semibold text-muted-foreground uppercase tracking-wider mb-4">{category}</h3>
-                <div className="flex flex-wrap gap-3">
-                  {categorySkills.map((skill) => (
-                    <span
-                      key={skill.id}
-                      className="px-4 py-2 bg-muted/50 rounded-full text-sm font-medium"
-                    >
-                      {skill.name}
-                    </span>
-                  ))}
-                </div>
-              </div>
-            ))}
-          </div>
-        </motion.div>
-      </section>
-    );
-  }
-
-  // Modern Layout
-  return (
-    <section id="skills" className="py-20 px-8 md:px-20 relative">
-      <div className="absolute inset-0 bg-gradient-to-r from-primary/5 via-transparent to-violet-500/5" />
-
+  const variants = {
+    tags: (
       <motion.div
-        initial={{ opacity: 0, y: 30 }}
-        whileInView={{ opacity: 1, y: 0 }}
-        viewport={{ once: false }}
-        className="max-w-4xl mx-auto relative"
+        key="tags"
+        initial={{ opacity: 0 }}
+        animate={{ opacity: 1 }}
+        exit={{ opacity: 0 }}
+        className="flex flex-wrap gap-3"
       >
-        <span className="text-primary font-semibold text-sm tracking-wider uppercase mb-4 block">Skills & Expertise</span>
-        <h2 className="text-4xl md:text-5xl font-bold tracking-tight mb-10">What I bring to the table</h2>
-
-        <div className="grid md:grid-cols-2 gap-8">
-          {Object.entries(groupedSkills).map(([category, categorySkills], catIndex) => (
-            <motion.div
-              key={category}
-              initial={{ opacity: 0, y: 20 }}
-              whileInView={{ opacity: 1, y: 0 }}
-              viewport={{ once: false }}
-              transition={{ delay: catIndex * 0.1 }}
-              className="p-6 bg-card border border-border rounded-2xl"
-            >
-              <h3 className="font-semibold text-foreground mb-4">{category}</h3>
-              <div className="space-y-4">
-                {categorySkills.map((skill) => (
-                  <div key={skill.id}>
-                    <div className="flex items-center justify-between mb-1">
-                      <span className="text-sm font-medium">{skill.name}</span>
-                      <span className="text-xs text-muted-foreground">{skill.level}%</span>
-                    </div>
-                    <div className="h-1.5 bg-muted rounded-full overflow-hidden">
-                      <motion.div
-                        initial={{ width: 0 }}
-                        whileInView={{ width: `${skill.level}%` }}
-                        viewport={{ once: false }}
-                        transition={{ duration: 0.8, ease: 'easeOut' }}
-                        className="h-full bg-gradient-to-r from-primary to-violet-500 rounded-full"
-                      />
-                    </div>
-                  </div>
-                ))}
-              </div>
-            </motion.div>
-          ))}
-        </div>
+        {skills.map((skill, i) => (
+          <motion.div
+            key={skill.id}
+            initial={{ opacity: 0, scale: 0.8 }}
+            whileInView={{ opacity: 1, scale: 1 }}
+            transition={{ delay: i * 0.05 }}
+            whileHover={{ y: -5, scale: 1.05 }}
+            className="px-6 py-3 bg-card border-2 border-primary/20 rounded-2xl text-sm font-bold shadow-lg hover:shadow-primary/20 hover:border-primary transition-all cursor-default"
+          >
+            {skill.name}
+          </motion.div>
+        ))}
       </motion.div>
+    ),
+    bars: (
+      <motion.div
+        key="bars"
+        initial={{ opacity: 0 }}
+        animate={{ opacity: 1 }}
+        exit={{ opacity: 0 }}
+        className="grid md:grid-cols-2 gap-x-12 gap-y-8"
+      >
+        {skills.map((skill, i) => (
+          <div key={skill.id} className="space-y-3">
+            <div className="flex justify-between items-end">
+              <span className="text-base font-bold text-foreground">{skill.name}</span>
+              <span className="text-xs font-black text-primary uppercase tracking-tighter">{skill.level}%</span>
+            </div>
+            <div className="h-3 bg-muted rounded-full overflow-hidden border border-border">
+              <motion.div
+                initial={{ width: 0 }}
+                whileInView={{ width: `${skill.level}%` }}
+                viewport={{ once: false }}
+                transition={{ duration: 1, ease: 'easeOut', delay: i * 0.1 }}
+                className="h-full bg-gradient-to-r from-primary to-primary/60 rounded-full"
+              />
+            </div>
+          </div>
+        ))}
+      </motion.div>
+    ),
+    grid: (
+      <motion.div
+        key="grid"
+        initial={{ opacity: 0 }}
+        animate={{ opacity: 1 }}
+        exit={{ opacity: 0 }}
+        className="grid grid-cols-2 md:grid-cols-3 lg:grid-cols-4 gap-6"
+      >
+        {skills.map((skill, i) => (
+          <motion.div
+            key={skill.id}
+            initial={{ opacity: 0, y: 20 }}
+            whileInView={{ opacity: 1, y: 0 }}
+            transition={{ delay: i * 0.05 }}
+            whileHover={{ y: -8, scale: 1.03 }}
+            className="group p-6 bg-card border border-border rounded-3xl text-center space-y-4 hover:border-primary transition-all shadow-sm hover:shadow-xl hover:shadow-primary/10 relative overflow-hidden"
+          >
+            <div className="absolute top-0 left-0 w-full h-1 bg-gradient-to-r from-primary to-transparent opacity-0 group-hover:opacity-100 transition-opacity" />
+            <div className="w-16 h-16 mx-auto rounded-2xl bg-primary/10 flex items-center justify-center text-3xl font-black text-primary group-hover:bg-primary group-hover:text-white transition-colors">
+              {skill.name.charAt(0)}
+            </div>
+            <h3 className="font-bold text-base truncate">{skill.name}</h3>
+            <div className="pt-2">
+              <div className="h-1 w-12 mx-auto bg-primary/20 rounded-full overflow-hidden">
+                <div className="h-full bg-primary" style={{ width: `${skill.level}%` }} />
+              </div>
+            </div>
+          </motion.div>
+        ))}
+      </motion.div>
+    )
+  };
+
+  return (
+    <section id="skills" className="py-24 px-8 md:px-20 relative overflow-hidden">
+      <div className="max-w-6xl mx-auto relative z-10">
+        <div className="mb-16 space-y-4">
+          <h2 className="text-4xl md:text-5xl font-black tracking-tighter text-foreground uppercase">
+            Technical <span className="text-primary">Arsenal</span>
+          </h2>
+          <div className="h-1.5 w-24 bg-primary rounded-full" />
+        </div>
+
+        <AnimatePresence mode="wait">
+          {variants[skillsVariant as keyof typeof variants]}
+        </AnimatePresence>
+      </div>
     </section>
   );
 }
