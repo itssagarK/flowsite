@@ -2,9 +2,35 @@ import React, { useState, useCallback } from 'react';
 import { EditorPanel } from './components/editor/EditorPanel';
 import { Canvas } from './components/preview/Canvas';
 import { BuilderProvider, useBuilder } from './context/BuilderContext';
-import { Moon, Sun, ChevronLeft, Sparkles, Code, Eye, Download, FileCode, X, Check } from 'lucide-react';
+import { Moon, Sun, ChevronLeft, Sparkles, Code, Eye, Download, FileCode, X, Check, Smartphone, Tablet, Monitor, Info } from 'lucide-react';
 import { Home } from './components/home/Home';
 import { motion, AnimatePresence } from 'motion/react';
+
+function DeviceTooltip({ label, size, shortcut, isInfo = false }: { label: string; size?: string; shortcut?: string; isInfo?: boolean }) {
+  return (
+    <motion.div
+      initial={{ opacity: 0, y: 4 }}
+      animate={{ opacity: 1, y: 0 }}
+      exit={{ opacity: 0, y: 4 }}
+      transition={{ duration: 0.15 }}
+      className="absolute top-full mt-2 left-1/2 -translate-x-1/2 px-2.5 py-1.5 bg-gray-900 text-white rounded-lg text-[10px] whitespace-nowrap z-[100] shadow-xl border border-white/10 pointer-events-none"
+    >
+      <div className="flex flex-col items-center gap-0.5">
+        <span className="font-bold flex items-center gap-1">
+          {isInfo && <Info size={10} className="text-amber-400" />}
+          {label}
+        </span>
+        {!isInfo && (
+          <div className="flex items-center gap-2 opacity-70">
+            <span>{size}</span>
+            <span className="px-1 bg-white/10 rounded tracking-tighter">{shortcut}</span>
+          </div>
+        )}
+      </div>
+      <div className="absolute -top-1 left-1/2 -translate-x-1/2 w-2 h-2 bg-gray-900 border-l border-t border-white/10 rotate-45" />
+    </motion.div>
+  );
+}
 
 function ExportModal({ isOpen, onClose, onExport }: { isOpen: boolean; onClose: () => void; onExport: () => void }) {
   if (!isOpen) return null;
@@ -65,10 +91,30 @@ function ExportModal({ isOpen, onClose, onExport }: { isOpen: boolean; onClose: 
 }
 
 function TopBar({ onBack }: { onBack: () => void }) {
-  const { data, toggleTheme, exportCode } = useBuilder();
+  const { data, toggleTheme, exportCode, activeDevice, setActiveDevice } = useBuilder();
   const { theme } = data.settings;
-  const [activeDevice, setActiveDevice] = useState<'desktop' | 'tablet' | 'mobile'>('desktop');
   const [showExport, setShowExport] = useState(false);
+  const [hoveredDevice, setHoveredDevice] = useState<string | null>(null);
+
+  // Keyboard Shortcuts
+  React.useEffect(() => {
+    const handleKeyDown = (e: KeyboardEvent) => {
+      if ((e.metaKey || e.ctrlKey) && !e.shiftKey) {
+        if (e.key === '1') {
+          e.preventDefault();
+          setActiveDevice('mobile');
+        } else if (e.key === '2') {
+          e.preventDefault();
+          setActiveDevice('tablet');
+        } else if (e.key === '3') {
+          e.preventDefault();
+          setActiveDevice('desktop');
+        }
+      }
+    };
+    window.addEventListener('keydown', handleKeyDown);
+    return () => window.removeEventListener('keydown', handleKeyDown);
+  }, [setActiveDevice]);
 
   const handleExport = useCallback(() => {
     const code = exportCode();
@@ -83,6 +129,12 @@ function TopBar({ onBack }: { onBack: () => void }) {
     URL.revokeObjectURL(url);
     setShowExport(false);
   }, [exportCode, data.user.name]);
+
+  const deviceData = {
+    mobile: { icon: Smartphone, size: '375px', shortcut: '⌘1' },
+    tablet: { icon: Tablet, size: '768px', shortcut: '⌘2' },
+    desktop: { icon: Monitor, size: '100%', shortcut: '⌘3' },
+  };
 
   return (
     <>
@@ -115,25 +167,58 @@ function TopBar({ onBack }: { onBack: () => void }) {
           <motion.div
             initial={{ opacity: 0, y: -10 }}
             animate={{ opacity: 1, y: 0 }}
-            className="flex items-center bg-muted rounded-xl p-1 gap-1"
+            className="flex items-center bg-muted/50 rounded-xl p-1 gap-1 relative border border-border/50"
+            onMouseEnter={() => {
+              if (window.innerWidth < 768) setHoveredDevice('info');
+            }}
+            onMouseLeave={() => setHoveredDevice(null)}
           >
-            {(['desktop', 'tablet', 'mobile'] as const).map((device) => (
-              <motion.button
-                key={device}
-                whileTap={{ scale: 0.95 }}
-                onClick={() => setActiveDevice(device)}
-                className={`px-3 py-1.5 rounded-lg text-xs font-semibold transition-all flex items-center gap-1.5 ${
-                  activeDevice === device
-                    ? 'bg-card shadow-sm text-foreground'
-                    : 'text-muted-foreground hover:text-foreground'
-                }`}
-              >
-                {device === 'desktop' && <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2"><rect x="2" y="3" width="20" height="14" rx="2" /><line x1="8" y1="21" x2="16" y2="21" /><line x1="12" y1="17" x2="12" y2="21" /></svg>}
-                {device === 'tablet' && <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2"><rect x="4" y="2" width="16" height="20" rx="2" /><line x1="12" y1="18" x2="12" y2="18" /></svg>}
-                {device === 'mobile' && <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2"><rect x="5" y="2" width="14" height="20" rx="2" /><line x1="12" y1="18" x2="12" y2="18" /></svg>}
-                <span className="hidden sm:inline capitalize">{device}</span>
-              </motion.button>
-            ))}
+            <AnimatePresence>
+              {hoveredDevice === 'info' && (
+                <DeviceTooltip label="Device preview works best on larger screens" isInfo />
+              )}
+            </AnimatePresence>
+
+            {(['mobile', 'tablet', 'desktop'] as const).map((device) => {
+              const Icon = deviceData[device].icon;
+              const isActive = activeDevice === device;
+              const isHiddenOnSmall = (device === 'tablet' || device === 'desktop');
+
+              return (
+                <motion.button
+                  key={device}
+                  whileTap={{ scale: 0.95 }}
+                  onClick={() => setActiveDevice(device)}
+                  onMouseEnter={() => setHoveredDevice(device)}
+                  onMouseLeave={() => setHoveredDevice(null)}
+                  className={`relative px-3 py-1.5 rounded-lg text-xs font-semibold transition-all flex items-center gap-2 z-10
+                    ${isHiddenOnSmall ? 'hidden md:flex' : 'flex'}
+                    ${isActive ? 'text-primary' : 'text-muted-foreground hover:text-foreground'}
+                  `}
+                >
+                  <Icon size={14} />
+                  <span className="hidden sm:inline capitalize">{device}</span>
+
+                  {isActive && (
+                    <motion.div
+                      layoutId="device-indicator"
+                      className="absolute inset-0 bg-card shadow-sm rounded-lg -z-10"
+                      transition={{ type: 'spring', bounce: 0.2, duration: 0.6 }}
+                    />
+                  )}
+
+                  <AnimatePresence>
+                    {hoveredDevice === device && (
+                      <DeviceTooltip
+                        label={device.charAt(0).toUpperCase() + device.slice(1)}
+                        size={deviceData[device].size}
+                        shortcut={deviceData[device].shortcut}
+                      />
+                    )}
+                  </AnimatePresence>
+                </motion.button>
+              );
+            })}
           </motion.div>
         </div>
 

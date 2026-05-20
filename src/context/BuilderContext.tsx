@@ -292,6 +292,8 @@ interface BuilderContextType {
   scanError: string | null;
   exportCode: () => string;
   resetToBlank: () => void;
+  activeDevice: 'mobile' | 'tablet' | 'desktop';
+  setActiveDevice: (device: 'mobile' | 'tablet' | 'desktop') => void;
 }
 
 const BuilderContext = createContext<BuilderContextType | undefined>(undefined);
@@ -301,6 +303,7 @@ export function BuilderProvider({ children }: { children: React.ReactNode }) {
   const [websiteType, setWebsiteTypeState] = useState<WebsiteType>('portfolio');
   const [scanStatus, setScanStatus] = useState<'idle' | 'scanning' | 'done' | 'error'>('idle');
   const [scanError, setScanError] = useState<string | null>(null);
+  const [activeDevice, setActiveDevice] = useState<'mobile' | 'tablet' | 'desktop'>('desktop');
 
   // Apply theme and color to document
   useEffect(() => {
@@ -766,6 +769,8 @@ Return ONLY the JSON. No markdown, no explanation, no code fences.
       scanError,
       exportCode,
       resetToBlank,
+      activeDevice,
+      setActiveDevice,
     }}>
       {children}
     </BuilderContext.Provider>

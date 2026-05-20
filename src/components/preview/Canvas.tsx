@@ -67,7 +67,7 @@ export function Canvas() {
   const { scrollYProgress } = useScroll({ container: containerRef });
   const scaleX = useSpring(scrollYProgress, { stiffness: 100, damping: 30, restDelta: 0.001 });
 
-  const { data } = useBuilder();
+  const { data, activeDevice } = useBuilder();
   const { websiteType } = data;
 
   const scrollTo = (id: string) => {
@@ -141,8 +141,28 @@ export function Canvas() {
     }
   };
 
+  const deviceConfigs = {
+    mobile: {
+      width: '375px',
+      frameClass: 'rounded-[40px] border-4 border-gray-700 shadow-2xl',
+      hasNotch: true,
+    },
+    tablet: {
+      width: '768px',
+      frameClass: 'rounded-[20px] border-4 border-gray-600 shadow-xl',
+      hasNotch: false,
+    },
+    desktop: {
+      width: '100%',
+      frameClass: 'rounded-none border-0 shadow-none',
+      hasNotch: false,
+    },
+  };
+
+  const currentConfig = deviceConfigs[activeDevice];
+
   return (
-    <div className="flex-1 bg-canvas-bg w-full flex items-start lg:items-center justify-center p-4 lg:p-8 relative transition-colors duration-300">
+    <div className="flex-1 bg-canvas-bg w-full flex items-start lg:items-center justify-center p-4 lg:p-8 relative transition-colors duration-300 overflow-hidden">
       <Background3D accentColor={data.settings.accentColor} />
 
       {/* Progress Bar */}
@@ -150,29 +170,49 @@ export function Canvas() {
         <motion.div className="h-full bg-gradient-to-r from-primary to-violet-500" style={{ scaleX, transformOrigin: 'left' }} />
       </motion.div>
 
-      {/* Main Device Frame */}
-      <div className="w-full max-w-5xl bg-card shadow-xl rounded-2xl overflow-hidden min-h-[700px] lg:h-[85vh] flex flex-col transition-all duration-300 relative border border-border">
-        <motion.div className="absolute top-0 left-0 right-0 h-1 bg-primary origin-left z-50" style={{ scaleX }} />
-
-        <div ref={containerRef} className="flex-1 relative overflow-y-auto bg-background scroll-smooth">
-          <nav className="p-4 md:px-8 flex justify-between items-center bg-card/80 backdrop-blur-md sticky top-0 z-40 border-b border-border/50">
-            <button className="font-bold text-foreground text-lg cursor-pointer hover:text-primary transition-colors" onClick={() => scrollTo('hero')}>
-              {data.user.name?.slice(0, 2) || 'SG'}.
-            </button>
-            <div className="flex gap-4 md:gap-6 text-sm font-medium text-muted-foreground">
-              {getNavItems().map((item) => (
-                <button key={item} onClick={() => scrollTo(item.toLowerCase())} className="hover:text-primary transition-colors cursor-pointer relative group">
-                  {item}
-                  <span className="absolute -bottom-1 left-0 w-0 h-0.5 bg-primary group-hover:w-full transition-all duration-300" />
-                </button>
-              ))}
+      {/* Main Device Frame Wrapper */}
+      <div className="w-full h-full flex items-center justify-center relative z-10">
+        <motion.div
+          layoutId="device-frame"
+          initial={false}
+          animate={{
+            width: currentConfig.width,
+            height: activeDevice === 'desktop' ? '100%' : '85vh',
+          }}
+          transition={{ type: 'spring', stiffness: 200, damping: 25 }}
+          className={`bg-card flex flex-col transition-all duration-300 relative overflow-hidden bg-background ${currentConfig.frameClass} ${
+            activeDevice !== 'desktop' ? 'max-h-[900px] border-border' : 'h-full w-full'
+          }`}
+        >
+          {currentConfig.hasNotch && (
+            <div className="absolute top-0 left-1/2 -translate-x-1/2 w-24 h-6 bg-gray-700 rounded-b-2xl z-[60] flex items-center justify-center gap-1.5">
+              <div className="w-8 h-1 bg-gray-600 rounded-full" />
+              <div className="w-1.5 h-1.5 bg-gray-600 rounded-full" />
             </div>
-          </nav>
+          )}
 
-          <div className="flex flex-col gap-8 md:gap-12">
-            {renderSections()}
+          <motion.div className="absolute top-0 left-0 right-0 h-1 bg-primary origin-left z-50" style={{ scaleX }} />
+
+          <div ref={containerRef} className="flex-1 relative overflow-y-auto bg-background scroll-smooth">
+            <nav className="p-4 md:px-8 flex justify-between items-center bg-card/80 backdrop-blur-md sticky top-0 z-40 border-b border-border/50">
+              <button className="font-bold text-foreground text-lg cursor-pointer hover:text-primary transition-colors" onClick={() => scrollTo('hero')}>
+                {data.user.name?.slice(0, 2) || 'SG'}.
+              </button>
+              <div className="flex gap-4 md:gap-6 text-sm font-medium text-muted-foreground">
+                {getNavItems().map((item) => (
+                  <button key={item} onClick={() => scrollTo(item.toLowerCase())} className="hover:text-primary transition-colors cursor-pointer relative group">
+                    {item}
+                    <span className="absolute -bottom-1 left-0 w-0 h-0.5 bg-primary group-hover:w-full transition-all duration-300" />
+                  </button>
+                ))}
+              </div>
+            </nav>
+
+            <div className="flex flex-col gap-8 md:gap-12">
+              {renderSections()}
+            </div>
           </div>
-        </div>
+        </motion.div>
       </div>
 
       {/* Preview Badge */}
