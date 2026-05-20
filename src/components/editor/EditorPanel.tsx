@@ -1,6 +1,7 @@
-import React, { useState, useRef } from 'react';
+import React, { useState, useRef, useEffect } from 'react';
+import { createPortal } from 'react-dom';
 import { useBuilder, WebsiteType } from '../../context/BuilderContext';
-import { User, FolderOpen, Palette, Scan, Image, Plus, Trash2, GraduationCap, Building2, AppWindow, Code, Layers, Sparkles, Mail, MapPin, Settings2, X, ChevronDown, GripVertical, Edit3, Zap, Moon, Sun, Upload, Video, Type, Layout, Move, Sliders, Eye, Clock, Wand2, ChevronRight, Check, Briefcase } from 'lucide-react';
+import { User, FolderOpen, Palette, Scan, Image, Plus, Trash2, GraduationCap, Building2, AppWindow, Code, Layers, Sparkles, Mail, MapPin, Settings2, X, ChevronDown, GripVertical, Edit3, Zap, Moon, Sun, Upload, Video, Type, Layout, Move, Sliders, Eye, Clock, Wand2, ChevronRight, Check, Briefcase, RefreshCcw, AlertCircle } from 'lucide-react';
 import { motion, AnimatePresence } from 'motion/react';
 
 type EditorTab = 'profile' | 'content' | 'theme';
@@ -19,6 +20,95 @@ const typeIcons: Record<WebsiteType, any> = {
   business: Building2,
   app: AppWindow,
 };
+
+function ResetModal({ isOpen, onClose, onReset }: { isOpen: boolean; onClose: () => void; onReset: () => void }) {
+  const modalRef = useRef<HTMLDivElement>(null);
+
+  // Trap focus and handle Escape
+  useEffect(() => {
+    if (!isOpen) return;
+
+    const handleKeyDown = (e: KeyboardEvent) => {
+      if (e.key === 'Escape') onClose();
+      if (e.key === 'Tab') {
+        const focusableElements = modalRef.current?.querySelectorAll('button');
+        if (focusableElements && focusableElements.length > 0) {
+          const first = focusableElements[0] as HTMLElement;
+          const last = focusableElements[focusableElements.length - 1] as HTMLElement;
+
+          if (e.shiftKey && document.activeElement === first) {
+            e.preventDefault();
+            last.focus();
+          } else if (!e.shiftKey && document.activeElement === last) {
+            e.preventDefault();
+            first.focus();
+          }
+        }
+      }
+    };
+
+    window.addEventListener('keydown', handleKeyDown);
+    return () => window.removeEventListener('keydown', handleKeyDown);
+  }, [isOpen, onClose]);
+
+  if (!isOpen) return null;
+
+  return createPortal(
+    <AnimatePresence>
+      <motion.div
+        initial={{ opacity: 0 }}
+        animate={{ opacity: 1 }}
+        exit={{ opacity: 0 }}
+        className="fixed inset-0 bg-black/60 backdrop-blur-sm z-[100] flex items-center justify-center p-4"
+        onClick={onClose}
+      >
+        <motion.div
+          ref={modalRef}
+          initial={{ scale: 0.95, opacity: 0 }}
+          animate={{ scale: 1, opacity: 1 }}
+          exit={{ scale: 0.95, opacity: 0 }}
+          transition={{ duration: 0.2 }}
+          className="bg-card border border-border rounded-2xl p-6 max-w-sm w-full shadow-2xl"
+          onClick={(e) => e.stopPropagation()}
+          role="alertdialog"
+          aria-modal="true"
+          aria-labelledby="reset-title"
+          aria-describedby="reset-desc"
+        >
+          <div className="flex items-center gap-3 text-red-500 mb-4">
+            <div className="w-10 h-10 rounded-full bg-red-500/10 flex items-center justify-center">
+              <AlertCircle size={24} />
+            </div>
+            <h3 id="reset-title" className="text-lg font-bold text-foreground">Start over?</h3>
+          </div>
+
+          <p id="reset-desc" className="text-sm text-muted-foreground mb-6 leading-relaxed">
+            This will erase all your content and reset to the default template. This action cannot be undone.
+          </p>
+
+          <div className="flex items-center gap-3">
+            <button
+              onClick={onClose}
+              className="flex-1 py-2.5 rounded-xl text-sm font-semibold border border-border hover:bg-muted transition-colors"
+            >
+              Cancel
+            </button>
+            <button
+              onClick={() => {
+                onReset();
+                onClose();
+              }}
+              className="flex-1 py-2.5 rounded-xl text-sm font-semibold bg-red-500 text-white hover:bg-red-600 shadow-lg shadow-red-500/20 transition-all"
+            >
+              Reset
+            </button>
+          </div>
+        </motion.div>
+      </motion.div>
+    </AnimatePresence>,
+    document.body
+  );
+}
 
 export function EditorPanel() {
   const {
@@ -41,13 +131,15 @@ export function EditorPanel() {
     addExperience,
     removeExperience,
     updateData,
-    scanImage
+    scanImage,
+    clearSavedData
   } = useBuilder();
 
   const [activeTab, setActiveTab] = useState<EditorTab>('profile');
   const [isScanning, setIsScanning] = useState(false);
   const [projectExpand, setProjectExpand] = useState<number | null>(null);
   const [sectionExpand, setSectionExpand] = useState<string | null>('hero');
+  const [showResetModal, setShowResetModal] = useState(false);
   const fileInputRef = useRef<HTMLInputElement>(null);
   const avatarInputRef = useRef<HTMLInputElement>(null);
 
@@ -730,6 +822,25 @@ export function EditorPanel() {
           )}
         </AnimatePresence>
       </div>
+
+      {/* Reset Button (Bottom Fixed) */}
+      <div className="p-4 border-t border-border bg-muted/20">
+        <motion.button
+          whileHover={{ scale: 1.02 }}
+          whileTap={{ scale: 0.98 }}
+          onClick={() => setShowResetModal(true)}
+          className="w-full py-2.5 rounded-xl text-xs font-semibold border border-red-500/30 text-red-500 hover:bg-red-500/10 flex items-center justify-center gap-2 transition-all"
+        >
+          <RefreshCcw size={14} />
+          Reset all content
+        </motion.button>
+      </div>
+
+      <ResetModal
+        isOpen={showResetModal}
+        onClose={() => setShowResetModal(false)}
+        onReset={clearSavedData}
+      />
     </div>
   );
 }
