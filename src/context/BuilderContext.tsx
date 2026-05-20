@@ -336,7 +336,6 @@ export function BuilderProvider({ children }: { children: React.ReactNode }) {
 
   // Handle auto-save
   useEffect(() => {
-
     if (isInitialMount.current) {
       isInitialMount.current = false;
       return;
