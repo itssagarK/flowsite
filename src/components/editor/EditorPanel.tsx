@@ -2,6 +2,10 @@ import React, { useState, useRef, useEffect } from 'react';
 import { createPortal } from 'react-dom';
 import { useBuilder, WebsiteType } from '../../context/BuilderContext';
 import { User, FolderOpen, Palette, Scan, Image, Plus, Trash2, GraduationCap, Building2, AppWindow, Code, Layers, Sparkles, Mail, MapPin, Settings2, X, ChevronDown, GripVertical, Edit3, Zap, Moon, Sun, Upload, Video, Type, Layout, Move, Sliders, Eye, Clock, Wand2, ChevronRight, Check, Briefcase, RefreshCcw, AlertCircle, FileText, Loader2, EyeOff, Dices } from 'lucide-react';
+import { User, FolderOpen, Palette, Scan, Image, Plus, Trash2, GraduationCap, Building2, AppWindow, Code, Layers, Sparkles, Mail, MapPin, Settings2, X, ChevronDown, GripVertical, Edit3, Zap, Moon, Sun, Upload, Video, Type, Layout, Move, Sliders, Eye, Clock, Wand2, ChevronRight, Check, Briefcase, RefreshCcw, AlertCircle, FileText, Loader2 } from 'lucide-react';
+import { createPortal } from 'react-dom';
+import { useBuilder, WebsiteType } from '../../context/BuilderContext';
+import { User, FolderOpen, Palette, Scan, Image, Plus, Trash2, GraduationCap, Building2, AppWindow, Code, Layers, Sparkles, Mail, MapPin, Settings2, X, ChevronDown, GripVertical, Edit3, Zap, Moon, Sun, Upload, Video, Type, Layout, Move, Sliders, Eye, Clock, Wand2, ChevronRight, Check, Briefcase, RefreshCcw, AlertCircle } from 'lucide-react';
 import { motion, AnimatePresence } from 'motion/react';
 import { isGeminiConfigured } from '../../lib/gemini';
 import { DndContext, closestCenter, KeyboardSensor, PointerSensor, useSensor, useSensors, DragEndEvent } from '@dnd-kit/core';
@@ -241,6 +245,7 @@ export function EditorPanel() {
     clearSavedData,
     scanStatus,
     scanError
+    clearSavedData
   } = useBuilder();
 
   const [activeTab, setActiveTab] = useState<EditorTab>('profile');
