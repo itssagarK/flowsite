@@ -101,32 +101,62 @@
 .perspective-1000 { perspective: 1000px; }
 .preserve-3d { transform-style: preserve-3d; }
 
-/* Anti-Gravity Workspace & Digital Void */
+/* Enhanced Digital Void - Premium Dark Background */
 .digital-void {
-  background: radial-gradient(circle at 50% 50%, #080c1d 0%, #020617 100%);
+  background: radial-gradient(ellipse 80% 50% at 50% 0%, #1a1a2e 0%, #0a0a0f 50%, #050508 100%);
   position: fixed;
   inset: 0;
   z-index: -2;
 }
 
-/* Hyper-realistic Hand Glow (Subtle) */
-.touch-glow {
-  position: absolute;
-  width: 200px;
-  height: 200px;
-  background: radial-gradient(circle, rgba(99, 102, 241, 0.15) 0%, transparent 70%);
-  border-radius: 50%;
+/* Ambient Glow Layers */
+.ambient-glow {
+  position: fixed;
+  inset: 0;
   pointer-events: none;
-  z-index: 50;
-  mix-blend-mode: screen;
+  z-index: -1;
+  overflow: hidden;
 }
 
-/* Grid Wireframe Style */
+.ambient-glow::before {
+  content: '';
+  position: absolute;
+  top: -30%;
+  left: 50%;
+  transform: translateX(-50%);
+  width: 150%;
+  height: 80%;
+  background: radial-gradient(ellipse, rgba(99, 102, 241, 0.08) 0%, transparent 60%);
+}
+
+.ambient-glow::after {
+  content: '';
+  position: absolute;
+  bottom: -20%;
+  right: -10%;
+  width: 60%;
+  height: 50%;
+  background: radial-gradient(ellipse, rgba(139, 92, 246, 0.06) 0%, transparent 50%);
+}
+
+/* Subtle Mouse Follow Glow */
+.touch-glow {
+  position: fixed;
+  width: 400px;
+  height: 400px;
+  background: radial-gradient(circle, rgba(124, 58, 237, 0.08) 0%, transparent 50%);
+  border-radius: 50%;
+  pointer-events: none;
+  z-index: 0;
+  transform: translate(-50%, -50%);
+}
+
+/* Subtle Grid Pattern */
 .wireframe-grid {
-  background-image: 
-    linear-gradient(rgba(255,255,255,0.05) 1px, transparent 1px),
-    linear-gradient(90deg, rgba(255,255,255,0.05) 1px, transparent 1px);
-  background-size: 20px 20px;
+  background-image:
+    linear-gradient(rgba(255,255,255,0.03) 1px, transparent 1px),
+    linear-gradient(90deg, rgba(255,255,255,0.03) 1px, transparent 1px);
+  background-size: 30px 30px;
 }
 
 /* Custom Scrollbar */

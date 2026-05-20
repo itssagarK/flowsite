@@ -302,6 +302,8 @@ interface BuilderContextType {
   scanError: string | null;
   activeDevice: 'mobile' | 'tablet' | 'desktop';
   setActiveDevice: (device: 'mobile' | 'tablet' | 'desktop') => void;
+  clearSavedData: () => void;
+  saveStatus: 'idle' | 'saving' | 'saved';
 }
 
 const BuilderContext = createContext<BuilderContextType | undefined>(undefined);
@@ -337,6 +339,23 @@ export function BuilderProvider({ children }: { children: React.ReactNode }) {
   // Handle auto-save
   useEffect(() => {
 
+  // Initialize state from localStorage or default
+  const [data, setData] = useState<PortfolioData>(() => {
+    try {
+      const saved = localStorage.getItem(STORAGE_KEY);
+      return saved ? JSON.parse(saved) : DEFAULT_DATA;
+    } catch (e) {
+      console.error('Failed to load saved data:', e);
+      return DEFAULT_DATA;
+    }
+  });
+  const [websiteType, setWebsiteTypeState] = useState<WebsiteType>(data.websiteType);
+  const [saveStatus, setSaveStatus] = useState<'idle' | 'saving' | 'saved'>('idle');
+  const saveTimeoutRef = React.useRef<NodeJS.Timeout | null>(null);
+  const isInitialMount = React.useRef(true);
+
+  // Persistence logic with debounce
+  useEffect(() => {
     if (isInitialMount.current) {
       isInitialMount.current = false;
       return;
@@ -1008,6 +1027,8 @@ Return ONLY the JSON. No markdown, no explanation, no code fences.
       scanError,
       activeDevice,
       setActiveDevice,
+      clearSavedData,
+      saveStatus,
     }}>
       {children}
     </BuilderContext.Provider>
