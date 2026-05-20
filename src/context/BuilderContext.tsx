@@ -1,4 +1,5 @@
 import React, { createContext, useContext, useState, useEffect, useCallback } from 'react';
+import { model, isGeminiConfigured } from '../lib/gemini';
 
 export type SectionLayout = 'modern' | 'minimal' | 'brutalist';
 export type WebsiteType = 'portfolio' | 'college' | 'business' | 'app';
@@ -286,7 +287,9 @@ interface BuilderContextType {
   addExperience: (exp: Omit<ExperienceItem, 'id'>) => void;
   removeExperience: (id: number) => void;
   toggleTheme: () => void;
-  scanImage: (imageUrl: string) => Promise<void>;
+  scanImage: (file: File) => Promise<void>;
+  scanStatus: 'idle' | 'scanning' | 'done' | 'error';
+  scanError: string | null;
   exportCode: () => string;
   resetToBlank: () => void;
 }
@@ -296,6 +299,8 @@ const BuilderContext = createContext<BuilderContextType | undefined>(undefined);
 export function BuilderProvider({ children }: { children: React.ReactNode }) {
   const [data, setData] = useState<PortfolioData>(getDefaultData('portfolio'));
   const [websiteType, setWebsiteTypeState] = useState<WebsiteType>('portfolio');
+  const [scanStatus, setScanStatus] = useState<'idle' | 'scanning' | 'done' | 'error'>('idle');
+  const [scanError, setScanError] = useState<string | null>(null);
 
   // Apply theme and color to document
   useEffect(() => {
@@ -442,16 +447,112 @@ export function BuilderProvider({ children }: { children: React.ReactNode }) {
     }));
   }, []);
 
-  const scanImage = useCallback(async (imageUrl: string) => {
-    return new Promise<void>((resolve) => {
-      setTimeout(() => {
-        setData((prev) => ({
-          ...prev,
-          user: { ...prev.user, avatar: imageUrl },
-        }));
-        resolve();
-      }, 1500);
-    });
+  const toBase64 = (file: File): Promise<string> => new Promise((resolve, reject) => {
+    const reader = new FileReader()
+    reader.onload = () => resolve((reader.result as string).split(',')[1])
+    reader.onerror = reject
+    reader.readAsDataURL(file)
+  });
+
+  const scanImage = useCallback(async (file: File) => {
+    if (!isGeminiConfigured || !model) {
+      setScanStatus('error');
+      setScanError('Gemini API is not configured. Please check your .env.local file.');
+      return;
+    }
+
+    setScanStatus('scanning');
+    setScanError(null);
+
+    try {
+      const base64 = await toBase64(file);
+
+      const prompt = `
+You are a resume and LinkedIn profile parser. Analyze this image and extract all available information.
+
+Return ONLY a valid JSON object with this exact structure (use empty string "" for missing fields, empty array [] for missing lists):
+{
+  "name": "full name",
+  "role": "current job title or desired role",
+  "bio": "2-3 sentence professional summary written in first person",
+  "email": "email address if visible",
+  "phone": "phone number if visible",
+  "location": "city, country if visible",
+  "skills": ["skill1", "skill2", "skill3"],
+  "experience": [
+    { "company": "", "role": "", "duration": "", "description": "" }
+  ],
+  "projects": [
+    { "title": "", "description": "", "tech": "" }
+  ],
+  "education": "degree and institution if visible"
+}
+
+Return ONLY the JSON. No markdown, no explanation, no code fences.
+`;
+
+      const result = await model.generateContent([
+        prompt,
+        {
+          inlineData: {
+            data: base64,
+            mimeType: file.type
+          }
+        }
+      ]);
+
+      const response = await result.response;
+      const text = response.text();
+      const parsed = JSON.parse(text);
+
+      setData(prev => {
+        const updates: any = {
+          user: { ...prev.user }
+        };
+
+        if (parsed.name) updates.user.name = parsed.name;
+        if (parsed.role) updates.user.role = parsed.role;
+        if (parsed.bio) updates.user.bio = parsed.bio;
+        if (parsed.email) updates.user.email = parsed.email;
+        if (parsed.location) updates.user.location = parsed.location;
+
+        if (parsed.skills && parsed.skills.length > 0) {
+          updates.skills = parsed.skills.map((s: string, i: number) => ({
+            id: Date.now() + i,
+            name: s,
+            level: 80
+          }));
+        }
+
+        if (parsed.experience && parsed.experience.length > 0) {
+          updates.experience = parsed.experience.map((e: any, i: number) => ({
+            id: Date.now() + 100 + i,
+            title: e.role || '',
+            company: e.company || '',
+            period: e.duration || '',
+            description: e.description || ''
+          }));
+        }
+
+        if (parsed.projects && parsed.projects.length > 0) {
+          updates.projects = parsed.projects.map((p: any, i: number) => ({
+            id: Date.now() + 200 + i,
+            title: p.title || '',
+            desc: p.description || '',
+            tags: p.tech ? [p.tech] : [],
+            color: 'bg-muted'
+          }));
+        }
+
+        return { ...prev, ...updates };
+      });
+
+      setScanStatus('done');
+    } catch (error: any) {
+      console.error('Gemini scanning error:', error);
+      setScanStatus('error');
+      setScanError(error.message || 'Failed to scan image. Please try again.');
+    }
   }, []);
 
   const exportCode = useCallback(() => {
@@ -661,6 +762,8 @@ export function BuilderProvider({ children }: { children: React.ReactNode }) {
       removeExperience,
       toggleTheme,
       scanImage,
+      scanStatus,
+      scanError,
       exportCode,
       resetToBlank,
     }}>
