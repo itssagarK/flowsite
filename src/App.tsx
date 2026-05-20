@@ -90,8 +90,42 @@ function ExportModal({ isOpen, onClose, onExport }: { isOpen: boolean; onClose: 
   );
 }
 
+function SaveStatusIndicator({ status }: { status: 'idle' | 'saving' | 'saved' }) {
+  return (
+    <AnimatePresence mode="wait">
+      {status !== 'idle' && (
+        <motion.div
+          key={status}
+          initial={{ opacity: 0, x: 10 }}
+          animate={{ opacity: 1, x: 0 }}
+          exit={{ opacity: 0, x: -10 }}
+          className="flex items-center gap-2 px-1.5 py-1 rounded-full border border-border bg-muted/30 text-[12px] font-medium"
+        >
+          {status === 'saving' ? (
+            <>
+              <motion.div
+                animate={{ scale: [1, 1.4, 1], opacity: [1, 0.6, 1] }}
+                transition={{ duration: 1, repeat: Infinity }}
+                className="w-1.5 h-1.5 rounded-full bg-primary"
+              />
+              <span className="text-muted-foreground tracking-tight">Saving...</span>
+            </>
+          ) : (
+            <>
+              <Check size={12} className="text-emerald-500" />
+              <span className="text-emerald-500 tracking-tight">Saved</span>
+            </>
+          )}
+        </motion.div>
+      )}
+    </AnimatePresence>
+  );
+}
+
 function TopBar({ onBack }: { onBack: () => void }) {
   const { data, toggleTheme, exportCode, activeDevice, setActiveDevice, saveStatus } = useBuilder();
+  const { data, toggleTheme, exportCode, activeDevice, setActiveDevice } = useBuilder();
+  const { data, toggleTheme, exportCode, saveStatus } = useBuilder();
   const { theme } = data.settings;
   const [showExport, setShowExport] = useState(false);
   const [hoveredDevice, setHoveredDevice] = useState<string | null>(null);
@@ -280,6 +314,8 @@ function TopBar({ onBack }: { onBack: () => void }) {
             <Eye size={14} />
             Preview
           </motion.button>
+
+          <SaveStatusIndicator status={saveStatus} />
 
           <motion.button
             whileHover={{ scale: 1.02, boxShadow: '0 4px 20px rgba(99, 102, 241, 0.3)' }}
