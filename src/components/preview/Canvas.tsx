@@ -77,68 +77,58 @@ export function Canvas() {
     }
   };
 
+  const sectionOrder = data.settings.sectionOrder || ['hero', 'projects', 'skills', 'experience', 'services', 'contact', 'stats', 'team', 'pricing', 'education', 'about'];
+
   const getNavItems = () => {
-    switch (websiteType) {
-      case 'portfolio':
-        return ['Projects', 'Skills', 'Experience', 'About', 'Contact'];
-      case 'college':
-        return ['Projects', 'Education', 'About', 'Contact'];
-      case 'business':
-        return ['Services', 'Stats', 'Team', 'Contact'];
-      case 'app':
-        return ['Features', 'Pricing', 'Contact'];
-      default:
-        return ['Projects', 'Contact'];
-    }
+    const visible = data.settings.visibleSections || {};
+    const items: { id: string; label: string }[] = [];
+
+    sectionOrder.forEach(id => {
+      if (visible[id] === false) return;
+
+      switch (id) {
+        case 'hero': break; // Usually not in nav or at the top
+        case 'projects': items.push({ id, label: websiteType === 'college' ? 'Projects' : 'Work' }); break;
+        case 'skills': items.push({ id, label: 'Skills' }); break;
+        case 'experience': items.push({ id, label: 'Experience' }); break;
+        case 'services': items.push({ id, label: 'Services' }); break;
+        case 'stats': items.push({ id, label: 'Stats' }); break;
+        case 'team': items.push({ id, label: 'Team' }); break;
+        case 'pricing': items.push({ id, label: 'Pricing' }); break;
+        case 'education': items.push({ id, label: 'Education' }); break;
+        case 'about': items.push({ id, label: 'About' }); break;
+        case 'contact': items.push({ id, label: 'Contact' }); break;
+      }
+    });
+
+    return items;
   };
 
   const renderSections = () => {
     const visible = data.settings.visibleSections || {};
 
-    switch (websiteType) {
-      case 'portfolio':
-        return (
-          <>
-            {visible.hero !== false && <Hero />}
-            {visible.projects !== false && <Projects />}
-            {visible.skills !== false && <Skills />}
-            {visible.experience !== false && <Experience />}
-            {visible.about !== false && <About />}
-            {visible.contact !== false && <Contact />}
-          </>
-        );
-      case 'college':
-        return (
-          <>
-            {visible.hero !== false && <Hero />}
-            {visible.projects !== false && <CollegeProjects />}
-            {visible.education !== false && <Education />}
-            {visible.about !== false && <About />}
-            {visible.contact !== false && <Contact />}
-          </>
-        );
-      case 'business':
-        return (
-          <>
-            {visible.hero !== false && <BusinessHero />}
-            {visible.stats !== false && <Stats />}
-            {visible.services !== false && <Services />}
-            {visible.team !== false && <Team />}
-            {visible.contact !== false && <Contact />}
-          </>
-        );
-      case 'app':
-        return (
-          <>
-            {visible.hero !== false && <AppHero />}
-            {visible.features !== false && <Features />}
-            {visible.pricing !== false && <Pricing />}
-            {visible.contact !== false && <Contact />}
-          </>
-        );
-      default:
-        return <Hero />;
-    }
+    return sectionOrder.map((id) => {
+      if (visible[id] === false) return null;
+
+      switch (id) {
+        case 'hero':
+          if (websiteType === 'business') return <BusinessHero key={id} />;
+          if (websiteType === 'app') return <AppHero key={id} />;
+          return <Hero key={id} />;
+        case 'projects':
+          return websiteType === 'college' ? <CollegeProjects key={id} /> : <Projects key={id} />;
+        case 'skills': return <Skills key={id} />;
+        case 'experience': return <Experience key={id} />;
+        case 'services': return <Services key={id} />;
+        case 'stats': return <Stats key={id} />;
+        case 'team': return <Team key={id} />;
+        case 'pricing': return <Pricing key={id} />;
+        case 'education': return <Education key={id} />;
+        case 'about': return <About key={id} />;
+        case 'contact': return <Contact key={id} />;
+        default: return null;
+      }
+    });
   };
 
   const deviceConfigs = {
@@ -200,8 +190,8 @@ export function Canvas() {
               </button>
               <div className="flex gap-4 md:gap-6 text-sm font-medium text-muted-foreground">
                 {getNavItems().map((item) => (
-                  <button key={item} onClick={() => scrollTo(item.toLowerCase())} className="hover:text-primary transition-colors cursor-pointer relative group">
-                    {item}
+                  <button key={item.id} onClick={() => scrollTo(item.id)} className="hover:text-primary transition-colors cursor-pointer relative group">
+                    {item.label}
                     <span className="absolute -bottom-1 left-0 w-0 h-0.5 bg-primary group-hover:w-full transition-all duration-300" />
                   </button>
                 ))}

@@ -114,7 +114,10 @@ export interface PortfolioData {
   settings: {
     theme: 'light' | 'dark';
     layout: SectionLayout;
+    heroVariant?: 'centered' | 'split' | 'minimal';
+    skillsVariant?: 'tags' | 'bars' | 'grid';
     accentColor: string;
+    sectionOrder?: string[];
     visibleSections?: Record<string, boolean>;
     animationSpeed?: 'slow' | 'normal' | 'fast';
     canvasLayout?: 'full' | 'boxed' | 'centered';
@@ -193,7 +196,10 @@ const getDefaultData = (websiteType: WebsiteType): PortfolioData => {
     settings: {
       theme: 'dark' as const,
       layout: 'modern' as SectionLayout,
+      heroVariant: 'centered' as const,
+      skillsVariant: 'tags' as const,
       accentColor: '#6366F1',
+      sectionOrder: ['hero', 'projects', 'skills', 'experience', 'services', 'contact', 'stats', 'team', 'pricing', 'education', 'about'],
       visibleSections: {
         hero: true,
         projects: true,

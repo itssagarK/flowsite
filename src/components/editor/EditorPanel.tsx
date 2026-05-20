@@ -1,13 +1,120 @@
 import React, { useState, useRef, useEffect } from 'react';
+import { createPortal } from 'react-dom';
 import { useBuilder, WebsiteType } from '../../context/BuilderContext';
+import { User, FolderOpen, Palette, Scan, Image, Plus, Trash2, GraduationCap, Building2, AppWindow, Code, Layers, Sparkles, Mail, MapPin, Settings2, X, ChevronDown, GripVertical, Edit3, Zap, Moon, Sun, Upload, Video, Type, Layout, Move, Sliders, Eye, Clock, Wand2, ChevronRight, Check, Briefcase, RefreshCcw, AlertCircle, FileText, Loader2, EyeOff, Dices } from 'lucide-react';
 import { User, FolderOpen, Palette, Scan, Image, Plus, Trash2, GraduationCap, Building2, AppWindow, Code, Layers, Sparkles, Mail, MapPin, Settings2, X, ChevronDown, GripVertical, Edit3, Zap, Moon, Sun, Upload, Video, Type, Layout, Move, Sliders, Eye, Clock, Wand2, ChevronRight, Check, Briefcase, RefreshCcw, AlertCircle, FileText, Loader2 } from 'lucide-react';
 import { createPortal } from 'react-dom';
 import { useBuilder, WebsiteType } from '../../context/BuilderContext';
 import { User, FolderOpen, Palette, Scan, Image, Plus, Trash2, GraduationCap, Building2, AppWindow, Code, Layers, Sparkles, Mail, MapPin, Settings2, X, ChevronDown, GripVertical, Edit3, Zap, Moon, Sun, Upload, Video, Type, Layout, Move, Sliders, Eye, Clock, Wand2, ChevronRight, Check, Briefcase, RefreshCcw, AlertCircle } from 'lucide-react';
 import { motion, AnimatePresence } from 'motion/react';
 import { isGeminiConfigured } from '../../lib/gemini';
+import { DndContext, closestCenter, KeyboardSensor, PointerSensor, useSensor, useSensors, DragEndEvent } from '@dnd-kit/core';
+import { arrayMove, SortableContext, sortableKeyboardCoordinates, verticalListSortingStrategy, useSortable } from '@dnd-kit/sortable';
+import { CSS } from '@dnd-kit/utilities';
 
 type EditorTab = 'profile' | 'content' | 'theme';
+
+// --- Accordion Item Component ---
+function SortableSection({ 
+  id, 
+  label, 
+  icon: Icon, 
+  isOpen, 
+  onToggle, 
+  children,
+  isVisible,
+  onVisibilityToggle
+}: { 
+  id: string; 
+  label: string; 
+  icon: any; 
+  isOpen: boolean; 
+  onToggle: () => void; 
+  children: React.ReactNode;
+  isVisible: boolean;
+  onVisibilityToggle: (e: React.MouseEvent) => void;
+}) {
+  const {
+    attributes,
+    listeners,
+    setNodeRef,
+    transform,
+    transition,
+    isDragging
+  } = useSortable({ id });
+
+  const style = {
+    transform: CSS.Transform.toString(transform),
+    transition,
+    zIndex: isDragging ? 100 : 'auto',
+  };
+
+  const { data } = useBuilder();
+
+  return (
+    <div
+      ref={setNodeRef}
+      style={style}
+      className={`bg-card border-b border-border transition-all ${
+        isDragging ? 'opacity-50 scale-[1.02] shadow-2xl relative z-[100]' : ''
+      } ${isOpen ? 'border-l-4' : 'border-l-0'}`}
+      style={{ ...style, borderLeftColor: isOpen ? data.settings.accentColor : undefined }}
+    >
+      <div className="flex items-center">
+        <button
+          {...attributes}
+          {...listeners}
+          className="p-3 text-muted-foreground/30 hover:text-muted-foreground cursor-grab active:cursor-grabbing"
+        >
+          <GripVertical size={16} />
+        </button>
+        
+        <div 
+          className="flex-1 flex items-center justify-between py-3 pr-4 cursor-pointer select-none"
+          onClick={onToggle}
+        >
+          <div className="flex items-center gap-3">
+            <div className={`w-8 h-8 rounded-lg flex items-center justify-center ${isOpen ? 'bg-primary/10 text-primary' : 'bg-muted text-muted-foreground'}`}>
+              <Icon size={16} />
+            </div>
+            <span className={`text-sm font-bold ${isOpen ? 'text-foreground' : 'text-muted-foreground'}`}>{label}</span>
+          </div>
+          
+          <div className="flex items-center gap-2">
+            <button
+              onClick={onVisibilityToggle}
+              className={`p-1.5 rounded-md hover:bg-muted transition-colors ${isVisible ? 'text-emerald-500' : 'text-muted-foreground/40'}`}
+            >
+              {isVisible ? <Eye size={14} /> : <EyeOff size={14} />}
+            </button>
+            <motion.div
+              animate={{ rotate: isOpen ? 180 : 0 }}
+              transition={{ duration: 0.2 }}
+            >
+              <ChevronDown size={14} className="text-muted-foreground" />
+            </motion.div>
+          </div>
+        </div>
+      </div>
+
+      <AnimatePresence initial={false}>
+        {isOpen && (
+          <motion.div
+            initial={{ height: 0, opacity: 0 }}
+            animate={{ height: 'auto', opacity: 1 }}
+            exit={{ height: 0, opacity: 0 }}
+            transition={{ duration: 0.25, ease: "easeOut" }}
+            className="overflow-hidden"
+          >
+            <div className="px-4 pb-6 pt-2 space-y-6">
+              {children}
+            </div>
+          </motion.div>
+        )}
+      </AnimatePresence>
+    </div>
+  );
+}
 
 // Tab configuration with icons and labels
 const tabConfig = {
@@ -135,6 +242,7 @@ export function EditorPanel() {
     removeExperience,
     updateData,
     scanImage,
+    clearSavedData,
     scanStatus,
     scanError
     clearSavedData
@@ -154,7 +262,7 @@ export function EditorPanel() {
   const [cyclingStatusIndex, setCyclingStatusIndex] = useState(0);
 
   const isScanning = scanStatus === 'scanning';
-  const statusMessages = ["Reading your profile...", "Extracting skills...", "Parsing experience...", "Writing bio..."];
+  const statusMessages = ["Reading your profile…", "Extracting skills…", "Parsing experience…", "Writing bio…"];
 
   useEffect(() => {
     let interval: NodeJS.Timeout;
@@ -165,6 +273,12 @@ export function EditorPanel() {
     }
     return () => clearInterval(interval);
   }, [isScanning]);
+
+  useEffect(() => {
+    if (scanStatus === 'done') {
+      // Keep results but allow new scan
+    }
+  }, [scanStatus]);
 
   const handleFileSelect = (file: File) => {
     if (file.size > 10 * 1024 * 1024) {
@@ -200,6 +314,7 @@ export function EditorPanel() {
     setSelectedFile(null);
     setPreviewUrl(null);
     if (fileInputRef.current) fileInputRef.current.value = '';
+    // We don't reset scanStatus here, it's managed by context, but we might want a 'resetScan' in context
   };
 
   const TypeIcon = typeIcons[websiteType];
@@ -230,16 +345,38 @@ export function EditorPanel() {
     { id: 'centered', label: 'Centered', desc: 'Focused single column' },
   ];
 
-  const colorOptions = [
-    { color: '#6366F1', name: 'Indigo' },
-    { color: '#8B5CF6', name: 'Violet' },
-    { color: '#EC4899', name: 'Pink' },
-    { color: '#F97316', name: 'Orange' },
-    { color: '#10B981', name: 'Emerald' },
-    { color: '#06B6D4', name: 'Cyan' },
-    { color: '#F59E0B', name: 'Amber' },
-    { color: '#EF4444', name: 'Red' },
+  const colorPresets = [
+    '#6366f1', '#8b5cf6', '#ec4899', '#ef4444', '#f97316', '#eab308',
+    '#22c55e', '#14b8a6', '#06b6d4', '#3b82f6', '#1d4ed8', '#7c3aed',
+    '#db2777', '#dc2626', '#ea580c', '#000000'
   ];
+
+  const [hexInput, setHexInput] = useState(data.settings.accentColor);
+  const [isRandomizing, setIsRandomizing] = useState(false);
+
+  useEffect(() => {
+    setHexInput(data.settings.accentColor);
+  }, [data.settings.accentColor]);
+
+  const handleColorChange = (newColor: string) => {
+    updateData({ settings: { ...data.settings, accentColor: newColor } });
+  };
+
+  const validateAndSetHex = (value: string) => {
+    const isValid = /^#[0-9A-F]{6}$/i.test(value);
+    if (isValid) {
+      handleColorChange(value);
+    } else {
+      setHexInput(data.settings.accentColor);
+    }
+  };
+
+  const handleRandomColor = () => {
+    setIsRandomizing(true);
+    const randomColor = colorPresets[Math.floor(Math.random() * colorPresets.length)];
+    handleColorChange(randomColor);
+    setTimeout(() => setIsRandomizing(false), 500);
+  };
 
   const layoutOptions = [
     { id: 'modern', label: 'Modern', desc: 'Clean with animations', icon: Sparkles },
@@ -247,9 +384,108 @@ export function EditorPanel() {
     { id: 'brutalist', label: 'Bold', desc: 'Strong & distinctive', icon: Code },
   ];
 
+  const heroVariants = [
+    { 
+      id: 'centered', 
+      label: 'Centered', 
+      icon: (
+        <svg viewBox="0 0 40 24" className="w-full h-full">
+          <rect x="14" y="4" width="12" height="4" rx="1" className="fill-current opacity-20" />
+          <rect x="10" y="10" width="20" height="2" rx="1" className="fill-current" />
+          <rect x="15" y="14" width="10" height="1" rx="0.5" className="fill-current opacity-50" />
+          <rect x="12" y="18" width="16" height="2" rx="1" className="fill-current opacity-30" />
+        </svg>
+      )
+    },
+    { 
+      id: 'split', 
+      label: 'Split', 
+      icon: (
+        <svg viewBox="0 0 40 24" className="w-full h-full">
+          <rect x="4" y="6" width="14" height="2" rx="1" className="fill-current" />
+          <rect x="4" y="10" width="10" height="1" rx="0.5" className="fill-current opacity-50" />
+          <rect x="4" y="14" width="12" height="2" rx="1" className="fill-current opacity-30" />
+          <rect x="22" y="4" width="14" height="16" rx="2" className="fill-current opacity-20" />
+        </svg>
+      )
+    },
+    { id: 'minimal', label: 'Minimal', icon: (
+        <svg viewBox="0 0 40 24" className="w-full h-full">
+          <rect x="4" y="4" width="6" height="2" rx="1" className="fill-current opacity-40" />
+          <rect x="4" y="8" width="32" height="4" rx="1" className="fill-current" />
+          <rect x="4" y="14" width="24" height="1" rx="0.5" className="fill-current opacity-50" />
+          <rect x="4" y="18" width="32" height="0.5" className="fill-current opacity-20" />
+        </svg>
+      )
+    },
+    ];
+
+    const skillVariants = [
+    { id: 'tags', label: 'Tags', icon: Palette },
+    { id: 'bars', label: 'Bars', icon: Sliders },
+    { id: 'grid', label: 'Grid', icon: Layout },
+    ];
+
+
+  const handleScanImage = async (e: React.ChangeEvent<HTMLInputElement>) => {
+    const file = e.target.files?.[0];
+    if (!file) return;
+    await scanImage(file);
+    // Clear input so same file can be scanned again if needed
+    e.target.value = '';
+  };
+
   const projects = data.projects || [];
   const collegeProjects = data.collegeProjects || [];
   const services = data.services || [];
+
+  // Drag and Drop Sensors
+  const sensors = useSensors(
+    useSensor(PointerSensor),
+    useSensor(KeyboardSensor, {
+      coordinateGetter: sortableKeyboardCoordinates,
+    })
+  );
+
+  const handleDragEnd = (event: DragEndEvent) => {
+    const { active, over } = event;
+    if (active.id !== over?.id) {
+      const oldOrder = data.settings.sectionOrder || ['hero', 'projects', 'skills', 'experience', 'services', 'contact'];
+      const oldIndex = oldOrder.indexOf(active.id as string);
+      const newIndex = oldOrder.indexOf(over?.id as string);
+      const newOrder = arrayMove(oldOrder, oldIndex, newIndex);
+      updateData({ settings: { ...data.settings, sectionOrder: newOrder } });
+    }
+  };
+
+  const sections = [
+    { id: 'hero', label: 'Hero Section', icon: Layout },
+    { id: 'projects', label: websiteType === 'college' ? 'Academic Projects' : 'Projects', icon: FolderOpen },
+    { id: 'skills', label: 'Skills', icon: Sparkles },
+    { id: 'experience', label: 'Experience', icon: Briefcase },
+    { id: 'services', label: 'Services', icon: Building2 },
+    { id: 'stats', label: 'Stats', icon: Zap },
+    { id: 'team', label: 'Team', icon: User },
+    { id: 'pricing', label: 'Pricing', icon: AppWindow },
+    { id: 'education', label: 'Education', icon: GraduationCap },
+    { id: 'about', label: 'About', icon: User },
+    { id: 'contact', label: 'Contact', icon: Mail },
+  ];
+
+  // Persistence for open section
+  useEffect(() => {
+    const lastOpen = localStorage.getItem('flowsite_open_section');
+    if (lastOpen) setSectionExpand(lastOpen);
+  }, []);
+
+  const toggleSection = (id: string) => {
+    const nextId = sectionExpand === id ? null : id;
+    setSectionExpand(nextId);
+    if (nextId) localStorage.setItem('flowsite_open_section', nextId);
+  };
+
+  const sectionOrder = data.settings.sectionOrder || ['hero', 'projects', 'skills', 'experience', 'services', 'contact', 'stats', 'team', 'pricing', 'education', 'about'];
+  const orderedSections = [...sections].sort((a, b) => sectionOrder.indexOf(a.id) - sectionOrder.indexOf(b.id));
 
   return (
     <div className="w-[360px] border-r border-border bg-card shrink-0 flex flex-col h-full overflow-hidden">
@@ -366,10 +602,10 @@ export function EditorPanel() {
                         ${isDragging ? 'border-primary bg-primary/5 shadow-inner' : 'border-border hover:border-primary/50 bg-card/50'}`}
                       onClick={() => fileInputRef.current?.click()}
                     >
-                      <input
-                        type="file"
-                        ref={fileInputRef}
-                        className="hidden"
+                      <input 
+                        type="file" 
+                        ref={fileInputRef} 
+                        className="hidden" 
                         accept=".png,.jpg,.jpeg,.webp,.pdf"
                         onChange={(e) => {
                           const file = e.target.files?.[0];
@@ -411,7 +647,7 @@ export function EditorPanel() {
                             </p>
                           </div>
                         )}
-                        <button
+                        <button 
                           onClick={handleScannerReset}
                           className="absolute top-2 right-2 p-1.5 bg-black/50 text-white rounded-full opacity-0 group-hover:opacity-100 transition-opacity hover:bg-red-500"
                         >
@@ -457,7 +693,7 @@ export function EditorPanel() {
                           <p className="text-[10px] text-muted-foreground">This usually takes 10-15 seconds</p>
                         </div>
                       </div>
-
+                      
                       {/* Animated Progress Bar */}
                       <div className="w-full h-1.5 bg-muted rounded-full overflow-hidden">
                         <motion.div
@@ -486,7 +722,7 @@ export function EditorPanel() {
                           <p className="text-[11px] text-emerald-600/80">Review and edit your details below.</p>
                         </div>
                       </div>
-                      <button
+                      <button 
                         onClick={handleScannerReset}
                         className="w-full py-2 text-xs font-semibold text-primary hover:underline"
                       >
@@ -506,20 +742,29 @@ export function EditorPanel() {
                         <div className="w-8 h-8 rounded-full bg-red-500 flex items-center justify-center shrink-0">
                           <AlertCircle size={18} className="text-white" />
                         </div>
-                        <div className="flex-1">
-                          <p className="text-[13px] font-bold text-red-600 leading-none mb-1">Scanning failed</p>
-                          <p className="text-[10px] text-red-600/80 line-clamp-2">{scanError || 'Please try another image'}</p>
+                        <div className="flex-1 min-w-0">
+                          <p className="text-[13px] font-bold text-red-600 leading-none mb-1">Scanning Failed</p>
+                          <p className="text-[11px] text-red-600/80 truncate">{scanError || 'Something went wrong'}</p>
                         </div>
                       </div>
-                      <button
-                        onClick={handleScannerReset}
-                        className="w-full py-2 text-xs font-semibold text-primary hover:underline"
+                      <button 
+                        onClick={() => setSelectedFile(null)}
+                        className="w-full py-2 text-xs font-semibold text-red-500 hover:underline"
                       >
                         Try again
                       </button>
                     </motion.div>
                   )}
                 </AnimatePresence>
+
+                {!isGeminiConfigured && (
+                  <div className="mt-3 p-2 bg-amber-500/10 border border-amber-500/20 rounded-lg flex items-start gap-2">
+                    <AlertCircle size={14} className="text-amber-500 shrink-0 mt-0.5" />
+                    <p className="text-[10px] text-amber-600 leading-tight">
+                      VITE_GEMINI_API_KEY is missing. Check your .env.local file to enable scanning.
+                    </p>
+                  </div>
+                )}
               </div>
 
               {/* Name Field */}
@@ -612,6 +857,45 @@ export function EditorPanel() {
                   </div>
                 </div>
               )}
+
+              {/* Hero Layout Variant Picker */}
+              <div className="pt-4 border-t border-border mt-4">
+                <h4 className="font-semibold text-xs text-foreground uppercase tracking-wider mb-3 flex items-center gap-2">
+                  <Layout size={14} className="text-primary" />
+                  Hero Layout
+                </h4>
+                <div className="grid grid-cols-3 gap-2">
+                  {heroVariants.map((variant) => (
+                    <motion.button
+                      key={variant.id}
+                      whileHover={{ scale: 1.05 }}
+                      whileTap={{ scale: 0.95 }}
+                      onClick={() => updateData({ settings: { ...data.settings, heroVariant: variant.id as any } })}
+                      className={`relative flex flex-col items-center gap-2 p-2 rounded-xl border-2 transition-all overflow-hidden ${
+                        (data.settings.heroVariant || 'centered') === variant.id
+                          ? 'border-primary bg-primary/5 shadow-inner'
+                          : 'border-border hover:border-primary/30'
+                      }`}
+                    >
+                      <div className={`w-full aspect-[4/3] rounded-lg mb-1 flex items-center justify-center p-2 ${
+                        (data.settings.heroVariant || 'centered') === variant.id ? 'text-primary' : 'text-muted-foreground'
+                      }`}>
+                        {variant.icon}
+                      </div>
+                      <span className={`text-[10px] font-bold ${(data.settings.heroVariant || 'centered') === variant.id ? 'text-primary' : 'text-muted-foreground'}`}>
+                        {variant.label}
+                      </span>
+                      {(data.settings.heroVariant || 'centered') === variant.id && (
+                        <div className="absolute top-1 right-1">
+                          <div className="w-3 h-3 rounded-full bg-primary flex items-center justify-center">
+                            <Check size={8} className="text-white" />
+                          </div>
+                        </div>
+                      )}
+                    </motion.button>
+                  ))}
+                </div>
+              </div>
             </motion.div>
           )}
 
@@ -622,35 +906,33 @@ export function EditorPanel() {
               initial={{ opacity: 0, x: -20 }}
               animate={{ opacity: 1, x: 0 }}
               exit={{ opacity: 0, x: 20 }}
-              className="space-y-6"
+              className="-mx-4 -mt-4 border-t border-border"
             >
-              {/* Website Sections Toggle */}
-              <div className="p-4 bg-muted/30 rounded-xl border border-border">
-                <div className="flex items-center gap-2 mb-3">
-                  <Layers size={14} className="text-blue-500" />
-                  <h4 className="font-semibold text-xs text-foreground uppercase tracking-wider">Website Sections</h4>
-                </div>
-                <p className="text-xs text-muted-foreground mb-3">Toggle sections to show/hide on your site</p>
-                <div className="space-y-2">
-                  {[
-                    { id: 'hero', label: 'Hero Section', icon: Layout },
-                    { id: 'projects', label: 'Projects', icon: FolderOpen },
-                    { id: 'skills', label: 'Skills', icon: Sparkles },
-                    { id: 'experience', label: 'Experience', icon: Briefcase },
-                    { id: 'services', label: 'Services', icon: Building2 },
-                    { id: 'stats', label: 'Stats', icon: Zap },
-                    { id: 'team', label: 'Team', icon: User },
-                    { id: 'pricing', label: 'Pricing', icon: AppWindow },
-                    { id: 'contact', label: 'Contact', icon: Mail },
-                  ].map((section) => {
-                    const Icon = section.icon;
-                    const isEnabled = (data.settings as any).visibleSections?.[section.id] !== false;
+              <DndContext
+                sensors={sensors}
+                collisionDetection={closestCenter}
+                onDragEnd={handleDragEnd}
+              >
+                <SortableContext
+                  items={orderedSections.map(s => s.id)}
+                  strategy={verticalListSortingStrategy}
+                >
+                  {orderedSections.map((section) => {
+                    const isEnabled = (data.settings.visibleSections as any)?.[section.id] !== false;
+                    const isOpen = sectionExpand === section.id;
+
                     return (
-                      <motion.div
+                      <SortableSection
                         key={section.id}
-                        whileTap={{ scale: 0.98 }}
-                        onClick={() => {
-                          const currentSections = (data.settings as any).visibleSections || {};
+                        id={section.id}
+                        label={section.label}
+                        icon={section.icon}
+                        isOpen={isOpen}
+                        onToggle={() => toggleSection(section.id)}
+                        isVisible={isEnabled}
+                        onVisibilityToggle={(e) => {
+                          e.stopPropagation();
+                          const currentSections = (data.settings.visibleSections as any) || {};
                           updateData({
                             settings: {
                               ...data.settings,
@@ -661,186 +943,188 @@ export function EditorPanel() {
                             }
                           });
                         }}
-                        className={`flex items-center justify-between p-2.5 rounded-lg cursor-pointer transition-all ${
-                          isEnabled ? 'bg-emerald-500/10 border border-emerald-500/30' : 'bg-muted/40 border border-border'
-                        }`}
                       >
-                        <div className="flex items-center gap-2">
-                          <Icon size={14} className={isEnabled ? 'text-emerald-500' : 'text-muted-foreground'} />
-                          <span className={`text-[13px] ${isEnabled ? 'text-foreground' : 'text-muted-foreground'}`}>{section.label}</span>
-                        </div>
-                        <div className={`w-8 h-4 rounded-full relative transition-all ${isEnabled ? 'bg-emerald-500' : 'bg-muted'}`}>
-                          <motion.div
-                            animate={{ x: isEnabled ? 16 : 2 }}
-                            className="absolute top-0.5 w-3 h-3 rounded-full bg-white shadow-sm"
-                          />
-                        </div>
-                      </motion.div>
-                    );
-                  })}
-                </div>
-              </div>
-
-              {/* PROJECTS SECTION */}
-              {(websiteType === 'portfolio' || websiteType === 'college') && (
-                <div className="space-y-4">
-                  <div className="flex items-center justify-between">
-                    <div className="flex items-center gap-2">
-                      <FolderOpen size={14} className="text-emerald-500" />
-                      <h4 className="font-semibold text-xs text-foreground uppercase tracking-wider">
-                        {websiteType === 'college' ? 'Academic Projects' : 'Projects'}
-                      </h4>
-                    </div>
-                    <motion.button
-                      whileHover={{ scale: 1.1 }}
-                      whileTap={{ scale: 0.9 }}
-                      onClick={() => addProject({ title: 'New Project', desc: 'Description...', color: 'bg-muted', tags: ['React'] })}
-                      className="p-1.5 rounded-lg bg-emerald-500/10 text-emerald-600 hover:bg-emerald-500/20"
-                    >
-                      <Plus size={14} />
-                    </motion.button>
-                  </div>
-                  <div className="space-y-2">
-                    {(data.projects || []).map((project) => (
-                      <div key={project.id} className="bg-muted/30 border border-border rounded-xl overflow-hidden">
-                        <div className="p-3 flex items-center justify-between cursor-pointer hover:bg-muted/50" onClick={() => setProjectExpand(projectExpand === project.id ? null : project.id)}>
-                          <div className="flex items-center gap-2 truncate">
-                            <GripVertical size={14} className="text-muted-foreground/30" />
-                            <span className="text-sm font-medium truncate">{project.title}</span>
-                          </div>
-                          <ChevronDown size={14} className={`text-muted-foreground transition-transform ${projectExpand === project.id ? 'rotate-180' : ''}`} />
-                        </div>
-                        {projectExpand === project.id && (
-                          <div className="px-3 pb-3 space-y-3">
-                            <input type="text" value={project.title} onChange={(e) => updateProject(project.id, { title: e.target.value })} className="w-full bg-background border border-border rounded-lg px-3 py-2 text-sm" placeholder="Title" />
-                            <textarea value={project.desc} onChange={(e) => updateProject(project.id, { desc: e.target.value })} className="w-full bg-background border border-border rounded-lg px-3 py-2 text-xs resize-none" rows={2} placeholder="Description" />
-                            <div className="flex justify-end">
-                              <button onClick={() => removeProject(project.id)} className="text-red-500 hover:bg-red-500/10 p-2 rounded-lg transition-colors"><Trash2 size={16} /></button>
+                        {/* Section Fields */}
+                        {section.id === 'hero' && (
+                          <div className="space-y-4">
+                            <p className="text-xs text-muted-foreground">Customize your website's first impression.</p>
+                            <div className="grid grid-cols-3 gap-2">
+                              {heroVariants.map((variant) => (
+                                <motion.button
+                                  key={variant.id}
+                                  whileHover={{ scale: 1.05 }}
+                                  whileTap={{ scale: 0.95 }}
+                                  onClick={() => updateData({ settings: { ...data.settings, heroVariant: variant.id as any } })}
+                                  className={`relative flex flex-col items-center gap-2 p-2 rounded-xl border-2 transition-all ${
+                                    (data.settings.heroVariant || 'centered') === variant.id ? 'border-primary bg-primary/5' : 'border-border'
+                                  }`}
+                                >
+                                  <div className="w-full aspect-[4/3] rounded-lg flex items-center justify-center text-muted-foreground">
+                                    {variant.icon}
+                                  </div>
+                                  <span className="text-[10px] font-bold">{variant.label}</span>
+                                </motion.button>
+                              ))}
                             </div>
                           </div>
                         )}
-                      </div>
-                    ))}
-                  </div>
-                </div>
-              )}
 
-              {/* SKILLS SECTION */}
-              {websiteType === 'portfolio' && (
-                <div className="space-y-4">
-                  <div className="flex items-center justify-between">
-                    <div className="flex items-center gap-2">
-                      <Sparkles size={14} className="text-violet-500" />
-                      <h4 className="font-semibold text-xs text-foreground uppercase tracking-wider">Skills</h4>
-                    </div>
-                    <motion.button onClick={() => addSkill({ name: 'New Skill', level: 80 })} className="p-1.5 rounded-lg bg-violet-500/10 text-violet-600 hover:bg-violet-500/20"><Plus size={14} /></motion.button>
-                  </div>
-                  <div className="grid grid-cols-1 gap-2">
-                    {(data.skills || []).map((skill) => (
-                      <div key={skill.id} className="bg-muted/30 border border-border rounded-xl p-3 flex items-center gap-3">
-                        <input type="text" value={skill.name} onChange={(e) => updateSkill(skill.id, { name: e.target.value })} className="flex-1 bg-transparent border-none p-0 text-sm focus:ring-0" placeholder="Skill name" />
-                        <input type="number" value={skill.level} onChange={(e) => updateSkill(skill.id, { level: parseInt(e.target.value) })} className="w-12 bg-background border border-border rounded px-1 text-xs" />
-                        <button onClick={() => removeSkill(skill.id)} className="text-red-400 hover:text-red-600"><Trash2 size={14} /></button>
-                      </div>
-                    ))}
-                  </div>
-                </div>
-              )}
+                        {section.id === 'projects' && (
+                          <div className="space-y-4">
+                            <div className="flex items-center justify-between">
+                              <h5 className="text-[10px] font-bold text-muted-foreground uppercase tracking-wider">Project List</h5>
+                              <button onClick={() => addProject({ title: 'New Project', desc: 'Description...', color: 'bg-muted', tags: ['React'] })} className="flex items-center gap-1 text-[10px] font-bold text-primary hover:underline">
+                                <Plus size={10} /> Add Project
+                              </button>
+                            </div>
+                            <div className="space-y-2">
+                              {(data.projects || []).map((project) => (
+                                <div key={project.id} className="bg-muted/30 border border-border rounded-xl p-3 space-y-3">
+                                  <div className="flex items-center gap-2">
+                                    <input type="text" value={project.title} onChange={(e) => updateProject(project.id, { title: e.target.value })} className="flex-1 bg-transparent border-none p-0 text-sm font-bold focus:ring-0" placeholder="Project Title" />
+                                    <button onClick={() => removeProject(project.id)} className="text-red-500/50 hover:text-red-500"><Trash2 size={14} /></button>
+                                  </div>
+                                  <textarea value={project.desc} onChange={(e) => updateProject(project.id, { desc: e.target.value })} className="w-full bg-background border border-border rounded-lg px-2 py-1.5 text-xs resize-none" rows={2} placeholder="Brief description..." />
+                                </div>
+                              ))}
+                            </div>
+                          </div>
+                        )}
 
-              {/* EXPERIENCE SECTION */}
-              {websiteType === 'portfolio' && (
-                <div className="space-y-4">
-                  <div className="flex items-center justify-between">
-                    <div className="flex items-center gap-2">
-                      <Briefcase size={14} className="text-blue-500" />
-                      <h4 className="font-semibold text-xs text-foreground uppercase tracking-wider">Experience</h4>
-                    </div>
-                    <motion.button onClick={() => addExperience({ title: 'Role', company: 'Company', period: '2024', description: 'What did you do?' })} className="p-1.5 rounded-lg bg-blue-500/10 text-blue-600 hover:bg-blue-500/20"><Plus size={14} /></motion.button>
-                  </div>
-                  <div className="space-y-2">
-                    {(data.experience || []).map((exp) => (
-                      <div key={exp.id} className="bg-muted/30 border border-border rounded-xl p-3 space-y-2">
-                        <input type="text" value={exp.title} onChange={(e) => updateExperience(exp.id, { title: e.target.value })} className="w-full bg-transparent border-none p-0 font-bold text-sm" placeholder="Job Title" />
-                        <input type="text" value={exp.company} onChange={(e) => updateExperience(exp.id, { company: e.target.value })} className="w-full bg-transparent border-none p-0 text-xs text-primary" placeholder="Company Name" />
-                        <button onClick={() => removeExperience(exp.id)} className="text-red-500 hover:bg-red-500/10 p-1.5 rounded"><Trash2 size={14} /></button>
-                      </div>
-                    ))}
-                  </div>
-                </div>
-              )}
+                        {section.id === 'skills' && (
+                          <div className="space-y-4">
+                            <div className="flex gap-1 p-1 bg-muted/50 rounded-lg">
+                              {skillVariants.map((variant) => {
+                                const Icon = variant.icon;
+                                const isActive = (data.settings.skillsVariant || 'tags') === variant.id;
+                                return (
+                                  <button key={variant.id} onClick={() => updateData({ settings: { ...data.settings, skillsVariant: variant.id as any } })} className={`flex-1 flex items-center justify-center gap-1.5 py-1.5 rounded-md text-[10px] font-bold transition-all ${isActive ? 'bg-card shadow-sm text-primary' : 'text-muted-foreground'}`}>
+                                    <Icon size={12} /> {variant.label}
+                                  </button>
+                                );
+                              })}
+                            </div>
+                            <div className="space-y-2">
+                              {(data.skills || []).map((skill) => (
+                                <div key={skill.id} className="bg-muted/30 border border-border rounded-xl p-3 space-y-2">
+                                  <div className="flex items-center gap-2">
+                                    <input type="text" value={skill.name} onChange={(e) => updateSkill(skill.id, { name: e.target.value })} className="flex-1 bg-transparent border-none p-0 text-sm font-bold focus:ring-0" />
+                                    <button onClick={() => removeSkill(skill.id)} className="text-red-500/50 hover:text-red-500"><Trash2 size={14} /></button>
+                                  </div>
+                                  <input type="range" min="0" max="100" value={skill.level} onChange={(e) => updateSkill(skill.id, { level: parseInt(e.target.value) })} className="w-full h-1 bg-primary/20 rounded-full appearance-none cursor-pointer accent-primary" />
+                                </div>
+                              ))}
+                              <button onClick={() => addSkill({ name: 'New Skill', level: 80 })} className="w-full py-2 border-2 border-dashed border-border rounded-xl text-[10px] font-bold text-muted-foreground hover:border-primary/50 hover:text-primary transition-all flex items-center justify-center gap-2">
+                                <Plus size={12} /> Add New Skill
+                              </button>
+                            </div>
+                          </div>
+                        )}
 
-              {/* SERVICES SECTION */}
-              {websiteType === 'business' && (
-                <div className="space-y-4">
-                  <div className="flex items-center justify-between">
-                    <div className="flex items-center gap-2">
-                      <Building2 size={14} className="text-amber-500" />
-                      <h4 className="font-semibold text-xs text-foreground uppercase tracking-wider">Services</h4>
-                    </div>
-                    <motion.button onClick={() => addService({ title: 'New Service', desc: 'Description...', icon: 'code', features: [] })} className="p-1.5 rounded-lg bg-amber-500/10 text-amber-600"><Plus size={14} /></motion.button>
-                  </div>
-                  {(data.services || []).map((service) => (
-                    <div key={service.id} className="bg-muted/30 border border-border rounded-xl p-3 space-y-2">
-                      <input type="text" value={service.title} onChange={(e) => updateService(service.id, { title: e.target.value })} className="w-full bg-transparent font-bold text-sm" placeholder="Service Name" />
-                      <textarea value={service.desc} onChange={(e) => updateService(service.id, { desc: e.target.value })} className="w-full bg-transparent text-xs resize-none" rows={2} />
-                      <button onClick={() => removeService(service.id)} className="text-red-500"><Trash2 size={14} /></button>
-                    </div>
-                  ))}
-                </div>
-              )}
+                        {section.id === 'experience' && (
+                          <div className="space-y-4">
+                            {(data.experience || []).map((exp) => (
+                              <div key={exp.id} className="bg-muted/30 border border-border rounded-xl p-3 space-y-2">
+                                <input type="text" value={exp.title} onChange={(e) => updateExperience(exp.id, { title: e.target.value })} className="w-full bg-transparent border-none p-0 font-bold text-sm" placeholder="Role" />
+                                <input type="text" value={exp.company} onChange={(e) => updateExperience(exp.id, { company: e.target.value })} className="w-full bg-transparent border-none p-0 text-xs text-primary" placeholder="Company" />
+                                <button onClick={() => removeExperience(exp.id)} className="text-red-500/50 hover:text-red-500"><Trash2 size={14} /></button>
+                              </div>
+                            ))}
+                            <button onClick={() => addExperience({ title: 'New Role', company: 'New Company', period: '2024', description: '' })} className="w-full py-2 border-2 border-dashed border-border rounded-xl text-[10px] font-bold text-muted-foreground hover:border-primary/50 hover:text-primary transition-all flex items-center justify-center gap-2">
+                              <Plus size={12} /> Add Experience
+                            </button>
+                          </div>
+                        )}
 
-              {/* STATS SECTION */}
-              {websiteType === 'business' && (
-                <div className="space-y-4">
-                  <div className="flex items-center justify-between">
-                    <div className="flex items-center gap-2">
-                      <Zap size={14} className="text-orange-500" />
-                      <h4 className="font-semibold text-xs text-foreground uppercase tracking-wider">Business Stats</h4>
-                    </div>
-                    <motion.button onClick={() => updateData({ stats: [...(data.stats || []), { label: 'Stat', value: '100+' }] })} className="p-1.5 rounded-lg bg-orange-500/10 text-orange-600"><Plus size={14} /></motion.button>
-                  </div>
-                  <div className="grid grid-cols-1 gap-2">
-                    {(data.stats || []).map((stat, i) => (
-                      <div key={i} className="flex items-center gap-2 bg-muted/30 border border-border rounded-xl p-2">
-                        <input type="text" value={stat.value} onChange={(e) => {
-                          const newStats = [...(data.stats || [])];
-                          newStats[i].value = e.target.value;
-                          updateData({ stats: newStats });
-                        }} className="w-16 font-bold text-primary bg-transparent text-sm" />
-                        <input type="text" value={stat.label} onChange={(e) => {
-                          const newStats = [...(data.stats || [])];
-                          newStats[i].label = e.target.value;
-                          updateData({ stats: newStats });
-                        }} className="flex-1 bg-transparent text-xs" />
-                        <button onClick={() => updateData({ stats: data.stats?.filter((_, idx) => idx !== i) })} className="text-red-500"><Trash2 size={14} /></button>
-                      </div>
-                    ))}
-                  </div>
-                </div>
-              )}
+                        {section.id === 'education' && (
+                          <div className="space-y-4">
+                            {(data.education || []).map((edu, i) => (
+                              <div key={i} className="bg-muted/30 border border-border rounded-xl p-3 space-y-2">
+                                <input type="text" value={edu.institution} onChange={(e) => {
+                                  const next = [...(data.education || [])];
+                                  next[i].institution = e.target.value;
+                                  updateData({ education: next });
+                                }} className="w-full bg-transparent border-none p-0 font-bold text-sm" placeholder="University" />
+                                <input type="text" value={edu.degree} onChange={(e) => {
+                                  const next = [...(data.education || [])];
+                                  next[i].degree = e.target.value;
+                                  updateData({ education: next });
+                                }} className="w-full bg-transparent border-none p-0 text-xs text-primary" placeholder="Degree" />
+                                <button onClick={() => updateData({ education: data.education?.filter((_, idx) => idx !== i) })} className="text-red-500/50 hover:text-red-500"><Trash2 size={14} /></button>
+                              </div>
+                            ))}
+                            <button onClick={() => updateData({ education: [...(data.education || []), { institution: 'University', degree: 'Degree', year: '2024' }] })} className="w-full py-2 border-2 border-dashed border-border rounded-xl text-[10px] font-bold text-muted-foreground hover:border-primary/50 hover:text-primary transition-all flex items-center justify-center gap-2">
+                              <Plus size={12} /> Add Education
+                            </button>
+                          </div>
+                        )}
 
-              {/* PRICING SECTION */}
-              {websiteType === 'app' && (
-                <div className="space-y-4">
-                  <div className="flex items-center justify-between">
-                    <div className="flex items-center gap-2">
-                      <AppWindow size={14} className="text-purple-500" />
-                      <h4 className="font-semibold text-xs text-foreground uppercase tracking-wider">Pricing Plans</h4>
-                    </div>
-                    <motion.button onClick={() => updateData({ pricing: [...(data.pricing || []), { id: Date.now(), name: 'New Plan', price: '$29', period: 'mo', features: ['Feature 1'] }] })} className="p-1.5 rounded-lg bg-purple-500/10 text-purple-600"><Plus size={14} /></motion.button>
-                  </div>
-                  {(data.pricing || []).map((plan) => (
-                    <div key={plan.id} className="bg-muted/30 border border-border rounded-xl p-3 space-y-2">
-                      <input type="text" value={plan.name} onChange={(e) => updateData({ pricing: data.pricing?.map(p => p.id === plan.id ? { ...p, name: e.target.value } : p) })} className="w-full bg-transparent font-bold text-sm" />
-                      <div className="flex gap-2">
-                        <input type="text" value={plan.price} onChange={(e) => updateData({ pricing: data.pricing?.map(p => p.id === plan.id ? { ...p, price: e.target.value } : p) })} className="w-20 bg-background border border-border rounded px-2 py-1 text-sm" />
-                        <input type="text" value={plan.period} onChange={(e) => updateData({ pricing: data.pricing?.map(p => p.id === plan.id ? { ...p, period: e.target.value } : p) })} className="flex-1 bg-background border border-border rounded px-2 py-1 text-sm" />
-                      </div>
-                      <button onClick={() => updateData({ pricing: data.pricing?.filter(p => p.id !== plan.id) })} className="text-red-500 text-xs flex items-center gap-1"><Trash2 size={12} /> Remove</button>
-                    </div>
-                  ))}
-                </div>
-              )}
+                        {section.id === 'about' && (
+                          <div className="space-y-4">
+                            <div className="space-y-2">
+                              <label className="text-[10px] font-bold text-muted-foreground uppercase tracking-wider">About Me / Professional Bio</label>
+                              <textarea
+                                value={data.user.bio}
+                                onChange={(e) => updateUser({ bio: e.target.value })}
+                                className="w-full rounded-lg border border-border bg-background px-3 py-2 text-xs focus:ring-2 focus:ring-primary/30 resize-none min-h-[120px]"
+                                placeholder="Describe your background and goals..."
+                              />
+                            </div>
+                          </div>
+                        )}
+
+                        {section.id === 'contact' && (
+                          <div className="space-y-4">
+                            <div className="space-y-2">
+                              <label className="text-[10px] font-bold text-muted-foreground uppercase">Public Email</label>
+                              <input type="email" value={data.user.email} onChange={(e) => updateUser({ email: e.target.value })} className="w-full rounded-lg border border-border bg-background px-3 py-2 text-sm focus:ring-2 focus:ring-primary/30" placeholder="hello@example.com" />
+                            </div>
+                            <div className="space-y-2">
+                              <label className="text-[10px] font-bold text-muted-foreground uppercase">Location</label>
+                              <input type="text" value={data.user.location} onChange={(e) => updateUser({ location: e.target.value })} className="w-full rounded-lg border border-border bg-background px-3 py-2 text-sm focus:ring-2 focus:ring-primary/30" placeholder="New York, USA" />
+                            </div>
+                          </div>
+                        )}
+
+                        {section.id === 'services' && (
+                          <div className="space-y-4">
+                            {(data.services || []).map((service) => (
+                              <div key={service.id} className="bg-muted/30 border border-border rounded-xl p-3 space-y-2">
+                                <input type="text" value={service.title} onChange={(e) => updateService(service.id, { title: e.target.value })} className="w-full bg-transparent border-none p-0 font-bold text-sm" placeholder="Service Name" />
+                                <button onClick={() => removeService(service.id)} className="text-red-500/50 hover:text-red-500"><Trash2 size={14} /></button>
+                              </div>
+                            ))}
+                            <button onClick={() => addService({ title: 'New Service', desc: '', icon: 'code', features: [] })} className="w-full py-2 border-2 border-dashed border-border rounded-xl text-[10px] font-bold text-muted-foreground hover:border-primary/50 hover:text-primary transition-all flex items-center justify-center gap-2">
+                              <Plus size={12} /> Add Service
+                            </button>
+                          </div>
+                        )}
+
+                        {section.id === 'stats' && (
+                          <div className="space-y-4">
+                            <div className="grid grid-cols-2 gap-2">
+                              {(data.stats || []).map((stat, i) => (
+                                <div key={i} className="bg-muted/30 border border-border rounded-xl p-2 space-y-1">
+                                  <input type="text" value={stat.value} onChange={(e) => {
+                                    const newStats = [...(data.stats || [])];
+                                    newStats[i].value = e.target.value;
+                                    updateData({ stats: newStats });
+                                  }} className="w-full font-bold text-primary bg-transparent text-sm" />
+                                  <input type="text" value={stat.label} onChange={(e) => {
+                                    const newStats = [...(data.stats || [])];
+                                    newStats[i].label = e.target.value;
+                                    updateData({ stats: newStats });
+                                  }} className="w-full bg-transparent text-[10px] text-muted-foreground" />
+                                </div>
+                              ))}
+                            </div>
+                          </div>
+                        )}
+                      </SortableSection>
+                    );
+                  })}
+                </SortableContext>
+              </DndContext>
             </motion.div>
           )}
 
@@ -889,26 +1173,92 @@ export function EditorPanel() {
                 </div>
               </div>
 
-              {/* Accent Colors */}
+              {/* Accent Color Picker */}
               <div>
-                <h4 className="font-semibold text-xs text-foreground uppercase tracking-wider mb-3 flex items-center gap-2">
-                  <Palette size={14} className="text-violet-500" />
-                  Accent Color
-                </h4>
-                <div className="grid grid-cols-4 gap-2">
-                  {colorOptions.map(({ color, name }) => (
-                    <motion.button
-                      key={color}
-                      whileHover={{ scale: 1.1 }}
-                      whileTap={{ scale: 0.9 }}
-                      onClick={() => updateData({ settings: { ...data.settings, accentColor: color } })}
-                      style={{ backgroundColor: color }}
-                      className={`w-full aspect-square rounded-xl border-2 cursor-pointer transition-all ${
-                        data.settings.accentColor === color ? 'border-foreground scale-105 shadow-lg' : 'border-transparent hover:border-white/50'
-                      }`}
-                      title={name}
-                    />
-                  ))}
+                <div className="flex items-center justify-between mb-3">
+                  <h4 className="font-semibold text-xs text-foreground uppercase tracking-wider flex items-center gap-2">
+                    <Palette size={14} className="text-violet-500" />
+                    Brand Color
+                  </h4>
+                  <motion.button
+                    whileHover={{ scale: 1.1, rotate: 180 }}
+                    whileTap={{ scale: 0.9 }}
+                    onClick={handleRandomColor}
+                    className="p-1.5 rounded-lg bg-muted hover:bg-primary/10 hover:text-primary transition-colors"
+                    title="Random color"
+                  >
+                    <motion.div animate={{ rotate: isRandomizing ? 360 : 0 }}>
+                      <Dices size={14} />
+                    </motion.div>
+                  </motion.button>
+                </div>
+
+                <div className="space-y-4">
+                  {/* Preset Grid */}
+                  <div className="grid grid-cols-8 gap-1.5">
+                    {colorPresets.map((color) => (
+                      <motion.button
+                        key={color}
+                        whileHover={{ scale: 1.1 }}
+                        whileTap={{ scale: 0.9 }}
+                        onClick={() => handleColorChange(color)}
+                        className="aspect-square rounded-md border border-white/10 shadow-sm relative group"
+                        style={{ backgroundColor: color }}
+                      >
+                        {data.settings.accentColor.toLowerCase() === color.toLowerCase() && (
+                          <div className="absolute inset-0 flex items-center justify-center bg-black/20 rounded-md">
+                            <Check size={10} className="text-white" />
+                          </div>
+                        )}
+                      </motion.button>
+                    ))}
+                  </div>
+
+                  {/* Custom Color Input */}
+                  <div className="flex items-center gap-2 p-2 bg-muted/40 rounded-xl border border-border">
+                    <div className="relative w-10 h-10 rounded-lg overflow-hidden border border-border shrink-0">
+                      <input
+                        type="color"
+                        value={data.settings.accentColor}
+                        onChange={(e) => handleColorChange(e.target.value)}
+                        className="absolute inset-[-10px] w-[200%] h-[200%] cursor-pointer"
+                      />
+                    </div>
+                    <div className="flex-1 relative">
+                      <span className="absolute left-3 top-1/2 -translate-y-1/2 text-muted-foreground font-mono text-xs">#</span>
+                      <input
+                        type="text"
+                        value={hexInput.replace('#', '')}
+                        onChange={(e) => setHexInput('#' + e.target.value)}
+                        onBlur={(e) => validateAndSetHex('#' + e.target.value)}
+                        className="w-full bg-background border border-border rounded-lg pl-6 pr-3 py-2 text-xs font-mono focus:ring-2 focus:ring-primary/30 uppercase"
+                        placeholder="FFFFFF"
+                      />
+                    </div>
+                  </div>
+
+                  {/* Design System Preview */}
+                  <div className="p-4 bg-muted/30 rounded-xl border border-border space-y-3">
+                    <p className="text-[10px] font-bold text-muted-foreground uppercase tracking-widest">Preview</p>
+                    <div className="space-y-3">
+                      <div className="flex items-center gap-3">
+                        <button className="px-4 py-2 text-xs font-bold text-white rounded-lg shadow-sm" style={{ backgroundColor: data.settings.accentColor }}>
+                          Primary Button
+                        </button>
+                        <span className="text-xs font-semibold underline decoration-2 underline-offset-4 cursor-pointer" style={{ color: data.settings.accentColor, textDecorationColor: data.settings.accentColor }}>
+                          Text Link
+                        </span>
+                      </div>
+                      <div className="flex items-center gap-2">
+                        <span className="px-2 py-1 rounded-md text-[10px] font-bold" style={{ backgroundColor: `${data.settings.accentColor}15`, color: data.settings.accentColor }}>
+                          Tag Badge
+                        </span>
+                        <h3 className="text-sm font-black tracking-tight" style={{ color: data.settings.accentColor }}>
+                          Section Heading
+                        </h3>
+                      </div>
+                    </div>
+                  </div>
                 </div>
               </div>
 
