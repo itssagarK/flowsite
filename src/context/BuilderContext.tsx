@@ -292,6 +292,8 @@ interface BuilderContextType {
   scanError: string | null;
   exportCode: () => string;
   resetToBlank: () => void;
+  activeDevice: 'mobile' | 'tablet' | 'desktop';
+  setActiveDevice: (device: 'mobile' | 'tablet' | 'desktop') => void;
   clearSavedData: () => void;
   saveStatus: 'idle' | 'saving' | 'saved';
 }
@@ -307,6 +309,7 @@ export function BuilderProvider({ children }: { children: React.ReactNode }) {
   const [websiteType, setWebsiteTypeState] = useState<WebsiteType>('portfolio');
   const [scanStatus, setScanStatus] = useState<'idle' | 'scanning' | 'done' | 'error'>('idle');
   const [scanError, setScanError] = useState<string | null>(null);
+  const [activeDevice, setActiveDevice] = useState<'mobile' | 'tablet' | 'desktop'>('desktop');
   // Initialize state from localStorage or default
   const [data, setData] = useState<PortfolioData>(() => {
     try {
@@ -824,6 +827,8 @@ Return ONLY the JSON. No markdown, no explanation, no code fences.
       scanError,
       exportCode,
       resetToBlank,
+      activeDevice,
+      setActiveDevice,
       clearSavedData,
       saveStatus,
     }}>
