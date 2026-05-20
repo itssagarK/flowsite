@@ -2,7 +2,7 @@ import React, { useState, useCallback } from 'react';
 import { EditorPanel } from './components/editor/EditorPanel';
 import { Canvas } from './components/preview/Canvas';
 import { BuilderProvider, useBuilder } from './context/BuilderContext';
-import { Moon, Sun, ChevronLeft, Sparkles, Code, Eye, Download, FileCode, X, Check, Smartphone, Tablet, Monitor, Info } from 'lucide-react';
+import { Moon, Sun, ChevronLeft, Sparkles, Code, Eye, Download, FileCode, X, Check, Smartphone, Tablet, Monitor, Info, Loader2, Cloud } from 'lucide-react';
 import { Home } from './components/home/Home';
 import { motion, AnimatePresence } from 'motion/react';
 
@@ -123,6 +123,7 @@ function SaveStatusIndicator({ status }: { status: 'idle' | 'saving' | 'saved' }
 }
 
 function TopBar({ onBack }: { onBack: () => void }) {
+  const { data, toggleTheme, exportCode, activeDevice, setActiveDevice, saveStatus } = useBuilder();
   const { data, toggleTheme, exportCode, activeDevice, setActiveDevice } = useBuilder();
   const { data, toggleTheme, exportCode, saveStatus } = useBuilder();
   const { theme } = data.settings;
@@ -256,6 +257,45 @@ function TopBar({ onBack }: { onBack: () => void }) {
         </div>
 
         <div className="flex items-center gap-2">
+          {/* Save Status Indicator */}
+          <div className="hidden lg:flex items-center gap-2 px-3 py-1.5 rounded-lg bg-muted/30 border border-border/50 mr-2">
+            <AnimatePresence mode="wait">
+              {saveStatus === 'saving' ? (
+                <motion.div
+                  key="saving"
+                  initial={{ opacity: 0, scale: 0.8 }}
+                  animate={{ opacity: 1, scale: 1 }}
+                  exit={{ opacity: 0, scale: 0.8 }}
+                  className="flex items-center gap-2 text-primary"
+                >
+                  <Loader2 size={14} className="animate-spin" />
+                  <span className="text-[11px] font-bold">Saving...</span>
+                </motion.div>
+              ) : saveStatus === 'saved' ? (
+                <motion.div
+                  key="saved"
+                  initial={{ opacity: 0, scale: 0.8 }}
+                  animate={{ opacity: 1, scale: 1 }}
+                  exit={{ opacity: 0, scale: 0.8 }}
+                  className="flex items-center gap-2 text-emerald-500"
+                >
+                  <Check size={14} />
+                  <span className="text-[11px] font-bold">Saved</span>
+                </motion.div>
+              ) : (
+                <motion.div
+                  key="idle"
+                  initial={{ opacity: 0 }}
+                  animate={{ opacity: 1 }}
+                  className="flex items-center gap-2 text-muted-foreground/50"
+                >
+                  <Cloud size={14} />
+                  <span className="text-[11px] font-medium">Auto-saving</span>
+                </motion.div>
+              )}
+            </AnimatePresence>
+          </div>
+
           <motion.button
             whileHover={{ scale: 1.05 }}
             whileTap={{ scale: 0.95 }}

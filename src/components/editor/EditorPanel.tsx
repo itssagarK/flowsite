@@ -54,11 +54,10 @@ function SortableSection({
   return (
     <div
       ref={setNodeRef}
-      style={style}
       className={`bg-card border-b border-border transition-all ${
         isDragging ? 'opacity-50 scale-[1.02] shadow-2xl relative z-[100]' : ''
       } ${isOpen ? 'border-l-4' : 'border-l-0'}`}
-      style={{ ...style, borderLeftColor: isOpen ? data.settings.accentColor : undefined }}
+      style={{ ...style, borderLeftColor: isOpen ? data.settings.accentColor : undefined, zIndex: isDragging ? 100 : 'auto' }}
     >
       <div className="flex items-center">
         <button

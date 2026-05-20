@@ -444,6 +444,68 @@ export function Home({ onNavigate }: { onNavigate: () => void }) {
           </div>
         </section>
 
+        {/* Features Showcase */}
+        <section id="features" className="py-60 relative">
+          <div className="section-wrapper">
+            <RevealOnScroll direction="center">
+              <div className="text-center space-y-6 mb-24">
+                <div className="inline-flex items-center gap-3 px-4 py-1.5 bg-primary/10 border border-primary/20 rounded-full">
+                  <Zap size={12} className="text-primary" />
+                  <span className="text-[11px] font-black uppercase tracking-[0.2em] text-primary">Powerful Features</span>
+                </div>
+                <h2 className="text-5xl md:text-7xl font-black tracking-tighter text-white uppercase leading-none">
+                  Everything you need to<br />build stunning websites
+                </h2>
+                <p className="text-lg text-white/40 max-w-2xl mx-auto">
+                  From AI-powered content generation to instant export, FlowSite gives you all the tools to create professional websites without writing a single line of code.
+                </p>
+              </div>
+            </RevealOnScroll>
+
+            <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6">
+              {[
+                { icon: Wand2, title: 'AI Scanner', desc: 'Upload any image and let AI extract content, colors, and layout suggestions automatically.', color: 'from-violet-500 to-purple-600', glow: 'group-hover:shadow-[0_0_40px_rgba(168,85,247,0.3)]' },
+                { icon: Code, title: 'Export Code', desc: 'Download clean, production-ready HTML, CSS, and JavaScript. No dependencies, no lock-in.', color: 'from-blue-500 to-cyan-600', glow: 'group-hover:shadow-[0_0_40px_rgba(6,182,212,0.3)]' },
+                { icon: Eye, title: 'Live Preview', desc: 'See your changes instantly as you edit. Desktop, tablet, and mobile views in real-time.', color: 'from-emerald-500 to-teal-600', glow: 'group-hover:shadow-[0_0_40px_rgba(16,185,129,0.3)]' },
+                { icon: Layers, title: '4 Website Types', desc: 'Portfolio, College Projects, Business, or App Landing - choose the perfect template for your needs.', color: 'from-amber-500 to-orange-600', glow: 'group-hover:shadow-[0_0_40px_rgba(245,158,11,0.3)]' },
+                { icon: Palette, title: 'Theme Customizer', desc: 'Full control over colors, layouts, and styling. Dark mode, accent colors, and typography.', color: 'from-pink-500 to-rose-600', glow: 'group-hover:shadow-[0_0_40px_rgba(244,63,94,0.3)]' },
+                { icon: Sparkles, title: 'Instant Templates', desc: 'Start with professionally designed templates. Customize in seconds, not hours.', color: 'from-indigo-500 to-blue-600', glow: 'group-hover:shadow-[0_0_40px_rgba(99,102,241,0.3)]' },
+                { icon: Scan, title: 'Content Editor', desc: 'Edit projects, skills, experience, services and more with an intuitive visual editor.', color: 'from-cyan-500 to-sky-600', glow: 'group-hover:shadow-[0_0_40px_rgba(14,165,233,0.3)]' },
+                { icon: Rocket, title: 'No Signup Required', desc: 'Start building immediately. Your work is saved locally. Export when ready.', color: 'from-lime-500 to-green-600', glow: 'group-hover:shadow-[0_0_40px_rgba(132,204,22,0.3)]' },
+              ].map((feature, i) => (
+                <RevealOnScroll key={feature.title} delay={i * 0.1} direction="up">
+                  <ThreeDCard>
+                    <div className="glass-premium p-8 h-full border-white/5 hover:border-primary/30 cursor-pointer group transition-all">
+                      <div className={`w-14 h-14 rounded-2xl bg-gradient-to-br ${feature.color} flex items-center justify-center mb-6 shadow-lg transition-transform group-hover:scale-110 group-hover:rotate-6`}>
+                        <feature.icon size={28} className="text-white" />
+                      </div>
+                      <h3 className="text-xl font-black text-white uppercase mb-3 tracking-tight">{feature.title}</h3>
+                      <p className="text-sm text-white/40 font-medium leading-relaxed">{feature.desc}</p>
+                    </div>
+                  </ThreeDCard>
+                </RevealOnScroll>
+              ))}
+            </div>
+
+            {/* Quick Stats */}
+            <RevealOnScroll delay={0.3} direction="up">
+              <div className="mt-24 grid grid-cols-2 md:grid-cols-4 gap-8">
+                {[
+                  { value: '4', label: 'Website Types' },
+                  { value: '∞', label: 'Projects' },
+                  { value: '0', label: 'Cost' },
+                  { value: '100%', label: 'Export Ready' },
+                ].map((stat, i) => (
+                  <div key={stat.label} className="text-center p-8 rounded-3xl bg-white/5 border border-white/5">
+                    <div className="text-5xl font-black text-primary mb-2">{stat.value}</div>
+                    <div className="text-sm font-bold text-white/40 uppercase tracking-widest">{stat.label}</div>
+                  </div>
+                ))}
+              </div>
+            </RevealOnScroll>
+          </div>
+        </section>
+
         {/* Templates Showcase */}
         <section id="templates" className="py-40 relative bg-black/20">
           <div className="section-wrapper">
