@@ -450,35 +450,37 @@ export function Home({ onNavigate }: { onNavigate: () => void }) {
           </div>
         </section>
 
-        {/* Templates Showcase */}
-        <section id="templates" className="py-40 relative bg-black/20">
+        {/* Real Use Cases (SaaS Plan Part 3) */}
+        <section id="templates" className="py-40 relative bg-[#050505] border-t border-white/5">
           <div className="section-wrapper">
             <RevealOnScroll direction="left">
               <div className="flex flex-col lg:flex-row items-end justify-between mb-20 gap-10">
                 <div className="space-y-4">
-                  <div className="inline-flex items-center gap-3 px-4 py-1.5 bg-primary/10 rounded-full">
-                    <span className="text-[11px] font-black uppercase tracking-[0.2em] text-primary">Templates</span>
+                  <div className="inline-flex items-center gap-2 px-3 py-1 bg-white/5 border border-white/10 rounded-full">
+                    <span className="text-[10px] font-bold uppercase tracking-widest text-white/70">Foundations</span>
                   </div>
-                  <h2 className="text-4xl md:text-6xl font-black tracking-tighter text-white">Choose Your Template</h2>
-                  <p className="text-lg text-white/50 max-w-xl">Start with a professionally designed template and customize it to fit your needs.</p>
+                  <h2 className="text-4xl md:text-5xl font-black tracking-tight text-white">Production-Grade Use Cases</h2>
+                  <p className="text-lg text-white/50 max-w-xl">Don't start from scratch. Choose a highly-optimized starting point tailored to your exact needs.</p>
                 </div>
-                <div className="flex gap-2 p-1.5 glass-premium rounded-2xl border-white/5 bg-black/40">
+                
+                {/* Vercel-style segmented control */}
+                <div className="flex gap-1 p-1 bg-white/5 border border-white/10 rounded-xl">
                   {[
                     { id: 'portfolio', title: 'Developer', icon: Code },
                     { id: 'college', title: 'Student', icon: Rocket },
-                    { id: 'business', title: 'Business', icon: Building2 },
-                    { id: 'app', title: 'Product', icon: AppWindow },
+                    { id: 'business', title: 'Startup', icon: Building2 },
+                    { id: 'app', title: 'SaaS', icon: AppWindow },
                   ].map((type) => (
                     <button
                       key={type.id}
                       onClick={() => setActiveWebsiteType(type.id as WebsiteType)}
-                      className={`px-6 py-3 rounded-xl text-sm font-semibold transition-all flex items-center gap-2 ${
+                      className={`px-4 py-2 rounded-lg text-sm font-semibold transition-all flex items-center gap-2 ${
                         activeWebsiteType === type.id
-                          ? 'bg-primary text-white shadow-lg shadow-primary/25'
-                          : 'text-white/50 hover:text-white hover:bg-white/5'
+                          ? 'bg-white/10 text-white shadow-sm'
+                          : 'text-white/50 hover:text-white hover:bg-white/[0.05]'
                       }`}
                     >
-                      <type.icon size={16} />
+                      <type.icon size={14} />
                       {type.title}
                     </button>
                   ))}
@@ -487,72 +489,50 @@ export function Home({ onNavigate }: { onNavigate: () => void }) {
             </RevealOnScroll>
 
             <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6 relative z-20">
-              {/* Start Blank */}
-              <ThreeDCard>
-                <div onClick={(e) => { e.stopPropagation(); handleBlank(); }} className="glass-premium p-8 h-full flex flex-col items-center justify-center border-dashed border-white/20 hover:border-primary/50 cursor-pointer group gap-4 min-h-[280px]">
-                  <div className="w-16 h-16 rounded-2xl bg-white/5 flex items-center justify-center border border-white/10 group-hover:scale-110 group-hover:border-primary/30 transition-all">
-                    <Plus size={32} className="text-white/30 group-hover:text-primary transition-colors" />
-                  </div>
-                  <div className="text-center">
-                    <h3 className="text-xl font-bold text-white">Start Blank</h3>
-                    <p className="text-sm text-white/40 mt-1">Empty canvas for full control</p>
-                  </div>
+              {/* Initialize Empty Project */}
+              <motion.div
+                whileHover={{ y: -4 }}
+                transition={{ duration: 0.2 }}
+                onClick={(e) => { e.stopPropagation(); handleBlank(); }}
+                className="bg-[#0a0a0a] p-8 h-full flex flex-col items-center justify-center border border-dashed border-white/20 hover:border-white/40 cursor-pointer group gap-4 min-h-[280px] rounded-2xl"
+              >
+                <div className="w-12 h-12 rounded-xl bg-white/5 flex items-center justify-center border border-white/10 group-hover:scale-110 group-hover:bg-white/10 transition-all">
+                  <Plus size={24} className="text-white/50 group-hover:text-white transition-colors" />
                 </div>
-              </ThreeDCard>
+                <div className="text-center">
+                  <h3 className="text-lg font-bold text-white tracking-tight">Initialize Empty Project</h3>
+                  <p className="text-sm text-white/40 mt-1 font-medium">Start with a blank canvas</p>
+                </div>
+              </motion.div>
 
-              {/* Pre-built Templates (2 per category) */}
+              {/* Pre-built Templates */}
               {templates.slice(0, 2).map((template: any, i: number) => (
                 <RevealOnScroll key={i} delay={i * 0.1} direction="center">
-                  <ThreeDCard className="h-full">
-                    <div onClick={(e) => { e.stopPropagation(); handleSelectTemplate(template.data); }} className="glass-premium p-6 h-full flex flex-col justify-between border-white/5 hover:border-primary/50 cursor-pointer group min-h-[280px]">
-                      <div className="space-y-4">
-                        <div className="flex items-center justify-between">
-                          <div className={`p-3 rounded-2xl bg-gradient-to-br ${template.color} shadow-lg`}>
-                            <template.icon size={24} className="text-white" />
-                          </div>
-                          <span className="text-[10px] font-semibold uppercase tracking-widest text-white/30">Template</span>
+                  <motion.div
+                    whileHover={{ y: -4 }}
+                    transition={{ duration: 0.2 }}
+                    onClick={(e) => { e.stopPropagation(); handleSelectTemplate(template.data); }}
+                    className="bg-[#0a0a0a] p-8 h-full flex flex-col justify-between border border-white/10 hover:border-white/30 cursor-pointer group min-h-[280px] rounded-2xl shadow-xl shadow-black/50"
+                  >
+                    <div className="space-y-6">
+                      <div className="flex items-center justify-between">
+                        <div className={`p-3 rounded-xl bg-gradient-to-br ${template.color} shadow-lg`}>
+                          <template.icon size={20} className="text-white" />
                         </div>
-                        <div className="space-y-2">
-                          <h3 className="text-2xl font-bold text-white">{template.title}</h3>
-                          <p className="text-sm text-white/50 leading-relaxed">{template.subtitle}</p>
-                        </div>
+                        <span className="text-[10px] font-bold uppercase tracking-widest text-white/30">Template</span>
                       </div>
-                      <div className="flex items-center justify-between pt-4 border-t border-white/5">
-                        <span className="text-sm font-semibold text-primary">Use Template</span>
-                        <div className="w-8 h-8 rounded-lg border border-white/10 flex items-center justify-center group-hover:bg-primary group-hover:border-transparent transition-all">
-                          <ArrowRight size={16} className="text-white" />
-                        </div>
+                      <div className="space-y-1">
+                        <h3 className="text-xl font-bold text-white tracking-tight">{template.title}</h3>
+                        <p className="text-sm text-white/50 leading-relaxed font-medium">{template.subtitle}</p>
                       </div>
                     </div>
-                  </ThreeDCard>
+                    <div className="flex items-center justify-between pt-6 border-t border-white/5 mt-6">
+                      <span className="text-sm font-semibold text-white/70 group-hover:text-white transition-colors">Deploy Template</span>
+                      <ArrowRight size={16} className="text-white/30 group-hover:text-white group-hover:translate-x-1 transition-all" />
+                    </div>
+                  </motion.div>
                 </RevealOnScroll>
               ))}
-
-              {/* More Templates Card */}
-              <ThreeDCard>
-                <div onClick={() => setShowMoreTemplates(true)} className="glass-premium p-6 h-full flex flex-col items-center justify-center border-white/10 hover:border-primary/50 cursor-pointer group gap-4 min-h-[280px]">
-                  <div className="w-16 h-16 rounded-2xl bg-primary/10 flex items-center justify-center border border-primary/20 group-hover:scale-110 group-hover:bg-primary/20 transition-all">
-                    <Layers size={32} className="text-primary group-hover:text-white transition-colors" />
-                  </div>
-                  <div className="text-center">
-                    <h3 className="text-xl font-bold text-white">More Templates</h3>
-                    <p className="text-sm text-white/40 mt-1">Browse additional options</p>
-                  </div>
-                </div>
-              </ThreeDCard>
-
-              {/* Suggest Template Card */}
-              <ThreeDCard>
-                <div onClick={() => setShowSuggestTemplate(true)} className="glass-premium p-6 h-full flex flex-col items-center justify-center border-white/10 hover:border-yellow-500/50 cursor-pointer group gap-4 min-h-[280px]">
-                  <div className="w-16 h-16 rounded-2xl bg-yellow-500/10 flex items-center justify-center border border-yellow-500/20 group-hover:scale-110 group-hover:bg-yellow-500/20 transition-all">
-                    <Lightbulb size={32} className="text-yellow-400 group-hover:text-white transition-colors" />
-                  </div>
-                  <div className="text-center">
-                    <h3 className="text-xl font-bold text-white">Suggest Template</h3>
-                    <p className="text-sm text-white/40 mt-1">Request a custom template</p>
-                  </div>
-                </div>
-              </ThreeDCard>
             </div>
           </div>
         </section>
