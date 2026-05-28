@@ -34,6 +34,8 @@ function DeviceTooltip({ label, size, shortcut, isInfo = false }: { label: strin
 
 import { QRCodeSVG } from 'qrcode.react';
 
+import { Toaster, toast } from 'sonner';
+
 function ExportModal({ isOpen, onClose }: { isOpen: boolean; onClose: () => void }) {
   const { data, exportCode } = useBuilder();
   const [step, setStep] = useState(1);
@@ -68,6 +70,9 @@ function ExportModal({ isOpen, onClose }: { isOpen: boolean; onClose: () => void
       URL.revokeObjectURL(url);
       setStep(2);
       setIsExporting(false);
+      toast.success('Website exported successfully!', {
+        description: 'Your single-file HTML is ready for deployment.',
+      });
     }, 800);
   };
 
@@ -570,6 +575,7 @@ export default function App() {
 
   return (
     <BuilderProvider>
+      <Toaster position="top-right" richColors />
       <AnimatePresence mode="wait">
         {view === 'home' ? (
           <motion.div

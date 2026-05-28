@@ -5,6 +5,7 @@ import { User, FolderOpen, Palette, Scan, Image, Plus, Trash2, GraduationCap, Bu
 import { motion, AnimatePresence } from 'motion/react';
 import { AvatarEditor } from './AvatarEditor';
 import { isGeminiConfigured } from '../../lib/gemini';
+import { toast } from 'sonner';
 import { DndContext, closestCenter, KeyboardSensor, PointerSensor, useSensor, useSensors, DragEndEvent } from '@dnd-kit/core';
 import { arrayMove, SortableContext, sortableKeyboardCoordinates, verticalListSortingStrategy, useSortable } from '@dnd-kit/sortable';
 import { CSS } from '@dnd-kit/utilities';
@@ -203,6 +204,7 @@ function ResetModal({ isOpen, onClose, onReset }: { isOpen: boolean; onClose: ()
               onClick={() => {
                 onReset();
                 onClose();
+                toast.success('All content reset to default.');
               }}
               className="flex-1 py-2.5 rounded-xl text-sm font-semibold bg-red-500 text-white hover:bg-red-600 shadow-lg shadow-red-500/20 transition-all"
             >
@@ -270,9 +272,15 @@ export function EditorPanel() {
 
   useEffect(() => {
     if (scanStatus === 'done') {
-      // Keep results but allow new scan
+      toast.success('AI Scanner complete!', {
+        description: 'Your profile has been successfully parsed and filled.',
+      });
+    } else if (scanStatus === 'error') {
+      toast.error('AI Scanner failed', {
+        description: scanError || 'Please try again with a clearer image.',
+      });
     }
-  }, [scanStatus]);
+  }, [scanStatus, scanError]);
 
   const handleFileSelect = (file: File) => {
     if (file.size > 10 * 1024 * 1024) {
