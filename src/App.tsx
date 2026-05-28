@@ -32,6 +32,8 @@ function DeviceTooltip({ label, size, shortcut, isInfo = false }: { label: strin
   );
 }
 
+import { QRCodeSVG } from 'qrcode.react';
+
 function ExportModal({ isOpen, onClose }: { isOpen: boolean; onClose: () => void }) {
   const { data, exportCode } = useBuilder();
   const [step, setStep] = useState(1);
@@ -42,6 +44,8 @@ function ExportModal({ isOpen, onClose }: { isOpen: boolean; onClose: () => void
     minify: false,
   });
   const [isExporting, setIsExporting] = useState(false);
+  const [showQR, setShowQR] = useState(false);
+  const [targetUrl, setTargetUrl] = useState('');
 
   if (!isOpen) return null;
 
@@ -197,46 +201,102 @@ function ExportModal({ isOpen, onClose }: { isOpen: boolean; onClose: () => void
                     exit={{ opacity: 0, x: -20 }}
                     className="space-y-6"
                   >
-                    <div className="text-center py-4">
-                      <div className="w-16 h-16 rounded-full bg-emerald-500/10 flex items-center justify-center text-emerald-500 mx-auto mb-4">
-                        <Check size={32} />
-                      </div>
-                      <h4 className="text-xl font-bold">Download Complete!</h4>
-                      <p className="text-sm text-muted-foreground">Your site is ready to be hosted.</p>
-                    </div>
+                    {!showQR ? (
+                      <>
+                        <div className="text-center py-4">
+                          <div className="w-16 h-16 rounded-full bg-emerald-500/10 flex items-center justify-center text-emerald-500 mx-auto mb-4">
+                            <Check size={32} />
+                          </div>
+                          <h4 className="text-xl font-bold">Download Complete!</h4>
+                          <p className="text-sm text-muted-foreground">Your site is ready to be hosted.</p>
+                        </div>
 
-                    <div className="space-y-3">
-                      <label className="text-xs font-bold uppercase tracking-widest text-muted-foreground block">Where to host?</label>
-                      <div className="grid grid-cols-1 gap-3">
-                        {hostingOptions.map((host) => (
-                          <a
-                            key={host.name}
-                            href={host.link}
-                            target="_blank"
-                            rel="noopener noreferrer"
-                            className="flex items-center gap-4 p-3 border border-border rounded-2xl hover:bg-muted transition-all group"
+                        <div className="space-y-3">
+                          <label className="text-xs font-bold uppercase tracking-widest text-muted-foreground block">Where to host?</label>
+                          <div className="grid grid-cols-1 gap-3">
+                            {hostingOptions.map((host) => (
+                              <a
+                                key={host.name}
+                                href={host.link}
+                                target="_blank"
+                                rel="noopener noreferrer"
+                                className="flex items-center gap-4 p-3 border border-border rounded-2xl hover:bg-muted transition-all group"
+                              >
+                                <div className="w-10 h-10 rounded-xl bg-muted group-hover:bg-primary/10 flex items-center justify-center transition-colors">
+                                  <host.icon size={20} className="group-hover:text-primary transition-colors" />
+                                </div>
+                                <div className="flex-1">
+                                  <div className="text-sm font-bold flex items-center gap-1">
+                                    {host.name}
+                                    <ExternalLink size={12} className="opacity-0 group-hover:opacity-100 transition-opacity" />
+                                  </div>
+                                  <div className="text-[10px] text-muted-foreground">{host.desc}</div>
+                                </div>
+                              </a>
+                            ))}
+                          </div>
+                        </div>
+
+                        <div className="flex gap-3">
+                          <button
+                            onClick={() => setShowQR(true)}
+                            className="flex-1 py-4 bg-primary/10 text-primary hover:bg-primary/20 rounded-2xl font-bold text-sm transition-all flex items-center justify-center gap-2"
                           >
-                            <div className="w-10 h-10 rounded-xl bg-muted group-hover:bg-primary/10 flex items-center justify-center transition-colors">
-                              <host.icon size={20} className="group-hover:text-primary transition-colors" />
-                            </div>
-                            <div className="flex-1">
-                              <div className="text-sm font-bold flex items-center gap-1">
-                                {host.name}
-                                <ExternalLink size={12} className="opacity-0 group-hover:opacity-100 transition-opacity" />
-                              </div>
-                              <div className="text-[10px] text-muted-foreground">{host.desc}</div>
-                            </div>
-                          </a>
-                        ))}
-                      </div>
-                    </div>
+                            <QrCode size={18} />
+                            Generate QR
+                          </button>
+                          <button
+                            onClick={onClose}
+                            className="flex-1 py-4 bg-muted hover:bg-muted/80 rounded-2xl font-bold text-sm transition-all"
+                          >
+                            Close
+                          </button>
+                        </div>
+                      </>
+                    ) : (
+                      <motion.div
+                        initial={{ opacity: 0, scale: 0.9 }}
+                        animate={{ opacity: 1, scale: 1 }}
+                        className="space-y-6 text-center"
+                      >
+                        <h4 className="text-xl font-bold">Share Your Site</h4>
+                        <p className="text-sm text-muted-foreground">Enter your deployment URL to generate a QR code.</p>
+                        
+                        <div className="bg-white p-6 rounded-3xl inline-block shadow-inner mx-auto">
+                          <QRCodeSVG 
+                            value={targetUrl || 'https://flowsite.preview'} 
+                            size={200}
+                            includeMargin={false}
+                            fgColor="#0F172A"
+                          />
+                        </div>
 
-                    <button
-                      onClick={onClose}
-                      className="w-full py-4 bg-muted hover:bg-muted/80 rounded-2xl font-bold text-sm transition-all"
-                    >
-                      Back to Editor
-                    </button>
+                        <div className="space-y-4">
+                          <input
+                            type="url"
+                            value={targetUrl}
+                            onChange={(e) => setTargetUrl(e.target.value)}
+                            className="w-full px-4 py-3 bg-muted/50 border border-border rounded-xl focus:outline-none focus:border-primary transition-colors text-sm font-medium"
+                            placeholder="https://your-site.com"
+                          />
+                          
+                          <div className="flex gap-3">
+                            <button
+                              onClick={() => setShowQR(false)}
+                              className="flex-1 py-4 bg-muted hover:bg-muted/80 rounded-2xl font-bold text-sm transition-all"
+                            >
+                              Back
+                            </button>
+                            <button
+                              onClick={onClose}
+                              className="flex-1 py-4 bg-primary text-white rounded-2xl font-bold text-sm transition-all"
+                            >
+                              Done
+                            </button>
+                          </div>
+                        </div>
+                      </motion.div>
+                    )}
                   </motion.div>
                 )}
               </AnimatePresence>
