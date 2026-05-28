@@ -9,6 +9,7 @@ import { toast } from 'sonner';
 import { DndContext, closestCenter, KeyboardSensor, PointerSensor, useSensor, useSensors, DragEndEvent } from '@dnd-kit/core';
 import { arrayMove, SortableContext, sortableKeyboardCoordinates, verticalListSortingStrategy, useSortable } from '@dnd-kit/sortable';
 import { CSS } from '@dnd-kit/utilities';
+import { CommandPalette } from './CommandPalette';
 
 type EditorTab = 'profile' | 'content' | 'theme';
 
@@ -477,8 +478,11 @@ export function EditorPanel() {
   const sectionOrder = data.settings.sectionOrder || ['hero', 'projects', 'skills', 'experience', 'services', 'contact', 'stats', 'team', 'pricing', 'education', 'about'];
   const orderedSections = [...sections].sort((a, b) => sectionOrder.indexOf(a.id) - sectionOrder.indexOf(b.id));
 
+  const [showCommandPalette, setShowCommandPalette] = useState(false);
+
   return (
     <div className="w-[360px] border-r border-border bg-card shrink-0 flex flex-col h-full overflow-hidden">
+      <CommandPalette isOpen={showCommandPalette} setOpen={setShowCommandPalette} />
       {/* Vercel-style Project Header */}
       <div className="p-4 border-b border-border bg-card">
         <div className="flex flex-col gap-4">
@@ -504,7 +508,7 @@ export function EditorPanel() {
           {/* Mock Command Palette Search */}
           <button 
             className="w-full h-9 bg-muted/50 hover:bg-muted border border-border rounded-lg flex items-center justify-between px-3 transition-colors text-muted-foreground group"
-            onClick={() => toast.info('Command Palette coming soon!', { description: 'Press ⌘K to search commands.' })}
+            onClick={() => setShowCommandPalette(true)}
           >
             <div className="flex items-center gap-2 text-xs font-medium">
               <Scan size={14} className="group-hover:text-foreground transition-colors" />
