@@ -511,24 +511,48 @@ function TopBar({ onBack, onToggleEditor, isEditorVisible }: { onBack: () => voi
 
 function MainLayout({ onBack }: { onBack: () => void }) {
   const [isEditorVisible, setIsEditorVisible] = useState(true);
+  const [isMobile, setIsMobile] = useState(false);
+
+  useEffect(() => {
+    const checkMobile = () => setIsMobile(window.innerWidth < 1024);
+    checkMobile();
+    window.addEventListener('resize', checkMobile);
+    return () => window.removeEventListener('resize', checkMobile);
+  }, []);
 
   return (
     <div className="h-screen w-screen flex flex-col overflow-hidden bg-transparent">
       <TopBar onBack={onBack} onToggleEditor={() => setIsEditorVisible(!isEditorVisible)} isEditorVisible={isEditorVisible} />
-      <main className="flex-1 flex overflow-hidden">
+      <main className="flex-1 flex overflow-hidden relative">
         <AnimatePresence>
           {isEditorVisible && (
-            <motion.div
-              initial={{ x: -360, opacity: 0 }}
-              animate={{ x: 0, opacity: 1 }}
-              exit={{ x: -360, opacity: 0 }}
-              transition={{ type: 'spring', stiffness: 300, damping: 30 }}
-            >
-              <EditorPanel />
-            </motion.div>
+            <>
+              {/* Mobile Backdrop Overlay */}
+              {isMobile && (
+                <motion.div
+                  initial={{ opacity: 0 }}
+                  animate={{ opacity: 1 }}
+                  exit={{ opacity: 0 }}
+                  onClick={() => setIsEditorVisible(false)}
+                  className="absolute inset-0 bg-black/50 backdrop-blur-sm z-40 lg:hidden"
+                />
+              )}
+              {/* Editor Panel Wrapper */}
+              <motion.div
+                initial={{ x: isMobile ? '-100%' : -360, opacity: 0 }}
+                animate={{ x: 0, opacity: 1 }}
+                exit={{ x: isMobile ? '-100%' : -360, opacity: 0 }}
+                transition={{ type: 'spring', stiffness: 300, damping: 30 }}
+                className={`z-50 ${isMobile ? 'absolute inset-y-0 left-0 shadow-2xl' : 'relative shrink-0'}`}
+              >
+                <EditorPanel />
+              </motion.div>
+            </>
           )}
         </AnimatePresence>
-        <Canvas />
+        <div className="flex-1 overflow-hidden relative z-0">
+          <Canvas />
+        </div>
       </main>
     </div>
   );

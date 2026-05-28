@@ -1,0 +1,19 @@
+/* Fixes for cmdk library styles */
+[cmdk-group-heading] {
+  padding-bottom: 8px;
+  padding-left: 4px;
+}
+[cmdk-list] {
+  scroll-padding-block: 8px;
+}
+/* Ensure the input doesn't have a blue outline on focus */
+[cmdk-input] {
+  border: none;
+  width: 100%;
+  font-size: 14px;
+  outline: none;
+  background: transparent;
+}
+[cmdk-item] {
+  content-visibility: auto;
+}
