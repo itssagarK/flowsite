@@ -18,5 +18,18 @@ export default defineConfig(({mode}) => {
     server: {
       hmr: process.env.DISABLE_HMR !== 'true',
     },
+    build: {
+      rollupOptions: {
+        output: {
+          manualChunks: {
+            'vendor-react': ['react', 'react-dom'],
+            'vendor-three': ['three', '@react-three/fiber', '@react-three/drei'],
+            'vendor-motion': ['motion'],
+            'vendor-utils': ['lucide-react', '@dnd-kit/core', '@dnd-kit/sortable'],
+          },
+        },
+      },
+      chunkSizeWarningLimit: 1000,
+    },
   };
 });
