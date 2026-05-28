@@ -793,12 +793,38 @@ Return ONLY the JSON. No markdown, no explanation, no code fences.
       }
     });
 
+    const siteTitle = `${user.name || 'My Website'} | FlowSite`;
+    const siteDesc = (user.bio || user.tagline || 'Created with FlowSite website builder.').replace(/"/g, '&quot;');
+
     const html = `<!DOCTYPE html>
 <html lang="en">
 <head>
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
-  <title>${user.name || 'My Website'} | FlowSite</title>
+  <title>${siteTitle}</title>
+  <meta name="description" content="${siteDesc}">
+  
+  <!-- SEO & Social Meta -->
+  <meta property="og:title" content="${siteTitle}">
+  <meta property="og:description" content="${siteDesc}">
+  <meta property="og:type" content="website">
+  ${user.avatar ? `<meta property="og:image" content="${user.avatar}">` : ''}
+  <meta name="twitter:card" content="summary_large_image">
+  <meta name="twitter:title" content="${siteTitle}">
+  <meta name="twitter:description" content="${siteDesc}">
+
+  <!-- Structured Data (JSON-LD) -->
+  <script type="application/ld+json">
+  {
+    "@context": "https://schema.org",
+    "@type": "${websiteType === 'business' || websiteType === 'app' ? 'Organization' : 'Person'}",
+    "name": "${user.name}",
+    "jobTitle": "${user.role}",
+    "description": "${siteDesc}",
+    "image": "${user.avatar || ''}"
+  }
+  </script>
+
   <link href="https://fonts.googleapis.com/css2?family=Poppins:wght@300;400;500;600;700;800&family=Inter:wght@300;400;500;600&display=swap" rel="stylesheet">
   <style>
     :root {
