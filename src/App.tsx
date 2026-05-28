@@ -1,10 +1,19 @@
-import React, { useState, useCallback } from 'react';
+import React, { useState, useCallback, useEffect } from 'react';
+import { motion, AnimatePresence } from 'motion/react';
+import { 
+  Moon, Sun, ChevronLeft, Sparkles, Code, Eye, EyeOff, Download, 
+  FileCode, X, Check, Smartphone, Tablet, Monitor, Info, Loader2, 
+  Cloud, Github, Globe, ExternalLink, QrCode 
+} from 'lucide-react';
+import { QRCodeSVG } from 'qrcode.react';
+import { Toaster, toast } from 'sonner';
+
 import { EditorPanel } from './components/editor/EditorPanel';
 import { Canvas } from './components/preview/Canvas';
 import { BuilderProvider, useBuilder } from './context/BuilderContext';
-import { Moon, Sun, ChevronLeft, Sparkles, Code, Eye, EyeOff, Download, FileCode, X, Check, Smartphone, Tablet, Monitor, Info, Loader2, Cloud } from 'lucide-react';
 import { Home } from './components/home/Home';
-import { motion, AnimatePresence } from 'motion/react';
+
+// --- Shared Components ---
 
 function DeviceTooltip({ label, size, shortcut, isInfo = false }: { label: string; size?: string; shortcut?: string; isInfo?: boolean }) {
   return (
@@ -32,14 +41,10 @@ function DeviceTooltip({ label, size, shortcut, isInfo = false }: { label: strin
   );
 }
 
-import { QRCodeSVG } from 'qrcode.react';
-
-import { Toaster, toast } from 'sonner';
-
 function ExportModal({ isOpen, onClose }: { isOpen: boolean; onClose: () => void }) {
   const { data, exportCode } = useBuilder();
   const [step, setStep] = useState(1);
-  const [filename, setFilename] = useState(data.user.name || 'my-portfolio');
+  const [filename, setFilename] = useState(data?.user?.name || 'my-portfolio');
   const [options, setOptions] = useState({
     includeShapes: true,
     includeAnimations: true,
@@ -48,6 +53,14 @@ function ExportModal({ isOpen, onClose }: { isOpen: boolean; onClose: () => void
   const [isExporting, setIsExporting] = useState(false);
   const [showQR, setShowQR] = useState(false);
   const [targetUrl, setTargetUrl] = useState('');
+
+  // Reset step when modal opens/closes
+  useEffect(() => {
+    if (!isOpen) {
+      setStep(1);
+      setShowQR(false);
+    }
+  }, [isOpen]);
 
   if (!isOpen) return null;
 
@@ -313,46 +326,14 @@ function ExportModal({ isOpen, onClose }: { isOpen: boolean; onClose: () => void
   );
 }
 
-function SaveStatusIndicator({ status }: { status: 'idle' | 'saving' | 'saved' }) {
-  return (
-    <AnimatePresence mode="wait">
-      {status !== 'idle' && (
-        <motion.div
-          key={status}
-          initial={{ opacity: 0, x: 10 }}
-          animate={{ opacity: 1, x: 0 }}
-          exit={{ opacity: 0, x: -10 }}
-          className="flex items-center gap-2 px-1.5 py-1 rounded-full border border-border bg-muted/30 text-[12px] font-medium"
-        >
-          {status === 'saving' ? (
-            <>
-              <motion.div
-                animate={{ scale: [1, 1.4, 1], opacity: [1, 0.6, 1] }}
-                transition={{ duration: 1, repeat: Infinity }}
-                className="w-1.5 h-1.5 rounded-full bg-primary"
-              />
-              <span className="text-muted-foreground tracking-tight">Saving...</span>
-            </>
-          ) : (
-            <>
-              <Check size={12} className="text-emerald-500" />
-              <span className="text-emerald-500 tracking-tight">Saved</span>
-            </>
-          )}
-        </motion.div>
-      )}
-    </AnimatePresence>
-  );
-}
-
 function TopBar({ onBack, onToggleEditor, isEditorVisible }: { onBack: () => void; onToggleEditor: () => void; isEditorVisible: boolean }) {
-  const { data, toggleTheme, exportCode, activeDevice, setActiveDevice, saveStatus } = useBuilder();
+  const { data, toggleTheme, activeDevice, setActiveDevice, saveStatus } = useBuilder();
   const { theme } = data.settings;
   const [showExport, setShowExport] = useState(false);
   const [hoveredDevice, setHoveredDevice] = useState<string | null>(null);
 
   // Keyboard Shortcuts
-  React.useEffect(() => {
+  useEffect(() => {
     const handleKeyDown = (e: KeyboardEvent) => {
       if ((e.metaKey || e.ctrlKey) && !e.shiftKey) {
         if (e.key === '1') {

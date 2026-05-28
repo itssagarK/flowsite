@@ -389,7 +389,18 @@ export function BuilderProvider({ children }: { children: React.ReactNode }) {
 
   const updateData = useCallback((newData: Partial<PortfolioData> | ((prev: PortfolioData) => PortfolioData)) => {
     setData((prev) => {
-      const merged = typeof newData === 'function' ? newData(prev) : { ...prev, ...newData };
+      if (typeof newData === 'function') return newData(prev);
+      
+      const merged = { ...prev, ...newData };
+      
+      // Deep merge settings and user if they exist in newData
+      if (newData.settings) {
+        merged.settings = { ...prev.settings, ...newData.settings };
+      }
+      if (newData.user) {
+        merged.user = { ...prev.user, ...newData.user };
+      }
+      
       return merged;
     });
   }, []);
