@@ -294,16 +294,18 @@ interface BuilderContextType {
   removeExperience: (id: number) => void;
   toggleTheme: () => void;
   scanImage: (file: File) => Promise<void>;
-  exportCode: () => string;
-  resetToBlank: () => void;
+  exportCode: (options?: { 
+    includeShapes?: boolean; 
+    includeAnimations?: boolean; 
+    minify?: boolean; 
+  }) => string;
+  resetToBlank: (type?: WebsiteType) => void;
   clearSavedData: () => void;
   saveStatus: 'idle' | 'saving' | 'saved';
   scanStatus: 'idle' | 'scanning' | 'done' | 'error';
   scanError: string | null;
   activeDevice: 'mobile' | 'tablet' | 'desktop';
   setActiveDevice: (device: 'mobile' | 'tablet' | 'desktop') => void;
-  clearSavedData: () => void;
-  saveStatus: 'idle' | 'saving' | 'saved';
 }
 
 const BuilderContext = createContext<BuilderContextType | undefined>(undefined);
@@ -328,29 +330,6 @@ export function BuilderProvider({ children }: { children: React.ReactNode }) {
   const [scanStatus, setScanStatus] = useState<'idle' | 'scanning' | 'done' | 'error'>('idle');
   const [scanError, setScanError] = useState<string | null>(null);
   const [activeDevice, setActiveDevice] = useState<'mobile' | 'tablet' | 'desktop'>('desktop');
-  const saveTimeoutRef = React.useRef<NodeJS.Timeout | null>(null);
-  const isInitialMount = React.useRef(true);
-
-  // Sync accent color with CSS variable
-  useEffect(() => {
-    document.documentElement.style.setProperty('--primary', data.settings.accentColor);
-  }, [data.settings.accentColor]);
-
-  // Handle auto-save
-  useEffect(() => {
-
-  // Initialize state from localStorage or default
-  const [data, setData] = useState<PortfolioData>(() => {
-    try {
-      const saved = localStorage.getItem(STORAGE_KEY);
-      return saved ? JSON.parse(saved) : DEFAULT_DATA;
-    } catch (e) {
-      console.error('Failed to load saved data:', e);
-      return DEFAULT_DATA;
-    }
-  });
-  const [websiteType, setWebsiteTypeState] = useState<WebsiteType>(data.websiteType);
-  const [saveStatus, setSaveStatus] = useState<'idle' | 'saving' | 'saved'>('idle');
   const saveTimeoutRef = React.useRef<NodeJS.Timeout | null>(null);
   const isInitialMount = React.useRef(true);
 
@@ -399,7 +378,7 @@ export function BuilderProvider({ children }: { children: React.ReactNode }) {
 
   const setWebsiteType = useCallback((type: WebsiteType) => {
     setWebsiteTypeState(type);
-    setData(getDefaultData(type));
+    setData(prev => ({ ...prev, websiteType: type }));
   }, []);
 
   const clearSavedData = useCallback(() => {
@@ -645,11 +624,19 @@ Return ONLY the JSON. No markdown, no explanation, no code fences.
     }
   }, []);
 
-  const exportCode = useCallback(() => {
+  const exportCode = useCallback((options?: { 
+    includeShapes?: boolean; 
+    includeAnimations?: boolean; 
+    minify?: boolean; 
+  }) => {
     const { user, settings, projects, skills, experience, collegeProjects, services, stats, appFeatures, pricing, websiteType } = data;
     const isDark = settings.theme === 'dark';
     const layout = settings.layout || 'modern';
     const visible = settings.visibleSections || {};
+
+    const includeShapes = options?.includeShapes !== false;
+    const includeAnimations = options?.includeAnimations !== false;
+    const minify = options?.minify === true;
 
     // Helper to convert hex to RGB
     const hexToRgb = (hex: string) => {
@@ -756,7 +743,7 @@ Return ONLY the JSON. No markdown, no explanation, no code fences.
         const variant = settings.skillsVariant || 'tags';
         let skillsHtml = '';
         if (variant === 'bars') {
-          skillsHtml = `<div class="skills-bars">${skills.map(s => `<div class="skill-bar-item"><div class="skill-info"><span>${s.name}</span><span>${s.level}%</span></div><div class="skill-bar"><div class="skill-progress animate-bar" style="--target-width: ${s.level}%"></div></div></div>`).join('')}</div>`;
+          skillsHtml = `<div class="skills-bars">${skills.map(s => `<div class="skill-bar-item"><div class="skill-info"><span>${s.name}</span><span>${s.level}%</span></div><div class="skill-bar"><div class="skill-progress ${includeAnimations ? 'animate-bar' : ''}" style="--target-width: ${s.level}%${!includeAnimations ? '; width: ' + s.level + '%' : ''}"></div></div></div>`).join('')}</div>`;
         } else if (variant === 'grid') {
           skillsHtml = `<div class="skills-grid">${skills.map(s => `<div class="card ${cardClass} skill-card"><div class="skill-letter">${s.name.charAt(0)}</div><div class="skill-name">${s.name}</div><div class="skill-mini-bar"><div style="width: ${s.level}%"></div></div></div>`).join('')}</div>`;
         } else {
@@ -806,12 +793,38 @@ Return ONLY the JSON. No markdown, no explanation, no code fences.
       }
     });
 
-    return `<!DOCTYPE html>
+    const siteTitle = `${user.name || 'My Website'} | FlowSite`;
+    const siteDesc = (user.bio || user.tagline || 'Created with FlowSite website builder.').replace(/"/g, '&quot;');
+
+    const html = `<!DOCTYPE html>
 <html lang="en">
 <head>
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
-  <title>${user.name || 'My Website'} | FlowSite</title>
+  <title>${siteTitle}</title>
+  <meta name="description" content="${siteDesc}">
+  
+  <!-- SEO & Social Meta -->
+  <meta property="og:title" content="${siteTitle}">
+  <meta property="og:description" content="${siteDesc}">
+  <meta property="og:type" content="website">
+  ${user.avatar ? `<meta property="og:image" content="${user.avatar}">` : ''}
+  <meta name="twitter:card" content="summary_large_image">
+  <meta name="twitter:title" content="${siteTitle}">
+  <meta name="twitter:description" content="${siteDesc}">
+
+  <!-- Structured Data (JSON-LD) -->
+  <script type="application/ld+json">
+  {
+    "@context": "https://schema.org",
+    "@type": "${websiteType === 'business' || websiteType === 'app' ? 'Organization' : 'Person'}",
+    "name": "${user.name}",
+    "jobTitle": "${user.role}",
+    "description": "${siteDesc}",
+    "image": "${user.avatar || ''}"
+  }
+  </script>
+
   <link href="https://fonts.googleapis.com/css2?family=Poppins:wght@300;400;500;600;700;800&family=Inter:wght@300;400;500;600&display=swap" rel="stylesheet">
   <style>
     :root {
@@ -828,7 +841,7 @@ Return ONLY the JSON. No markdown, no explanation, no code fences.
     body { font-family: 'Poppins', 'Inter', sans-serif; background: var(--bg); color: var(--text); line-height: 1.6; overflow-x: hidden; }
     .container { max-width: 1100px; margin: 0 auto; padding: 0 2rem; }
     .text-center { text-align: center; }
-    section { padding: 8rem 0; position: relative; z-index: 10; opacity: 0; }
+    section { padding: 8rem 0; position: relative; z-index: 10; ${includeAnimations ? 'opacity: 0;' : ''} }
     h1 { font-size: 4rem; font-weight: 800; margin-bottom: 1rem; }
     h2 { font-size: 2.5rem; font-weight: 700; margin-bottom: 3rem; text-align: center; }
     
@@ -879,14 +892,14 @@ Return ONLY the JSON. No markdown, no explanation, no code fences.
     .card { transition: 0.3s; }
     
     .glass-card {
-      background: rgba(var(--accent-rgb), 0.03);
+      background: rgba(var(--accent-rgb), 0.05);
       backdrop-filter: blur(12px);
       -webkit-backdrop-filter: blur(12px);
-      border: 1px solid rgba(var(--accent-rgb), 0.1);
+      border: 1px solid rgba(var(--accent-rgb), 0.15);
       border-radius: var(--radius);
       padding: 2.5rem;
     }
-    .glass-card:hover { border-color: var(--accent); transform: translateY(-5px); background: rgba(var(--accent-rgb), 0.05); }
+    .glass-card:hover { border-color: var(--accent); transform: translateY(-5px); background: rgba(var(--accent-rgb), 0.07); }
 
     .brutalist-card {
       background: var(--surface);
@@ -923,9 +936,11 @@ Return ONLY the JSON. No markdown, no explanation, no code fences.
 
     .skills-bars { display: grid; grid-template-columns: repeat(auto-fit, minmax(350px, 1fr)); gap: 2rem 4rem; }
     .skill-bar-item { margin-bottom: 1rem; }
-    .skill-progress { height: 100%; background: linear-gradient(90deg, var(--accent), rgba(var(--accent-rgb), 0.6)); border-radius: 4px; width: 0; }
+    .skill-progress { height: 100%; background: linear-gradient(90deg, var(--accent), rgba(var(--accent-rgb), 0.6)); border-radius: 4px; ${includeAnimations ? 'width: 0;' : ''} }
+    ${includeAnimations ? `
     .animate-bar.fade-in-up { animation: growBar 1s ease-out forwards 0.3s; }
     @keyframes growBar { from { width: 0; } to { width: var(--target-width); } }
+    ` : ''}
 
     .skills-grid { display: grid; grid-template-columns: repeat(auto-fit, minmax(200px, 1fr)); gap: 1.5rem; }
     .skill-card { text-align: center; padding: 2rem; display: flex; flex-direction: column; align-items: center; gap: 1rem; }
@@ -946,12 +961,16 @@ Return ONLY the JSON. No markdown, no explanation, no code fences.
       66%       { transform: translateY(-6px) rotate(-1deg); }
     }
 
+    ${includeAnimations ? `
     .fade-in-up { animation: fadeInUp 0.6s ease forwards; }
     .section-animate { animation-delay: calc(var(--i, 0) * 0.15s); }
+    ` : ''}
 
+    ${includeShapes ? `
     .bg-shape { position: fixed; z-index: 1; background: var(--accent); opacity: 0.08; filter: blur(40px); pointer-events: none; animation: float 10s infinite ease-in-out; }
     .shape-1 { width: 400px; height: 400px; top: -100px; left: -100px; border-radius: 45% 55% 70% 30% / 30% 40% 60% 70%; animation-duration: 12s; }
     .shape-2 { width: 300px; height: 300px; bottom: 10%; right: -50px; border-radius: 70% 30% 30% 70% / 60% 40% 60% 40%; animation-duration: 15s; }
+    ` : ''}
 
     @media (max-width: 768px) { 
       h1 { font-size: 2.5rem; } 
@@ -967,10 +986,13 @@ Return ONLY the JSON. No markdown, no explanation, no code fences.
   </style>
 </head>
 <body>
+  ${includeShapes ? `
   <div class="bg-shape shape-1"></div>
   <div class="bg-shape shape-2"></div>
+  ` : ''}
   ${sectionsHtml}
   
+  ${includeAnimations ? `
   <script>
     const observer = new IntersectionObserver((entries) => {
       entries.forEach((e, i) => {
@@ -984,15 +1006,24 @@ Return ONLY the JSON. No markdown, no explanation, no code fences.
     }, { threshold: 0.1 });
     document.querySelectorAll('section').forEach(s => observer.observe(s));
   </script>
+  ` : ''}
 </body>
 </html>`;
+
+    if (minify) {
+      return html
+        .replace(/>\s+</g, '><')
+        .replace(/\s+/g, ' ')
+        .replace(/<!--.*?-->/g, '');
+    }
+
+    return html;
   }, [data]);
 
-  const resetToBlank = useCallback(() => {
-    setData({
-      ...getDefaultData(websiteType),
-      websiteType,
-    });
+  const resetToBlank = useCallback((type?: WebsiteType) => {
+    const targetType = type || websiteType;
+    setData(getDefaultData(targetType));
+    setWebsiteTypeState(targetType);
   }, [websiteType]);
 
   return (
@@ -1027,8 +1058,6 @@ Return ONLY the JSON. No markdown, no explanation, no code fences.
       scanError,
       activeDevice,
       setActiveDevice,
-      clearSavedData,
-      saveStatus,
     }}>
       {children}
     </BuilderContext.Provider>

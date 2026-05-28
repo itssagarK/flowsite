@@ -3,6 +3,7 @@ import { motion, useScroll, useSpring } from 'motion/react';
 import { Canvas as ThreeCanvas, useFrame } from '@react-three/fiber';
 import { Float, Sphere } from '@react-three/drei';
 import * as THREE from 'three';
+import { useBuilder } from '../../context/BuilderContext';
 import { Hero } from './Hero';
 import { About } from './About';
 import { Projects } from './Projects';
@@ -213,6 +214,3 @@ export function Canvas() {
     </div>
   );
 }
-
-// Import useBuilder
-import { useBuilder } from '../../context/BuilderContext';
