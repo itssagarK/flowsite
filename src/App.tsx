@@ -2,7 +2,7 @@ import React, { useState, useCallback } from 'react';
 import { EditorPanel } from './components/editor/EditorPanel';
 import { Canvas } from './components/preview/Canvas';
 import { BuilderProvider, useBuilder } from './context/BuilderContext';
-import { Moon, Sun, ChevronLeft, Sparkles, Code, Eye, Download, FileCode, X, Check, Smartphone, Tablet, Monitor, Info, Loader2, Cloud } from 'lucide-react';
+import { Moon, Sun, ChevronLeft, Sparkles, Code, Eye, EyeOff, Download, FileCode, X, Check, Smartphone, Tablet, Monitor, Info, Loader2, Cloud } from 'lucide-react';
 import { Home } from './components/home/Home';
 import { motion, AnimatePresence } from 'motion/react';
 
@@ -32,8 +32,46 @@ function DeviceTooltip({ label, size, shortcut, isInfo = false }: { label: strin
   );
 }
 
-function ExportModal({ isOpen, onClose, onExport }: { isOpen: boolean; onClose: () => void; onExport: () => void }) {
+function ExportModal({ isOpen, onClose }: { isOpen: boolean; onClose: () => void }) {
+  const { data, exportCode } = useBuilder();
+  const [step, setStep] = useState(1);
+  const [filename, setFilename] = useState(data.user.name || 'my-portfolio');
+  const [options, setOptions] = useState({
+    includeShapes: true,
+    includeAnimations: true,
+    minify: false,
+  });
+  const [isExporting, setIsExporting] = useState(false);
+
   if (!isOpen) return null;
+
+  const handleDownload = () => {
+    setIsExporting(true);
+    setTimeout(() => {
+      const code = exportCode({
+        includeShapes: options.includeShapes,
+        includeAnimations: options.includeAnimations,
+        minify: options.minify,
+      });
+      const blob = new Blob([code], { type: 'text/html' });
+      const url = URL.createObjectURL(blob);
+      const a = document.createElement('a');
+      a.href = url;
+      a.download = `${filename.replace(/\s+/g, '-').toLowerCase()}.html`;
+      document.body.appendChild(a);
+      a.click();
+      document.body.removeChild(a);
+      URL.revokeObjectURL(url);
+      setStep(2);
+      setIsExporting(false);
+    }, 800);
+  };
+
+  const hostingOptions = [
+    { name: 'GitHub Pages', icon: Github, desc: 'Free hosting for developers.', link: 'https://pages.github.com/' },
+    { name: 'Netlify Drop', icon: Cloud, desc: 'Drag and drop your file to deploy.', link: 'https://app.netlify.com/drop' },
+    { name: 'Vercel', icon: Globe, desc: 'Fast, secure hosting.', link: 'https://vercel.com/new' },
+  ];
 
   return (
     <AnimatePresence>
@@ -41,48 +79,168 @@ function ExportModal({ isOpen, onClose, onExport }: { isOpen: boolean; onClose: 
         initial={{ opacity: 0 }}
         animate={{ opacity: 1 }}
         exit={{ opacity: 0 }}
-        className="fixed inset-0 bg-black/60 backdrop-blur-sm z-[100] flex items-center justify-center p-4"
+        className="fixed inset-0 bg-black/80 backdrop-blur-md z-[100] flex items-center justify-center p-4"
         onClick={onClose}
       >
         <motion.div
-          initial={{ scale: 0.9, opacity: 0 }}
-          animate={{ scale: 1, opacity: 1 }}
-          exit={{ scale: 0.9, opacity: 0 }}
-          className="bg-card border border-border rounded-2xl p-8 max-w-lg w-full shadow-2xl"
+          initial={{ scale: 0.95, opacity: 0, y: 20 }}
+          animate={{ scale: 1, opacity: 1, y: 0 }}
+          exit={{ scale: 0.95, opacity: 0, y: 20 }}
+          className="bg-card border border-border rounded-[2rem] p-0 max-w-2xl w-full shadow-2xl overflow-hidden"
           onClick={(e) => e.stopPropagation()}
         >
-          <div className="flex items-center justify-between mb-6">
-            <h3 className="text-xl font-bold text-foreground flex items-center gap-2">
-              <FileCode size={24} className="text-primary" />
-              Export Your Portfolio
-            </h3>
-            <button onClick={onClose} className="p-2 hover:bg-muted rounded-lg transition-colors">
-              <X size={20} className="text-muted-foreground" />
-            </button>
-          </div>
-
-          <div className="space-y-4">
-            <div className="p-4 bg-muted/50 rounded-xl border border-border">
-              <h4 className="font-semibold text-foreground mb-2">What's included:</h4>
-              <ul className="space-y-2 text-sm text-muted-foreground">
-                <li className="flex items-center gap-2"><Check size={14} className="text-emerald-500" /> Complete HTML/CSS/JS</li>
-                <li className="flex items-center gap-2"><Check size={14} className="text-emerald-500" /> Responsive design</li>
-                <li className="flex items-center gap-2"><Check size={14} className="text-emerald-500" /> All your projects & skills</li>
-                <li className="flex items-center gap-2"><Check size={14} className="text-emerald-500" /> No dependencies required</li>
-              </ul>
+          <div className="flex h-full flex-col md:flex-row">
+            {/* Sidebar / Info Area */}
+            <div className="w-full md:w-1/3 bg-primary/5 p-8 border-b md:border-b-0 md:border-r border-border">
+              <div className="space-y-6">
+                <div className="w-12 h-12 rounded-2xl bg-primary/20 flex items-center justify-center text-primary">
+                  <FileCode size={28} />
+                </div>
+                <div>
+                  <h3 className="text-xl font-bold text-foreground">Export Site</h3>
+                  <p className="text-sm text-muted-foreground mt-1">Ready to go live?</p>
+                </div>
+                
+                <div className="space-y-3 pt-4">
+                  {[
+                    { icon: Check, label: 'Single HTML file' },
+                    { icon: Check, label: 'Zero dependencies' },
+                    { icon: Check, label: 'SEO optimized' },
+                    { icon: Check, label: 'Asset included' },
+                  ].map((item, i) => (
+                    <div key={i} className="flex items-center gap-2 text-xs font-medium text-muted-foreground">
+                      <div className="w-4 h-4 rounded-full bg-emerald-500/10 flex items-center justify-center text-emerald-500">
+                        <item.icon size={10} />
+                      </div>
+                      {item.label}
+                    </div>
+                  ))}
+                </div>
+              </div>
             </div>
 
-            <button
-              onClick={onExport}
-              className="w-full py-4 bg-gradient-to-r from-primary to-violet-500 text-white font-semibold rounded-xl flex items-center justify-center gap-2 hover:shadow-lg hover:shadow-primary/25 transition-all"
-            >
-              <Download size={20} />
-              Download HTML File
-            </button>
+            {/* Content Area */}
+            <div className="flex-1 p-8">
+              <AnimatePresence mode="wait">
+                {step === 1 ? (
+                  <motion.div
+                    key="step1"
+                    initial={{ opacity: 0, x: 20 }}
+                    animate={{ opacity: 1, x: 0 }}
+                    exit={{ opacity: 0, x: -20 }}
+                    className="space-y-6"
+                  >
+                    <div className="space-y-4">
+                      <div>
+                        <label className="text-xs font-bold uppercase tracking-widest text-muted-foreground mb-2 block">Filename</label>
+                        <div className="relative">
+                          <input
+                            type="text"
+                            value={filename}
+                            onChange={(e) => setFilename(e.target.value)}
+                            className="w-full px-4 py-3 bg-muted/50 border border-border rounded-xl focus:outline-none focus:border-primary transition-colors text-sm font-medium"
+                            placeholder="my-portfolio"
+                          />
+                          <span className="absolute right-4 top-1/2 -translate-y-1/2 text-xs font-bold text-muted-foreground">.html</span>
+                        </div>
+                      </div>
 
-            <p className="text-xs text-center text-muted-foreground">
-              The exported file can be opened directly in any browser or deployed to any hosting service.
-            </p>
+                      <div className="space-y-3 pt-2">
+                        <label className="text-xs font-bold uppercase tracking-widest text-muted-foreground mb-2 block">Options</label>
+                        {[
+                          { id: 'includeShapes', label: 'Floating Background Shapes', desc: 'Add subtle animated shapes' },
+                          { id: 'includeAnimations', label: 'Scroll Reveal Animations', desc: 'Smooth entrance effects' },
+                          { id: 'minify', label: 'Minify HTML', desc: 'Reduces file size for speed' },
+                        ].map((opt) => (
+                          <div
+                            key={opt.id}
+                            onClick={() => setOptions(prev => ({ ...prev, [opt.id]: !prev[opt.id as keyof typeof options] }))}
+                            className="flex items-start gap-3 p-3 rounded-xl hover:bg-muted/50 transition-colors cursor-pointer group"
+                          >
+                            <div className={`mt-0.5 w-5 h-5 rounded border-2 flex items-center justify-center transition-all ${
+                              options[opt.id as keyof typeof options] ? 'bg-primary border-primary' : 'border-border group-hover:border-primary/50'
+                            }`}>
+                              {options[opt.id as keyof typeof options] && <Check size={12} className="text-white" />}
+                            </div>
+                            <div>
+                              <div className="text-sm font-bold">{opt.label}</div>
+                              <div className="text-[10px] text-muted-foreground">{opt.desc}</div>
+                            </div>
+                          </div>
+                        ))}
+                      </div>
+                    </div>
+
+                    <button
+                      onClick={handleDownload}
+                      disabled={isExporting}
+                      className="w-full py-4 bg-primary text-white rounded-2xl font-bold flex items-center justify-center gap-2 hover:shadow-lg hover:shadow-primary/25 transition-all disabled:opacity-50 disabled:cursor-not-allowed"
+                    >
+                      {isExporting ? (
+                        <>
+                          <Loader2 size={20} className="animate-spin" />
+                          Preparing...
+                        </>
+                      ) : (
+                        <>
+                          <Download size={20} />
+                          Download HTML File
+                        </>
+                      )}
+                    </button>
+                  </motion.div>
+                ) : (
+                  <motion.div
+                    key="step2"
+                    initial={{ opacity: 0, x: 20 }}
+                    animate={{ opacity: 1, x: 0 }}
+                    exit={{ opacity: 0, x: -20 }}
+                    className="space-y-6"
+                  >
+                    <div className="text-center py-4">
+                      <div className="w-16 h-16 rounded-full bg-emerald-500/10 flex items-center justify-center text-emerald-500 mx-auto mb-4">
+                        <Check size={32} />
+                      </div>
+                      <h4 className="text-xl font-bold">Download Complete!</h4>
+                      <p className="text-sm text-muted-foreground">Your site is ready to be hosted.</p>
+                    </div>
+
+                    <div className="space-y-3">
+                      <label className="text-xs font-bold uppercase tracking-widest text-muted-foreground block">Where to host?</label>
+                      <div className="grid grid-cols-1 gap-3">
+                        {hostingOptions.map((host) => (
+                          <a
+                            key={host.name}
+                            href={host.link}
+                            target="_blank"
+                            rel="noopener noreferrer"
+                            className="flex items-center gap-4 p-3 border border-border rounded-2xl hover:bg-muted transition-all group"
+                          >
+                            <div className="w-10 h-10 rounded-xl bg-muted group-hover:bg-primary/10 flex items-center justify-center transition-colors">
+                              <host.icon size={20} className="group-hover:text-primary transition-colors" />
+                            </div>
+                            <div className="flex-1">
+                              <div className="text-sm font-bold flex items-center gap-1">
+                                {host.name}
+                                <ExternalLink size={12} className="opacity-0 group-hover:opacity-100 transition-opacity" />
+                              </div>
+                              <div className="text-[10px] text-muted-foreground">{host.desc}</div>
+                            </div>
+                          </a>
+                        ))}
+                      </div>
+                    </div>
+
+                    <button
+                      onClick={onClose}
+                      className="w-full py-4 bg-muted hover:bg-muted/80 rounded-2xl font-bold text-sm transition-all"
+                    >
+                      Back to Editor
+                    </button>
+                  </motion.div>
+                )}
+              </AnimatePresence>
+            </div>
           </div>
         </motion.div>
       </motion.div>
@@ -122,10 +280,8 @@ function SaveStatusIndicator({ status }: { status: 'idle' | 'saving' | 'saved' }
   );
 }
 
-function TopBar({ onBack }: { onBack: () => void }) {
+function TopBar({ onBack, onToggleEditor, isEditorVisible }: { onBack: () => void; onToggleEditor: () => void; isEditorVisible: boolean }) {
   const { data, toggleTheme, exportCode, activeDevice, setActiveDevice, saveStatus } = useBuilder();
-  const { data, toggleTheme, exportCode, activeDevice, setActiveDevice } = useBuilder();
-  const { data, toggleTheme, exportCode, saveStatus } = useBuilder();
   const { theme } = data.settings;
   const [showExport, setShowExport] = useState(false);
   const [hoveredDevice, setHoveredDevice] = useState<string | null>(null);
@@ -143,26 +299,15 @@ function TopBar({ onBack }: { onBack: () => void }) {
         } else if (e.key === '3') {
           e.preventDefault();
           setActiveDevice('desktop');
+        } else if (e.key === 'p') {
+          e.preventDefault();
+          onToggleEditor();
         }
       }
     };
     window.addEventListener('keydown', handleKeyDown);
     return () => window.removeEventListener('keydown', handleKeyDown);
-  }, [setActiveDevice]);
-
-  const handleExport = useCallback(() => {
-    const code = exportCode();
-    const blob = new Blob([code], { type: 'text/html' });
-    const url = URL.createObjectURL(blob);
-    const a = document.createElement('a');
-    a.href = url;
-    a.download = `${data.user.name || 'portfolio'}.html`;
-    document.body.appendChild(a);
-    a.click();
-    document.body.removeChild(a);
-    URL.revokeObjectURL(url);
-    setShowExport(false);
-  }, [exportCode, data.user.name]);
+  }, [setActiveDevice, onToggleEditor]);
 
   const deviceData = {
     mobile: { icon: Smartphone, size: '375px', shortcut: '⌘1' },
@@ -309,13 +454,14 @@ function TopBar({ onBack }: { onBack: () => void }) {
           <motion.button
             whileHover={{ scale: 1.02 }}
             whileTap={{ scale: 0.98 }}
-            className="hidden sm:inline-flex items-center justify-center whitespace-nowrap rounded-lg text-[13px] font-semibold transition-colors border border-border bg-muted hover:bg-muted/80 h-[38px] px-4 py-2 gap-2"
+            onClick={onToggleEditor}
+            className={`hidden sm:inline-flex items-center justify-center whitespace-nowrap rounded-lg text-[13px] font-semibold transition-colors border border-border h-[38px] px-4 py-2 gap-2 ${
+              !isEditorVisible ? 'bg-primary text-white border-primary' : 'bg-muted hover:bg-muted/80'
+            }`}
           >
-            <Eye size={14} />
-            Preview
+            {isEditorVisible ? <Eye size={14} /> : <EyeOff size={14} />}
+            {isEditorVisible ? 'Preview' : 'Show Editor'}
           </motion.button>
-
-          <SaveStatusIndicator status={saveStatus} />
 
           <motion.button
             whileHover={{ scale: 1.02, boxShadow: '0 4px 20px rgba(99, 102, 241, 0.3)' }}
@@ -329,17 +475,30 @@ function TopBar({ onBack }: { onBack: () => void }) {
         </div>
       </header>
 
-      <ExportModal isOpen={showExport} onClose={() => setShowExport(false)} onExport={handleExport} />
+      <ExportModal isOpen={showExport} onClose={() => setShowExport(false)} />
     </>
   );
 }
 
 function MainLayout({ onBack }: { onBack: () => void }) {
+  const [isEditorVisible, setIsEditorVisible] = useState(true);
+
   return (
     <div className="h-screen w-screen flex flex-col overflow-hidden bg-transparent">
-      <TopBar onBack={onBack} />
+      <TopBar onBack={onBack} onToggleEditor={() => setIsEditorVisible(!isEditorVisible)} isEditorVisible={isEditorVisible} />
       <main className="flex-1 flex overflow-hidden">
-        <EditorPanel />
+        <AnimatePresence>
+          {isEditorVisible && (
+            <motion.div
+              initial={{ x: -360, opacity: 0 }}
+              animate={{ x: 0, opacity: 1 }}
+              exit={{ x: -360, opacity: 0 }}
+              transition={{ type: 'spring', stiffness: 300, damping: 30 }}
+            >
+              <EditorPanel />
+            </motion.div>
+          )}
+        </AnimatePresence>
         <Canvas />
       </main>
     </div>
