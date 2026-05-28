@@ -16,50 +16,29 @@ import {
 
 function SectionHeading({ title, subtitle, centered = true }: { title: string; subtitle?: string; centered?: boolean }) {
   return (
-    <div className={`space-y-6 mb-24 ${centered ? 'text-center' : 'text-left'}`}>
-      <motion.div
-        initial={{ opacity: 0, scale: 0.8 }}
-        whileInView={{ opacity: 1, scale: 1 }}
-        viewport={{ once: true }}
-        className="inline-flex items-center gap-3 px-4 py-1.5 bg-primary/10 border border-primary/20 rounded-full"
-      >
-        <div className="w-2 h-2 rounded-full bg-primary animate-pulse shadow-[0_0_10px_#7C3AED]" />
-        <span className="text-[11px] font-black uppercase tracking-[0.2em] text-primary">{subtitle || 'Feature'}</span>
-      </motion.div>
-      <h2 className="heading-huge text-white text-glow">{title}</h2>
+    <div className={`space-y-4 mb-20 ${centered ? 'text-center' : 'text-left'}`}>
+      {subtitle && (
+        <motion.div
+          initial={{ opacity: 0, y: 10 }}
+          whileInView={{ opacity: 1, y: 0 }}
+          viewport={{ once: true }}
+          className="inline-flex items-center gap-2 px-3 py-1 bg-white/5 border border-white/10 rounded-full"
+        >
+          <span className="text-[10px] font-bold uppercase tracking-widest text-white/70">{subtitle}</span>
+        </motion.div>
+      )}
+      <h2 className="text-3xl md:text-5xl font-bold tracking-tight text-white">{title}</h2>
     </div>
   );
 }
 
 function ThreeDCard({ children, className = "" }: { children: React.ReactNode, className?: string }) {
-  const cardRef = useRef<HTMLDivElement>(null);
-  const [rotate, setRotate] = useState({ x: 0, y: 0 });
-  const [isHovered, setIsHovered] = useState(false);
-
-  const handleMouseMove = (e: React.MouseEvent<HTMLDivElement>) => {
-    if (!cardRef.current) return;
-    const rect = cardRef.current.getBoundingClientRect();
-    const x = e.clientX - rect.left;
-    const y = e.clientY - rect.top;
-    const centerX = rect.width / 2;
-    const centerY = rect.height / 2;
-    setRotate({ x: (y - centerY) / 15, y: (centerX - x) / 15 });
-  };
-
   return (
     <motion.div
-      ref={cardRef}
-      onMouseMove={handleMouseMove}
-      onMouseEnter={() => setIsHovered(true)}
-      onMouseLeave={() => {
-        setRotate({ x: 0, y: 0 });
-        setIsHovered(false);
-      }}
-      animate={{ rotateX: rotate.x, rotateY: rotate.y }}
-      transition={{ type: 'spring', stiffness: 200, damping: 25 }}
-      className={`perspective-1000 preserve-3d relative group ${className}`}
+      whileHover={{ y: -4 }}
+      transition={{ duration: 0.2 }}
+      className={`relative group ${className}`}
     >
-      <div className="absolute inset-0 bg-gradient-to-tr from-white/10 to-transparent opacity-0 group-hover:opacity-100 transition-opacity duration-500 pointer-events-none rounded-[28px] z-10" />
       {children}
     </motion.div>
   );
@@ -538,14 +517,14 @@ export function Home({ onNavigate }: { onNavigate: () => void }) {
         </section>
 
         {/* Live Demo Showcase Section */}
-        <section ref={demoRef} id="demo" className="py-40 relative">
+        <section ref={demoRef} id="demo" className="py-40 relative border-t border-white/5 bg-[#020202]">
           <div className="section-wrapper space-y-16">
             <RevealOnScroll direction="center">
               <div className="text-center space-y-4 max-w-2xl mx-auto">
                 <div className="inline-flex items-center gap-3 px-4 py-1.5 bg-primary/10 rounded-full">
                   <span className="text-[11px] font-black uppercase tracking-[0.2em] text-primary">Live Demo</span>
                 </div>
-                <h2 className="text-4xl md:text-6xl font-black tracking-tighter text-white">See It In Action</h2>
+                <h2 className="text-4xl md:text-5xl font-black tracking-tight text-white">Experience the workflow</h2>
                 <p className="text-lg text-white/50">Watch how FlowSite transforms your ideas into production-ready websites in seconds.</p>
               </div>
             </RevealOnScroll>
@@ -553,57 +532,28 @@ export function Home({ onNavigate }: { onNavigate: () => void }) {
             <div className="relative group">
               {/* Badge */}
               <motion.div
-                animate={{ y: [0, -8, 0] }}
+                animate={{ y: [0, -4, 0] }}
                 transition={{ duration: 3, repeat: Infinity, ease: "easeInOut" }}
-                className="absolute -top-10 -right-4 z-30 px-4 py-2 bg-gradient-to-r from-emerald-500 to-teal-500 text-white text-xs font-bold uppercase tracking-wider rounded-full shadow-lg hidden md:block"
+                className="absolute -top-10 -right-4 z-30 px-4 py-2 bg-primary text-white text-[10px] font-bold uppercase tracking-widest rounded-full shadow-xl hidden md:block border border-primary/20"
               >
                 Fully Interactive
               </motion.div>
-              <div className="absolute -inset-4 bg-gradient-to-r from-primary/20 via-purple-500/10 to-pink-500/20 rounded-3xl blur-2xl opacity-40 group-hover:opacity-70 transition-opacity" />
-              <div className="relative glass-premium p-2 md:p-3 border-white/10 bg-black/60 rounded-2xl shadow-2xl">
+              <div className="absolute -inset-4 bg-gradient-to-b from-white/5 to-transparent rounded-3xl blur-2xl opacity-40 transition-opacity" />
+              <div className="relative p-2 md:p-3 bg-[#0a0a0a] border border-white/10 rounded-2xl shadow-2xl">
                 {/* Browser chrome */}
-                <div className="flex items-center gap-2 px-4 py-3 bg-white/5 rounded-t-xl border-b border-white/5">
+                <div className="flex items-center gap-2 px-4 py-3 bg-[#111] rounded-t-xl border-b border-white/5">
                   <div className="flex gap-1.5">
-                    <div className="w-3 h-3 rounded-full bg-red-500/60" />
-                    <div className="w-3 h-3 rounded-full bg-yellow-500/60" />
-                    <div className="w-3 h-3 rounded-full bg-green-500/60" />
+                    <div className="w-2.5 h-2.5 rounded-full bg-white/20 hover:bg-red-500/80 transition-colors" />
+                    <div className="w-2.5 h-2.5 rounded-full bg-white/20 hover:bg-yellow-500/80 transition-colors" />
+                    <div className="w-2.5 h-2.5 rounded-full bg-white/20 hover:bg-green-500/80 transition-colors" />
                   </div>
-                  <div className="flex-1 mx-4 px-4 py-1.5 bg-black/30 rounded-lg text-xs text-white/40 text-center">
-                    flowsite.studio/preview
+                  <div className="flex-1 mx-4 px-4 py-1.5 bg-black/50 rounded-md text-[11px] font-medium text-white/40 text-center flex items-center justify-center gap-2">
+                    <Globe size={10} className="opacity-50" /> flowsite.studio/preview
                   </div>
                 </div>
                 <AutoDemo onTryYourself={handleBlank} />
               </div>
-
-              {/* Mock Browser Controls Overlay */}
-              <div className="absolute top-12 left-16 hidden md:flex items-center gap-3 z-20">
-                <div className="px-4 py-1.5 rounded-full bg-white/10 backdrop-blur-md border border-white/10 text-[10px] font-bold text-white/40 uppercase tracking-widest flex items-center gap-2">
-                  <Globe size={10} /> flowsite.studio/preview-01
-                </div>
-              </div>
             </div>
-          </div>
-        </section>
-
-        {/* Social Proof Section (SaaS Plan Part 4) */}
-        <section className="py-20 relative border-t border-white/5 bg-[#020202]">
-          <div className="section-wrapper">
-            <RevealOnScroll direction="up">
-              <div className="grid grid-cols-2 md:grid-cols-4 gap-8 md:gap-12 text-center divide-x divide-white/5">
-                {[
-                  { value: '2M+', label: 'Deployments', icon: Globe },
-                  { value: '99.9%', label: 'Uptime', icon: Zap },
-                  { value: '150ms', label: 'Global Latency', icon: Rocket },
-                  { value: '10k+', label: 'Github Stars', icon: Github },
-                ].map((stat, i) => (
-                  <div key={i} className="space-y-3 flex flex-col items-center">
-                    <stat.icon size={20} className="text-white/30" />
-                    <div className="text-4xl md:text-5xl font-black text-white tracking-tighter">{stat.value}</div>
-                    <div className="text-xs font-bold text-white/40 uppercase tracking-widest">{stat.label}</div>
-                  </div>
-                ))}
-              </div>
-            </RevealOnScroll>
           </div>
         </section>
 
