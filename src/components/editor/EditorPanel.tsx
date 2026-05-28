@@ -479,21 +479,42 @@ export function EditorPanel() {
 
   return (
     <div className="w-[360px] border-r border-border bg-card shrink-0 flex flex-col h-full overflow-hidden">
-      {/* Website Type Header */}
-      <div className="p-4 border-b border-border bg-gradient-to-r from-primary/5 to-violet-500/5">
-        <div className="flex items-center gap-3 px-3 py-2.5 bg-card/80 backdrop-blur-sm rounded-xl border border-border">
-          <motion.div
-            whileHover={{ rotate: 360 }}
-            transition={{ duration: 1 }}
-            className="w-9 h-9 rounded-lg bg-gradient-to-br from-primary to-violet-500 flex items-center justify-center"
-          >
-            <TypeIcon size={18} className="text-white" />
-          </motion.div>
-          <div className="flex-1">
-            <h2 className="font-bold text-sm text-foreground capitalize">{websiteType}</h2>
-            <p className="text-xs text-muted-foreground">Editor Panel</p>
+      {/* Vercel-style Project Header */}
+      <div className="p-4 border-b border-border bg-card">
+        <div className="flex flex-col gap-4">
+          <div className="flex items-center justify-between">
+            <div className="flex items-center gap-2">
+              <div className="w-6 h-6 rounded border border-border flex items-center justify-center bg-muted/50 text-foreground">
+                <TypeIcon size={12} />
+              </div>
+              <div className="flex items-center gap-1.5 text-sm">
+                <span className="text-muted-foreground hover:text-foreground cursor-pointer transition-colors">Team</span>
+                <span className="text-muted-foreground/50">/</span>
+                <span className="font-semibold text-foreground truncate max-w-[120px] capitalize">{data.user.name || 'Untitled Project'}</span>
+              </div>
+            </div>
+            <div className="flex items-center gap-2">
+              <div className="px-2 py-0.5 rounded text-[10px] font-bold uppercase tracking-wider bg-emerald-500/10 text-emerald-500 flex items-center gap-1 border border-emerald-500/20">
+                <div className="w-1.5 h-1.5 rounded-full bg-emerald-500 animate-pulse" />
+                Live
+              </div>
+            </div>
           </div>
-          <div className="w-2 h-2 rounded-full bg-emerald-500 animate-pulse" />
+          
+          {/* Mock Command Palette Search */}
+          <button 
+            className="w-full h-9 bg-muted/50 hover:bg-muted border border-border rounded-lg flex items-center justify-between px-3 transition-colors text-muted-foreground group"
+            onClick={() => toast.info('Command Palette coming soon!', { description: 'Press ⌘K to search commands.' })}
+          >
+            <div className="flex items-center gap-2 text-xs font-medium">
+              <Scan size={14} className="group-hover:text-foreground transition-colors" />
+              <span>Search commands...</span>
+            </div>
+            <div className="flex items-center gap-1 text-[10px] opacity-70">
+              <kbd className="px-1.5 py-0.5 rounded bg-background border border-border font-sans">⌘</kbd>
+              <kbd className="px-1.5 py-0.5 rounded bg-background border border-border font-sans">K</kbd>
+            </div>
+          </button>
         </div>
       </div>
 

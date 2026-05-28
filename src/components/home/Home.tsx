@@ -117,10 +117,10 @@ function PreviewCard() {
         transition={{ type: 'spring', stiffness: 200, damping: 25 }}
         className="preserve-3d relative"
       >
-        {/* Glow effect */}
+        {/* Subtle shadow instead of excessive glow */}
         <motion.div
-          className="absolute -inset-6 bg-primary/20 rounded-[2.5rem] blur-3xl"
-          animate={{ opacity: isHovered ? 0.5 : 0.15 }}
+          className="absolute -inset-2 bg-black/40 rounded-[2.5rem] blur-xl"
+          animate={{ opacity: isHovered ? 0.8 : 0.4 }}
           transition={{ duration: 0.3 }}
         />
 
@@ -130,38 +130,39 @@ function PreviewCard() {
           transition={{ duration: 6, repeat: Infinity, ease: "easeInOut" }}
           className="relative"
         >
-          <div className="relative glass-premium border-white/10 bg-black/60 shadow-2xl overflow-hidden aspect-[4/3] flex flex-col">
+          <div className="relative glass-premium border-white/5 bg-[#0a0a0a] shadow-2xl overflow-hidden aspect-[4/3] flex flex-col rounded-3xl">
             {/* Mock Editor Navbar */}
-            <div className="h-12 border-b border-white/5 flex items-center justify-between px-6 bg-white/5 backdrop-blur-md">
-              <div className="flex gap-2">
-                <div className="w-3 h-3 rounded-full bg-red-500/50" />
-                <div className="w-3 h-3 rounded-full bg-yellow-500/50" />
-                <div className="w-3 h-3 rounded-full bg-green-500/50" />
+            <div className="h-10 border-b border-white/5 flex items-center justify-between px-4 bg-white/[0.02]">
+              <div className="flex gap-1.5">
+                <div className="w-2.5 h-2.5 rounded-full bg-white/10" />
+                <div className="w-2.5 h-2.5 rounded-full bg-white/10" />
+                <div className="w-2.5 h-2.5 rounded-full bg-white/10" />
               </div>
-              <div className="px-6 py-1.5 bg-primary/20 border border-primary/30 rounded-lg text-[10px] font-bold text-primary uppercase tracking-widest flex items-center gap-2">
+              <div className="px-4 py-1 bg-white/5 border border-white/10 rounded text-[10px] font-medium text-white/70 flex items-center gap-2">
                 <Code size={12} /> Export Code
               </div>
             </div>
 
             <div className="flex-1 flex overflow-hidden">
               {/* Mock Sidebar */}
-              <div className="w-20 border-r border-white/5 flex flex-col items-center py-6 gap-6 bg-white/5">
-                <div className="w-8 h-8 rounded-xl bg-primary/20 flex items-center justify-center text-primary"><Layout size={18} /></div>
-                <div className="w-8 h-8 rounded-xl bg-white/5 flex items-center justify-center text-white/20"><Type size={18} /></div>
-                <div className="w-8 h-8 rounded-xl bg-white/5 flex items-center justify-center text-white/20"><Palette size={18} /></div>
-                <div className="w-8 h-8 rounded-xl bg-white/5 flex items-center justify-center text-white/20"><Layers size={18} /></div>
+              <div className="w-16 border-r border-white/5 flex flex-col items-center py-4 gap-4 bg-white/[0.02]">
+                <div className="w-8 h-8 rounded-lg bg-white/10 flex items-center justify-center text-white"><Layout size={14} /></div>
+                <div className="w-8 h-8 rounded-lg flex items-center justify-center text-white/30"><Type size={14} /></div>
+                <div className="w-8 h-8 rounded-lg flex items-center justify-center text-white/30"><Palette size={14} /></div>
+                <div className="w-8 h-8 rounded-lg flex items-center justify-center text-white/30"><Layers size={14} /></div>
               </div>
 
               {/* Mock Canvas Area */}
-              <div className="flex-1 bg-[#030303] p-10 relative">
+              <div className="flex-1 bg-black p-8 relative">
                 <div className="absolute inset-0 wireframe-grid opacity-[0.02]" />
-                <div className="space-y-6 relative z-10">
-                  <div className="w-2/3 h-12 bg-white/5 rounded-2xl border border-white/10" />
-                  <div className="grid grid-cols-2 gap-4">
-                    <div className="h-32 bg-primary/5 border border-primary/20 rounded-2xl" />
-                    <div className="h-32 bg-white/5 border border-white/10 rounded-2xl" />
+                <div className="space-y-6 relative z-10 max-w-sm mx-auto pt-4">
+                  <div className="w-3/4 h-8 bg-white/10 rounded border border-white/5" />
+                  <div className="w-full h-4 bg-white/5 rounded border border-white/5" />
+                  <div className="w-5/6 h-4 bg-white/5 rounded border border-white/5" />
+                  <div className="grid grid-cols-2 gap-4 pt-4">
+                    <div className="h-24 bg-white/5 border border-white/10 rounded-lg" />
+                    <div className="h-24 bg-white/5 border border-white/10 rounded-lg" />
                   </div>
-                  <div className="w-full h-40 bg-white/5 rounded-2xl border border-white/10" />
                 </div>
               </div>
             </div>
@@ -319,10 +320,10 @@ export function Home({ onNavigate }: { onNavigate: () => void }) {
                     initial={{ opacity: 0, y: 20 }}
                     animate={{ opacity: 1, y: 0 }}
                     transition={{ duration: 0.8, ease: [0.22, 1, 0.36, 1] }}
-                    className="text-6xl md:text-7xl font-black tracking-tight text-white leading-[1.1]"
+                    className="text-5xl md:text-6xl font-black tracking-tight text-white leading-[1.1]"
                   >
-                    Build Websites Visually. <br />
-                    <span className="gradient-text">Export Real Code.</span>
+                    Ship your digital identity <br />
+                    <span className="text-white/60">in seconds.</span>
                   </motion.h1>
                   
                   <motion.p 
@@ -331,7 +332,7 @@ export function Home({ onNavigate }: { onNavigate: () => void }) {
                     transition={{ delay: 0.15, duration: 0.8, ease: [0.22, 1, 0.36, 1] }}
                     className="text-lg md:text-xl text-white/50 max-w-lg font-medium leading-relaxed"
                   >
-                    Design modern websites visually and export production-ready HTML, CSS, and JS instantly.
+                    The developer-first AI builder. Generate, customize, and deploy production-grade portfolios instantly. Zero dependencies, pure code.
                   </motion.p>
                 </div>
 
@@ -341,36 +342,33 @@ export function Home({ onNavigate }: { onNavigate: () => void }) {
                   transition={{ delay: 0.3, duration: 0.8, ease: [0.22, 1, 0.36, 1] }}
                   className="space-y-4"
                 >
-                  <div className="flex flex-wrap gap-6 items-center">
+                  <div className="flex flex-wrap gap-4 items-center">
                     <div className="space-y-2 text-center">
                       <motion.button
                         onClick={handleBlank}
                         whileHover={{ scale: 1.02 }}
                         whileTap={{ scale: 0.98 }}
-                        className="px-8 py-4 bg-primary text-white rounded-xl font-bold text-lg shadow-[0_10px_30px_rgba(124,58,237,0.3)] hover:shadow-[0_15px_40px_rgba(124,58,237,0.5),0_0_30px_rgba(124,58,237,0.3)] hover:-translate-y-0.5 transition-all flex items-center gap-2 group cursor-pointer"
+                        className="px-6 py-3 bg-white text-black rounded-lg font-semibold text-sm hover:bg-white/90 transition-all flex items-center gap-2 group cursor-pointer shadow-lg shadow-white/10"
                       >
-                        Start Building <ArrowRight size={20} className="group-hover:translate-x-1 transition-transform" />
+                        Start Building <ArrowRight size={16} className="group-hover:translate-x-1 transition-transform" />
                       </motion.button>
-                      <p className="text-[11px] font-bold uppercase tracking-widest text-white/20">No signup required</p>
                     </div>
 
                     <motion.button
                       onClick={scrollToDemo}
                       whileHover={{ scale: 1.02 }}
                       whileTap={{ scale: 0.98 }}
-                      className="px-8 py-4 bg-white/5 border border-white/10 text-white rounded-xl font-bold text-lg hover:bg-white/10 hover:border-white/20 hover:shadow-[0_0_20px_rgba(255,255,255,0.1)] transition-all flex items-center gap-2 cursor-pointer"
+                      className="px-6 py-3 bg-transparent border border-white/20 text-white rounded-lg font-semibold text-sm hover:bg-white/5 hover:border-white/30 transition-all flex items-center gap-2 cursor-pointer"
                     >
-                      See Live Demo <span className="text-white/40 text-sm font-medium ml-1">(10s)</span>
+                      View Live Demo
                     </motion.button>
                   </div>
 
                   {/* Trust Strip */}
-                  <div className="flex items-center gap-4 text-[10px] font-black uppercase tracking-[0.2em] text-white/30 pt-4">
-                    <span>Export real code</span>
-                    <span className="w-1 h-1 rounded-full bg-white/10" />
-                    <span>No vendor lock-in</span>
-                    <span className="w-1 h-1 rounded-full bg-white/10" />
-                    <span>Instant preview</span>
+                  <div className="flex items-center gap-4 text-xs font-medium text-white/40 pt-4">
+                    <span className="flex items-center gap-1"><Check size={14} className="text-emerald-500" /> Free export</span>
+                    <span className="flex items-center gap-1"><Check size={14} className="text-emerald-500" /> No vendor lock-in</span>
+                    <span className="flex items-center gap-1"><Check size={14} className="text-emerald-500" /> Instant preview</span>
                   </div>
                 </motion.div>
               </div>
@@ -381,97 +379,108 @@ export function Home({ onNavigate }: { onNavigate: () => void }) {
           </div>
         </section>
 
-        {/* Features Showcase */}
-        <section id="features" className="py-60 relative">
+        {/* Product Workflow Section (SaaS Plan Part 2) */}
+        <section id="workflow" className="py-40 relative border-t border-white/5 bg-black/20">
           <div className="section-wrapper">
             <RevealOnScroll direction="center">
-              <div className="text-center space-y-6 mb-24">
-                <div className="inline-flex items-center gap-3 px-4 py-1.5 bg-primary/10 border border-primary/20 rounded-full">
-                  <Zap size={12} className="text-primary" />
-                  <span className="text-[11px] font-black uppercase tracking-[0.2em] text-primary">Powerful Features</span>
+              <div className="text-center space-y-6 mb-24 max-w-3xl mx-auto">
+                <div className="inline-flex items-center gap-2 px-3 py-1 bg-white/5 border border-white/10 rounded-full">
+                  <Layers size={12} className="text-white/70" />
+                  <span className="text-[10px] font-bold uppercase tracking-widest text-white/70">How it works</span>
                 </div>
-                <h2 className="text-5xl md:text-7xl font-black tracking-tighter text-white uppercase leading-none">
-                  Everything you need to<br />build stunning websites
+                <h2 className="text-4xl md:text-5xl font-black tracking-tight text-white leading-tight">
+                  From idea to production <br className="hidden md:block" />
+                  <span className="text-white/40">in four seamless steps.</span>
                 </h2>
-                <p className="text-lg text-white/40 max-w-2xl mx-auto">
-                  From AI-powered content generation to instant export, FlowSite gives you all the tools to create professional websites without writing a single line of code.
+                <p className="text-lg text-white/50">
+                  Stop wrestling with complex frameworks. FlowSite streamlines the entire deployment pipeline so you can focus on your content.
                 </p>
               </div>
             </RevealOnScroll>
 
-            <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6">
-              {[
-                { icon: Wand2, title: 'AI Scanner', desc: 'Upload any image and let AI extract content, colors, and layout suggestions automatically.', color: 'from-violet-500 to-purple-600', glow: 'group-hover:shadow-[0_0_40px_rgba(168,85,247,0.3)]' },
-                { icon: Code, title: 'Export Code', desc: 'Download clean, production-ready HTML, CSS, and JavaScript. No dependencies, no lock-in.', color: 'from-blue-500 to-cyan-600', glow: 'group-hover:shadow-[0_0_40px_rgba(6,182,212,0.3)]' },
-                { icon: Eye, title: 'Live Preview', desc: 'See your changes instantly as you edit. Desktop, tablet, and mobile views in real-time.', color: 'from-emerald-500 to-teal-600', glow: 'group-hover:shadow-[0_0_40px_rgba(16,185,129,0.3)]' },
-                { icon: Layers, title: '4 Website Types', desc: 'Portfolio, College Projects, Business, or App Landing - choose the perfect template for your needs.', color: 'from-amber-500 to-orange-600', glow: 'group-hover:shadow-[0_0_40px_rgba(245,158,11,0.3)]' },
-                { icon: Palette, title: 'Theme Customizer', desc: 'Full control over colors, layouts, and styling. Dark mode, accent colors, and typography.', color: 'from-pink-500 to-rose-600', glow: 'group-hover:shadow-[0_0_40px_rgba(244,63,94,0.3)]' },
-                { icon: Sparkles, title: 'Instant Templates', desc: 'Start with professionally designed templates. Customize in seconds, not hours.', color: 'from-indigo-500 to-blue-600', glow: 'group-hover:shadow-[0_0_40px_rgba(99,102,241,0.3)]' },
-                { icon: Scan, title: 'Content Editor', desc: 'Edit projects, skills, experience, services and more with an intuitive visual editor.', color: 'from-cyan-500 to-sky-600', glow: 'group-hover:shadow-[0_0_40px_rgba(14,165,233,0.3)]' },
-                { icon: Rocket, title: 'No Signup Required', desc: 'Start building immediately. Your work is saved locally. Export when ready.', color: 'from-lime-500 to-green-600', glow: 'group-hover:shadow-[0_0_40px_rgba(132,204,22,0.3)]' },
-              ].map((feature, i) => (
-                <RevealOnScroll key={feature.title} delay={i * 0.1} direction="up">
-                  <ThreeDCard>
-                    <div className="glass-premium p-8 h-full border-white/5 hover:border-primary/30 cursor-pointer group transition-all">
-                      <div className={`w-14 h-14 rounded-2xl bg-gradient-to-br ${feature.color} flex items-center justify-center mb-6 shadow-lg transition-transform group-hover:scale-110 group-hover:rotate-6`}>
-                        <feature.icon size={28} className="text-white" />
-                      </div>
-                      <h3 className="text-xl font-black text-white uppercase mb-3 tracking-tight">{feature.title}</h3>
-                      <p className="text-sm text-white/40 font-medium leading-relaxed">{feature.desc}</p>
-                    </div>
-                  </ThreeDCard>
-                </RevealOnScroll>
-              ))}
-            </div>
+            <div className="relative">
+              {/* Connecting Line (Desktop) */}
+              <div className="hidden md:block absolute top-[45px] left-[10%] right-[10%] h-[1px] bg-gradient-to-r from-transparent via-white/10 to-transparent" />
 
-            {/* Quick Stats */}
-            <RevealOnScroll delay={0.3} direction="up">
-              <div className="mt-24 grid grid-cols-2 md:grid-cols-4 gap-8">
+              <div className="grid grid-cols-1 md:grid-cols-4 gap-12 relative z-10">
                 {[
-                  { value: '4', label: 'Website Types' },
-                  { value: '∞', label: 'Projects' },
-                  { value: '0', label: 'Cost' },
-                  { value: '100%', label: 'Export Ready' },
-                ].map((stat, i) => (
-                  <div key={stat.label} className="text-center p-8 rounded-3xl bg-white/5 border border-white/5">
-                    <div className="text-5xl font-black text-primary mb-2">{stat.value}</div>
-                    <div className="text-sm font-bold text-white/40 uppercase tracking-widest">{stat.label}</div>
-                  </div>
+                  { 
+                    step: '01', 
+                    title: 'Input', 
+                    desc: 'Upload a screenshot of your LinkedIn, resume, or just start typing. Our AI extracts your structure instantly.', 
+                    icon: Scan 
+                  },
+                  { 
+                    step: '02', 
+                    title: 'Process', 
+                    desc: 'Gemini 1.5 Flash generates your copy, selects optimal layouts, and sets up your design tokens automatically.', 
+                    icon: Sparkles 
+                  },
+                  { 
+                    step: '03', 
+                    title: 'Customize', 
+                    desc: 'Refine your design in our real-time visual editor. Tweak colors, layouts, and content with instant preview.', 
+                    icon: Layout 
+                  },
+                  { 
+                    step: '04', 
+                    title: 'Deploy', 
+                    desc: 'Export production-ready HTML/CSS or deploy directly to Vercel, GitHub Pages, or Netlify with zero lock-in.', 
+                    icon: Rocket 
+                  },
+                ].map((workflow, i) => (
+                  <RevealOnScroll key={workflow.step} delay={i * 0.15} direction="up">
+                    <div className="relative flex flex-col items-center text-center space-y-6 group">
+                      <div className="w-24 h-24 rounded-2xl bg-[#0a0a0a] border border-white/10 flex items-center justify-center relative overflow-hidden group-hover:border-white/30 transition-colors shadow-2xl">
+                        <div className="absolute inset-0 bg-gradient-to-b from-white/5 to-transparent opacity-0 group-hover:opacity-100 transition-opacity" />
+                        <workflow.icon size={32} className="text-white/70 group-hover:text-white transition-colors relative z-10" />
+                        <div className="absolute top-2 left-2 text-[10px] font-black text-white/20">{workflow.step}</div>
+                      </div>
+                      <div className="space-y-3 px-4">
+                        <h3 className="text-xl font-bold text-white tracking-tight">{workflow.title}</h3>
+                        <p className="text-sm text-white/50 leading-relaxed font-medium">
+                          {workflow.desc}
+                        </p>
+                      </div>
+                    </div>
+                  </RevealOnScroll>
                 ))}
               </div>
-            </RevealOnScroll>
+            </div>
           </div>
         </section>
 
-        {/* Templates Showcase */}
-        <section id="templates" className="py-40 relative bg-black/20">
+        {/* Real Use Cases (SaaS Plan Part 3) */}
+        <section id="templates" className="py-40 relative bg-[#050505] border-t border-white/5">
           <div className="section-wrapper">
             <RevealOnScroll direction="left">
               <div className="flex flex-col lg:flex-row items-end justify-between mb-20 gap-10">
                 <div className="space-y-4">
-                  <div className="inline-flex items-center gap-3 px-4 py-1.5 bg-primary/10 rounded-full">
-                    <span className="text-[11px] font-black uppercase tracking-[0.2em] text-primary">Templates</span>
+                  <div className="inline-flex items-center gap-2 px-3 py-1 bg-white/5 border border-white/10 rounded-full">
+                    <span className="text-[10px] font-bold uppercase tracking-widest text-white/70">Foundations</span>
                   </div>
-                  <h2 className="text-4xl md:text-6xl font-black tracking-tighter text-white">Choose Your Template</h2>
-                  <p className="text-lg text-white/50 max-w-xl">Start with a professionally designed template and customize it to fit your needs.</p>
+                  <h2 className="text-4xl md:text-5xl font-black tracking-tight text-white">Production-Grade Use Cases</h2>
+                  <p className="text-lg text-white/50 max-w-xl">Don't start from scratch. Choose a highly-optimized starting point tailored to your exact needs.</p>
                 </div>
-                <div className="flex gap-2 p-1.5 glass-premium rounded-2xl border-white/5 bg-black/40">
+                
+                {/* Vercel-style segmented control */}
+                <div className="flex gap-1 p-1 bg-white/5 border border-white/10 rounded-xl">
                   {[
                     { id: 'portfolio', title: 'Developer', icon: Code },
                     { id: 'college', title: 'Student', icon: Rocket },
-                    { id: 'business', title: 'Business', icon: Building2 },
-                    { id: 'app', title: 'Product', icon: AppWindow },
+                    { id: 'business', title: 'Startup', icon: Building2 },
+                    { id: 'app', title: 'SaaS', icon: AppWindow },
                   ].map((type) => (
                     <button
                       key={type.id}
                       onClick={() => setActiveWebsiteType(type.id as WebsiteType)}
-                      className={`px-6 py-3 rounded-xl text-sm font-semibold transition-all flex items-center gap-2 ${
+                      className={`px-4 py-2 rounded-lg text-sm font-semibold transition-all flex items-center gap-2 ${
                         activeWebsiteType === type.id
-                          ? 'bg-primary text-white shadow-lg shadow-primary/25'
-                          : 'text-white/50 hover:text-white hover:bg-white/5'
+                          ? 'bg-white/10 text-white shadow-sm'
+                          : 'text-white/50 hover:text-white hover:bg-white/[0.05]'
                       }`}
                     >
-                      <type.icon size={16} />
+                      <type.icon size={14} />
                       {type.title}
                     </button>
                   ))}
@@ -480,72 +489,50 @@ export function Home({ onNavigate }: { onNavigate: () => void }) {
             </RevealOnScroll>
 
             <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6 relative z-20">
-              {/* Start Blank */}
-              <ThreeDCard>
-                <div onClick={(e) => { e.stopPropagation(); handleBlank(); }} className="glass-premium p-8 h-full flex flex-col items-center justify-center border-dashed border-white/20 hover:border-primary/50 cursor-pointer group gap-4 min-h-[280px]">
-                  <div className="w-16 h-16 rounded-2xl bg-white/5 flex items-center justify-center border border-white/10 group-hover:scale-110 group-hover:border-primary/30 transition-all">
-                    <Plus size={32} className="text-white/30 group-hover:text-primary transition-colors" />
-                  </div>
-                  <div className="text-center">
-                    <h3 className="text-xl font-bold text-white">Start Blank</h3>
-                    <p className="text-sm text-white/40 mt-1">Empty canvas for full control</p>
-                  </div>
+              {/* Initialize Empty Project */}
+              <motion.div
+                whileHover={{ y: -4 }}
+                transition={{ duration: 0.2 }}
+                onClick={(e) => { e.stopPropagation(); handleBlank(); }}
+                className="bg-[#0a0a0a] p-8 h-full flex flex-col items-center justify-center border border-dashed border-white/20 hover:border-white/40 cursor-pointer group gap-4 min-h-[280px] rounded-2xl"
+              >
+                <div className="w-12 h-12 rounded-xl bg-white/5 flex items-center justify-center border border-white/10 group-hover:scale-110 group-hover:bg-white/10 transition-all">
+                  <Plus size={24} className="text-white/50 group-hover:text-white transition-colors" />
                 </div>
-              </ThreeDCard>
+                <div className="text-center">
+                  <h3 className="text-lg font-bold text-white tracking-tight">Initialize Empty Project</h3>
+                  <p className="text-sm text-white/40 mt-1 font-medium">Start with a blank canvas</p>
+                </div>
+              </motion.div>
 
-              {/* Pre-built Templates (2 per category) */}
+              {/* Pre-built Templates */}
               {templates.slice(0, 2).map((template: any, i: number) => (
                 <RevealOnScroll key={i} delay={i * 0.1} direction="center">
-                  <ThreeDCard className="h-full">
-                    <div onClick={(e) => { e.stopPropagation(); handleSelectTemplate(template.data); }} className="glass-premium p-6 h-full flex flex-col justify-between border-white/5 hover:border-primary/50 cursor-pointer group min-h-[280px]">
-                      <div className="space-y-4">
-                        <div className="flex items-center justify-between">
-                          <div className={`p-3 rounded-2xl bg-gradient-to-br ${template.color} shadow-lg`}>
-                            <template.icon size={24} className="text-white" />
-                          </div>
-                          <span className="text-[10px] font-semibold uppercase tracking-widest text-white/30">Template</span>
+                  <motion.div
+                    whileHover={{ y: -4 }}
+                    transition={{ duration: 0.2 }}
+                    onClick={(e) => { e.stopPropagation(); handleSelectTemplate(template.data); }}
+                    className="bg-[#0a0a0a] p-8 h-full flex flex-col justify-between border border-white/10 hover:border-white/30 cursor-pointer group min-h-[280px] rounded-2xl shadow-xl shadow-black/50"
+                  >
+                    <div className="space-y-6">
+                      <div className="flex items-center justify-between">
+                        <div className={`p-3 rounded-xl bg-gradient-to-br ${template.color} shadow-lg`}>
+                          <template.icon size={20} className="text-white" />
                         </div>
-                        <div className="space-y-2">
-                          <h3 className="text-2xl font-bold text-white">{template.title}</h3>
-                          <p className="text-sm text-white/50 leading-relaxed">{template.subtitle}</p>
-                        </div>
+                        <span className="text-[10px] font-bold uppercase tracking-widest text-white/30">Template</span>
                       </div>
-                      <div className="flex items-center justify-between pt-4 border-t border-white/5">
-                        <span className="text-sm font-semibold text-primary">Use Template</span>
-                        <div className="w-8 h-8 rounded-lg border border-white/10 flex items-center justify-center group-hover:bg-primary group-hover:border-transparent transition-all">
-                          <ArrowRight size={16} className="text-white" />
-                        </div>
+                      <div className="space-y-1">
+                        <h3 className="text-xl font-bold text-white tracking-tight">{template.title}</h3>
+                        <p className="text-sm text-white/50 leading-relaxed font-medium">{template.subtitle}</p>
                       </div>
                     </div>
-                  </ThreeDCard>
+                    <div className="flex items-center justify-between pt-6 border-t border-white/5 mt-6">
+                      <span className="text-sm font-semibold text-white/70 group-hover:text-white transition-colors">Deploy Template</span>
+                      <ArrowRight size={16} className="text-white/30 group-hover:text-white group-hover:translate-x-1 transition-all" />
+                    </div>
+                  </motion.div>
                 </RevealOnScroll>
               ))}
-
-              {/* More Templates Card */}
-              <ThreeDCard>
-                <div onClick={() => setShowMoreTemplates(true)} className="glass-premium p-6 h-full flex flex-col items-center justify-center border-white/10 hover:border-primary/50 cursor-pointer group gap-4 min-h-[280px]">
-                  <div className="w-16 h-16 rounded-2xl bg-primary/10 flex items-center justify-center border border-primary/20 group-hover:scale-110 group-hover:bg-primary/20 transition-all">
-                    <Layers size={32} className="text-primary group-hover:text-white transition-colors" />
-                  </div>
-                  <div className="text-center">
-                    <h3 className="text-xl font-bold text-white">More Templates</h3>
-                    <p className="text-sm text-white/40 mt-1">Browse additional options</p>
-                  </div>
-                </div>
-              </ThreeDCard>
-
-              {/* Suggest Template Card */}
-              <ThreeDCard>
-                <div onClick={() => setShowSuggestTemplate(true)} className="glass-premium p-6 h-full flex flex-col items-center justify-center border-white/10 hover:border-yellow-500/50 cursor-pointer group gap-4 min-h-[280px]">
-                  <div className="w-16 h-16 rounded-2xl bg-yellow-500/10 flex items-center justify-center border border-yellow-500/20 group-hover:scale-110 group-hover:bg-yellow-500/20 transition-all">
-                    <Lightbulb size={32} className="text-yellow-400 group-hover:text-white transition-colors" />
-                  </div>
-                  <div className="text-center">
-                    <h3 className="text-xl font-bold text-white">Suggest Template</h3>
-                    <p className="text-sm text-white/40 mt-1">Request a custom template</p>
-                  </div>
-                </div>
-              </ThreeDCard>
             </div>
           </div>
         </section>
@@ -598,39 +585,124 @@ export function Home({ onNavigate }: { onNavigate: () => void }) {
           </div>
         </section>
 
-        {/* Pricing Section */}
-        <section id="pricing" className="py-40">
+        {/* Social Proof Section (SaaS Plan Part 4) */}
+        <section className="py-20 relative border-t border-white/5 bg-[#020202]">
           <div className="section-wrapper">
-            <div className="text-center space-y-4 mb-16">
-              <div className="inline-flex items-center gap-3 px-4 py-1.5 bg-emerald-500/10 rounded-full">
-                <span className="text-[11px] font-black uppercase tracking-[0.2em] text-emerald-400">Free Forever</span>
-              </div>
-              <h2 className="text-4xl md:text-6xl font-black tracking-tighter text-white">No Hidden Costs</h2>
-              <p className="text-lg text-white/50 max-w-xl mx-auto">Everything you need to build professional websites, completely free. No credit card required.</p>
-            </div>
-
-            <div className="max-w-3xl mx-auto glass-premium p-10 border-primary/20 rounded-3xl">
-              <div className="grid grid-cols-2 md:grid-cols-3 gap-8 mb-12">
+            <RevealOnScroll direction="up">
+              <div className="grid grid-cols-2 md:grid-cols-4 gap-8 md:gap-12 text-center divide-x divide-white/5">
                 {[
-                  { title: 'Unlimited Projects', desc: 'Create as many as you want' },
-                  { title: 'Export Code', desc: 'Yours forever, no lock-in' },
-                  { title: 'AI Assistance', desc: 'Smart suggestions' },
-                  { title: '3D Canvas', desc: 'Visual editing made easy' },
-                  { title: 'Production Ready', desc: 'Optimized output' },
-                  { title: 'Instant Preview', desc: 'Real-time changes' },
-                ].map((item) => (
-                  <div key={item.title} className="text-center space-y-2">
-                    <div className="w-10 h-10 mx-auto rounded-xl bg-primary/20 flex items-center justify-center">
-                      <Check size={18} className="text-primary" />
-                    </div>
-                    <h4 className="font-bold text-white text-sm">{item.title}</h4>
-                    <p className="text-xs text-white/40">{item.desc}</p>
+                  { value: '2M+', label: 'Deployments', icon: Globe },
+                  { value: '99.9%', label: 'Uptime', icon: Zap },
+                  { value: '150ms', label: 'Global Latency', icon: Rocket },
+                  { value: '10k+', label: 'Github Stars', icon: Github },
+                ].map((stat, i) => (
+                  <div key={i} className="space-y-3 flex flex-col items-center">
+                    <stat.icon size={20} className="text-white/30" />
+                    <div className="text-4xl md:text-5xl font-black text-white tracking-tighter">{stat.value}</div>
+                    <div className="text-xs font-bold text-white/40 uppercase tracking-widest">{stat.label}</div>
                   </div>
                 ))}
               </div>
-              <button onClick={handleBlank} className="w-full py-5 bg-white text-black rounded-2xl font-bold text-lg hover:scale-[1.01] transition-all shadow-lg">
-                Start Building Free
-              </button>
+            </RevealOnScroll>
+          </div>
+        </section>
+
+        {/* Pricing Section (SaaS Plan Part 5) */}
+        <section id="pricing" className="py-40 relative bg-black">
+          <div className="section-wrapper">
+            <RevealOnScroll direction="center">
+              <div className="text-center space-y-6 mb-24 max-w-3xl mx-auto">
+                <div className="inline-flex items-center gap-2 px-3 py-1 bg-white/5 border border-white/10 rounded-full">
+                  <CreditCard size={12} className="text-white/70" />
+                  <span className="text-[10px] font-bold uppercase tracking-widest text-white/70">Pricing</span>
+                </div>
+                <h2 className="text-4xl md:text-5xl font-black tracking-tight text-white leading-tight">
+                  Predictable pricing, <br className="hidden md:block" />
+                  <span className="text-white/40">designed to scale.</span>
+                </h2>
+                <p className="text-lg text-white/50">
+                  Start for free, upgrade when you need team collaboration and advanced AI capabilities.
+                </p>
+              </div>
+            </RevealOnScroll>
+
+            <div className="grid grid-cols-1 md:grid-cols-3 gap-8 max-w-6xl mx-auto">
+              {/* Hobby Tier */}
+              <RevealOnScroll delay={0.1} direction="up">
+                <div className="bg-[#0a0a0a] p-8 rounded-3xl border border-white/10 flex flex-col h-full hover:border-white/30 transition-colors">
+                  <div className="space-y-4 mb-8">
+                    <h3 className="text-xl font-bold text-white">Hobby</h3>
+                    <p className="text-sm text-white/50 h-10">For personal projects and experiments.</p>
+                    <div className="flex items-baseline gap-1">
+                      <span className="text-4xl font-black text-white">$0</span>
+                      <span className="text-sm text-white/50">/mo</span>
+                    </div>
+                  </div>
+                  <ul className="space-y-4 mb-8 flex-1">
+                    {['Unlimited local projects', 'Standard templates', 'Export HTML/CSS', 'Community support'].map(feature => (
+                      <li key={feature} className="flex items-start gap-3 text-sm text-white/70">
+                        <Check size={16} className="text-white/30 shrink-0 mt-0.5" />
+                        {feature}
+                      </li>
+                    ))}
+                  </ul>
+                  <button onClick={handleBlank} className="w-full py-3 bg-white/5 hover:bg-white/10 text-white rounded-xl font-bold text-sm transition-colors border border-white/10">
+                    Start for free
+                  </button>
+                </div>
+              </RevealOnScroll>
+
+              {/* Pro Tier */}
+              <RevealOnScroll delay={0.2} direction="up">
+                <div className="bg-[#0a0a0a] p-8 rounded-3xl border border-primary/50 relative shadow-2xl shadow-primary/10 flex flex-col h-full transform md:-translate-y-4">
+                  <div className="absolute top-0 left-1/2 -translate-x-1/2 -translate-y-1/2 px-3 py-1 bg-primary text-white text-[10px] font-bold uppercase tracking-widest rounded-full">
+                    Most Popular
+                  </div>
+                  <div className="space-y-4 mb-8">
+                    <h3 className="text-xl font-bold text-white">Pro</h3>
+                    <p className="text-sm text-white/50 h-10">For freelancers and professional developers.</p>
+                    <div className="flex items-baseline gap-1">
+                      <span className="text-4xl font-black text-white">$20</span>
+                      <span className="text-sm text-white/50">/mo</span>
+                    </div>
+                  </div>
+                  <ul className="space-y-4 mb-8 flex-1">
+                    {['Everything in Hobby', 'Unlimited AI Generations', 'Premium templates', 'One-click Vercel deploy', 'Remove branding'].map(feature => (
+                      <li key={feature} className="flex items-start gap-3 text-sm text-white">
+                        <Check size={16} className="text-primary shrink-0 mt-0.5" />
+                        {feature}
+                      </li>
+                    ))}
+                  </ul>
+                  <button onClick={handleBlank} className="w-full py-3 bg-white text-black rounded-xl font-bold text-sm hover:scale-[1.02] transition-transform shadow-lg shadow-white/10">
+                    Upgrade to Pro
+                  </button>
+                </div>
+              </RevealOnScroll>
+
+              {/* Enterprise Tier */}
+              <RevealOnScroll delay={0.3} direction="up">
+                <div className="bg-[#0a0a0a] p-8 rounded-3xl border border-white/10 flex flex-col h-full hover:border-white/30 transition-colors">
+                  <div className="space-y-4 mb-8">
+                    <h3 className="text-xl font-bold text-white">Enterprise</h3>
+                    <p className="text-sm text-white/50 h-10">Custom solutions for scaling teams.</p>
+                    <div className="flex items-baseline gap-1">
+                      <span className="text-4xl font-black text-white">Custom</span>
+                    </div>
+                  </div>
+                  <ul className="space-y-4 mb-8 flex-1">
+                    {['Everything in Pro', 'Custom AI models', 'SSO & Advanced Security', 'Dedicated success manager', 'SLA 99.99%'].map(feature => (
+                      <li key={feature} className="flex items-start gap-3 text-sm text-white/70">
+                        <Check size={16} className="text-white/30 shrink-0 mt-0.5" />
+                        {feature}
+                      </li>
+                    ))}
+                  </ul>
+                  <button className="w-full py-3 bg-white/5 hover:bg-white/10 text-white rounded-xl font-bold text-sm transition-colors border border-white/10">
+                    Contact Sales
+                  </button>
+                </div>
+              </RevealOnScroll>
             </div>
           </div>
         </section>
