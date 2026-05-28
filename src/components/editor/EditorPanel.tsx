@@ -3,6 +3,7 @@ import { createPortal } from 'react-dom';
 import { useBuilder, WebsiteType } from '../../context/BuilderContext';
 import { User, FolderOpen, Palette, Scan, Image, Plus, Trash2, GraduationCap, Building2, AppWindow, Code, Layers, Sparkles, Mail, MapPin, Settings2, X, ChevronDown, GripVertical, Edit3, Zap, Moon, Sun, Upload, Video, Type, Layout, Move, Sliders, Eye, Clock, Wand2, ChevronRight, Check, Briefcase, RefreshCcw, AlertCircle, FileText, Loader2, EyeOff, Dices } from 'lucide-react';
 import { motion, AnimatePresence } from 'motion/react';
+import { AvatarEditor } from './AvatarEditor';
 import { isGeminiConfigured } from '../../lib/gemini';
 import { DndContext, closestCenter, KeyboardSensor, PointerSensor, useSensor, useSensors, DragEndEvent } from '@dnd-kit/core';
 import { arrayMove, SortableContext, sortableKeyboardCoordinates, verticalListSortingStrategy, useSortable } from '@dnd-kit/sortable';
@@ -247,7 +248,6 @@ export function EditorPanel() {
   const [sectionExpand, setSectionExpand] = useState<string | null>('hero');
   const [showResetModal, setShowResetModal] = useState(false);
   const fileInputRef = useRef<HTMLInputElement>(null);
-  const avatarInputRef = useRef<HTMLInputElement>(null);
 
   // New AI Scanner State
   const [isDragging, setIsDragging] = useState(false);
@@ -312,18 +312,6 @@ export function EditorPanel() {
   };
 
   const TypeIcon = typeIcons[websiteType];
-
-  // Avatar upload handler
-  const handleAvatarUpload = (e: React.ChangeEvent<HTMLInputElement>) => {
-    const file = e.target.files?.[0];
-    if (file) {
-      const reader = new FileReader();
-      reader.onloadend = () => {
-        updateUser({ avatar: reader.result as string });
-      };
-      reader.readAsDataURL(file);
-    }
-  };
 
   // Animation speed options
   const animationSpeeds = [
@@ -543,36 +531,9 @@ export function EditorPanel() {
               exit={{ opacity: 0, x: 20 }}
               className="space-y-4"
             >
-              {/* Avatar Upload */}
+              {/* Avatar Editor Upgrade (Part 6C) */}
               <div className="p-4 bg-muted/30 rounded-xl border border-border">
-                <div className="flex items-center gap-2 mb-3">
-                  <User size={14} className="text-blue-500" />
-                  <h4 className="font-semibold text-xs text-foreground">Profile Picture</h4>
-                </div>
-                <div className="flex items-center gap-4">
-                  <div className="relative">
-                    <div className="w-20 h-20 rounded-2xl bg-gradient-to-br from-primary/20 to-violet-500/20 border-2 border-dashed border-border overflow-hidden flex items-center justify-center">
-                      {data.user.avatar ? (
-                        <img src={data.user.avatar} alt="Avatar" className="w-full h-full object-cover" />
-                      ) : (
-                        <User size={32} className="text-muted-foreground" />
-                      )}
-                    </div>
-                    <input type="file" ref={avatarInputRef} accept="image/*" onChange={handleAvatarUpload} className="hidden" />
-                    <motion.button
-                      whileHover={{ scale: 1.1 }}
-                      whileTap={{ scale: 0.9 }}
-                      onClick={() => avatarInputRef.current?.click()}
-                      className="absolute -bottom-2 -right-2 w-8 h-8 bg-primary rounded-full flex items-center justify-center shadow-lg"
-                    >
-                      <Upload size={14} className="text-white" />
-                    </motion.button>
-                  </div>
-                  <div className="flex-1">
-                    <p className="text-xs text-muted-foreground mb-1">Upload your photo</p>
-                    <p className="text-[10px] text-muted-foreground">JPG, PNG up to 2MB</p>
-                  </div>
-                </div>
+                <AvatarEditor />
               </div>
 
               {/* AI Scanner */}
