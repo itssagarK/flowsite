@@ -127,7 +127,7 @@ export function EditorPanel() {
   const TypeIcon = typeIcons[websiteType];
 
   return (
-    <div className="w-[360px] border-r border-border bg-card shrink-0 flex flex-col h-full overflow-hidden">
+    <div className="w-[85vw] sm:w-[360px] border-r border-border bg-card shrink-0 flex flex-col h-full overflow-hidden shadow-2xl lg:shadow-none">
       <CommandPalette isOpen={showCommandPalette} setOpen={setShowCommandPalette} />
       {/* Vercel-style Project Header */}
       <div className="p-4 border-b border-border bg-card">
