@@ -117,10 +117,10 @@ function PreviewCard() {
         transition={{ type: 'spring', stiffness: 200, damping: 25 }}
         className="preserve-3d relative"
       >
-        {/* Glow effect */}
+        {/* Subtle shadow instead of excessive glow */}
         <motion.div
-          className="absolute -inset-6 bg-primary/20 rounded-[2.5rem] blur-3xl"
-          animate={{ opacity: isHovered ? 0.5 : 0.15 }}
+          className="absolute -inset-2 bg-black/40 rounded-[2.5rem] blur-xl"
+          animate={{ opacity: isHovered ? 0.8 : 0.4 }}
           transition={{ duration: 0.3 }}
         />
 
@@ -130,38 +130,39 @@ function PreviewCard() {
           transition={{ duration: 6, repeat: Infinity, ease: "easeInOut" }}
           className="relative"
         >
-          <div className="relative glass-premium border-white/10 bg-black/60 shadow-2xl overflow-hidden aspect-[4/3] flex flex-col">
+          <div className="relative glass-premium border-white/5 bg-[#0a0a0a] shadow-2xl overflow-hidden aspect-[4/3] flex flex-col rounded-3xl">
             {/* Mock Editor Navbar */}
-            <div className="h-12 border-b border-white/5 flex items-center justify-between px-6 bg-white/5 backdrop-blur-md">
-              <div className="flex gap-2">
-                <div className="w-3 h-3 rounded-full bg-red-500/50" />
-                <div className="w-3 h-3 rounded-full bg-yellow-500/50" />
-                <div className="w-3 h-3 rounded-full bg-green-500/50" />
+            <div className="h-10 border-b border-white/5 flex items-center justify-between px-4 bg-white/[0.02]">
+              <div className="flex gap-1.5">
+                <div className="w-2.5 h-2.5 rounded-full bg-white/10" />
+                <div className="w-2.5 h-2.5 rounded-full bg-white/10" />
+                <div className="w-2.5 h-2.5 rounded-full bg-white/10" />
               </div>
-              <div className="px-6 py-1.5 bg-primary/20 border border-primary/30 rounded-lg text-[10px] font-bold text-primary uppercase tracking-widest flex items-center gap-2">
+              <div className="px-4 py-1 bg-white/5 border border-white/10 rounded text-[10px] font-medium text-white/70 flex items-center gap-2">
                 <Code size={12} /> Export Code
               </div>
             </div>
 
             <div className="flex-1 flex overflow-hidden">
               {/* Mock Sidebar */}
-              <div className="w-20 border-r border-white/5 flex flex-col items-center py-6 gap-6 bg-white/5">
-                <div className="w-8 h-8 rounded-xl bg-primary/20 flex items-center justify-center text-primary"><Layout size={18} /></div>
-                <div className="w-8 h-8 rounded-xl bg-white/5 flex items-center justify-center text-white/20"><Type size={18} /></div>
-                <div className="w-8 h-8 rounded-xl bg-white/5 flex items-center justify-center text-white/20"><Palette size={18} /></div>
-                <div className="w-8 h-8 rounded-xl bg-white/5 flex items-center justify-center text-white/20"><Layers size={18} /></div>
+              <div className="w-16 border-r border-white/5 flex flex-col items-center py-4 gap-4 bg-white/[0.02]">
+                <div className="w-8 h-8 rounded-lg bg-white/10 flex items-center justify-center text-white"><Layout size={14} /></div>
+                <div className="w-8 h-8 rounded-lg flex items-center justify-center text-white/30"><Type size={14} /></div>
+                <div className="w-8 h-8 rounded-lg flex items-center justify-center text-white/30"><Palette size={14} /></div>
+                <div className="w-8 h-8 rounded-lg flex items-center justify-center text-white/30"><Layers size={14} /></div>
               </div>
 
               {/* Mock Canvas Area */}
-              <div className="flex-1 bg-[#030303] p-10 relative">
+              <div className="flex-1 bg-black p-8 relative">
                 <div className="absolute inset-0 wireframe-grid opacity-[0.02]" />
-                <div className="space-y-6 relative z-10">
-                  <div className="w-2/3 h-12 bg-white/5 rounded-2xl border border-white/10" />
-                  <div className="grid grid-cols-2 gap-4">
-                    <div className="h-32 bg-primary/5 border border-primary/20 rounded-2xl" />
-                    <div className="h-32 bg-white/5 border border-white/10 rounded-2xl" />
+                <div className="space-y-6 relative z-10 max-w-sm mx-auto pt-4">
+                  <div className="w-3/4 h-8 bg-white/10 rounded border border-white/5" />
+                  <div className="w-full h-4 bg-white/5 rounded border border-white/5" />
+                  <div className="w-5/6 h-4 bg-white/5 rounded border border-white/5" />
+                  <div className="grid grid-cols-2 gap-4 pt-4">
+                    <div className="h-24 bg-white/5 border border-white/10 rounded-lg" />
+                    <div className="h-24 bg-white/5 border border-white/10 rounded-lg" />
                   </div>
-                  <div className="w-full h-40 bg-white/5 rounded-2xl border border-white/10" />
                 </div>
               </div>
             </div>
@@ -319,10 +320,10 @@ export function Home({ onNavigate }: { onNavigate: () => void }) {
                     initial={{ opacity: 0, y: 20 }}
                     animate={{ opacity: 1, y: 0 }}
                     transition={{ duration: 0.8, ease: [0.22, 1, 0.36, 1] }}
-                    className="text-6xl md:text-7xl font-black tracking-tight text-white leading-[1.1]"
+                    className="text-5xl md:text-6xl font-black tracking-tight text-white leading-[1.1]"
                   >
-                    Build Websites Visually. <br />
-                    <span className="gradient-text">Export Real Code.</span>
+                    Ship your digital identity <br />
+                    <span className="text-white/60">in seconds.</span>
                   </motion.h1>
                   
                   <motion.p 
@@ -331,7 +332,7 @@ export function Home({ onNavigate }: { onNavigate: () => void }) {
                     transition={{ delay: 0.15, duration: 0.8, ease: [0.22, 1, 0.36, 1] }}
                     className="text-lg md:text-xl text-white/50 max-w-lg font-medium leading-relaxed"
                   >
-                    Design modern websites visually and export production-ready HTML, CSS, and JS instantly.
+                    The developer-first AI builder. Generate, customize, and deploy production-grade portfolios instantly. Zero dependencies, pure code.
                   </motion.p>
                 </div>
 
@@ -341,36 +342,33 @@ export function Home({ onNavigate }: { onNavigate: () => void }) {
                   transition={{ delay: 0.3, duration: 0.8, ease: [0.22, 1, 0.36, 1] }}
                   className="space-y-4"
                 >
-                  <div className="flex flex-wrap gap-6 items-center">
+                  <div className="flex flex-wrap gap-4 items-center">
                     <div className="space-y-2 text-center">
                       <motion.button
                         onClick={handleBlank}
                         whileHover={{ scale: 1.02 }}
                         whileTap={{ scale: 0.98 }}
-                        className="px-8 py-4 bg-primary text-white rounded-xl font-bold text-lg shadow-[0_10px_30px_rgba(124,58,237,0.3)] hover:shadow-[0_15px_40px_rgba(124,58,237,0.5),0_0_30px_rgba(124,58,237,0.3)] hover:-translate-y-0.5 transition-all flex items-center gap-2 group cursor-pointer"
+                        className="px-6 py-3 bg-white text-black rounded-lg font-semibold text-sm hover:bg-white/90 transition-all flex items-center gap-2 group cursor-pointer shadow-lg shadow-white/10"
                       >
-                        Start Building <ArrowRight size={20} className="group-hover:translate-x-1 transition-transform" />
+                        Start Building <ArrowRight size={16} className="group-hover:translate-x-1 transition-transform" />
                       </motion.button>
-                      <p className="text-[11px] font-bold uppercase tracking-widest text-white/20">No signup required</p>
                     </div>
 
                     <motion.button
                       onClick={scrollToDemo}
                       whileHover={{ scale: 1.02 }}
                       whileTap={{ scale: 0.98 }}
-                      className="px-8 py-4 bg-white/5 border border-white/10 text-white rounded-xl font-bold text-lg hover:bg-white/10 hover:border-white/20 hover:shadow-[0_0_20px_rgba(255,255,255,0.1)] transition-all flex items-center gap-2 cursor-pointer"
+                      className="px-6 py-3 bg-transparent border border-white/20 text-white rounded-lg font-semibold text-sm hover:bg-white/5 hover:border-white/30 transition-all flex items-center gap-2 cursor-pointer"
                     >
-                      See Live Demo <span className="text-white/40 text-sm font-medium ml-1">(10s)</span>
+                      View Live Demo
                     </motion.button>
                   </div>
 
                   {/* Trust Strip */}
-                  <div className="flex items-center gap-4 text-[10px] font-black uppercase tracking-[0.2em] text-white/30 pt-4">
-                    <span>Export real code</span>
-                    <span className="w-1 h-1 rounded-full bg-white/10" />
-                    <span>No vendor lock-in</span>
-                    <span className="w-1 h-1 rounded-full bg-white/10" />
-                    <span>Instant preview</span>
+                  <div className="flex items-center gap-4 text-xs font-medium text-white/40 pt-4">
+                    <span className="flex items-center gap-1"><Check size={14} className="text-emerald-500" /> Free export</span>
+                    <span className="flex items-center gap-1"><Check size={14} className="text-emerald-500" /> No vendor lock-in</span>
+                    <span className="flex items-center gap-1"><Check size={14} className="text-emerald-500" /> Instant preview</span>
                   </div>
                 </motion.div>
               </div>
