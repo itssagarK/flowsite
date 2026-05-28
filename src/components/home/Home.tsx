@@ -585,39 +585,124 @@ export function Home({ onNavigate }: { onNavigate: () => void }) {
           </div>
         </section>
 
-        {/* Pricing Section */}
-        <section id="pricing" className="py-40">
+        {/* Social Proof Section (SaaS Plan Part 4) */}
+        <section className="py-20 relative border-t border-white/5 bg-[#020202]">
           <div className="section-wrapper">
-            <div className="text-center space-y-4 mb-16">
-              <div className="inline-flex items-center gap-3 px-4 py-1.5 bg-emerald-500/10 rounded-full">
-                <span className="text-[11px] font-black uppercase tracking-[0.2em] text-emerald-400">Free Forever</span>
-              </div>
-              <h2 className="text-4xl md:text-6xl font-black tracking-tighter text-white">No Hidden Costs</h2>
-              <p className="text-lg text-white/50 max-w-xl mx-auto">Everything you need to build professional websites, completely free. No credit card required.</p>
-            </div>
-
-            <div className="max-w-3xl mx-auto glass-premium p-10 border-primary/20 rounded-3xl">
-              <div className="grid grid-cols-2 md:grid-cols-3 gap-8 mb-12">
+            <RevealOnScroll direction="up">
+              <div className="grid grid-cols-2 md:grid-cols-4 gap-8 md:gap-12 text-center divide-x divide-white/5">
                 {[
-                  { title: 'Unlimited Projects', desc: 'Create as many as you want' },
-                  { title: 'Export Code', desc: 'Yours forever, no lock-in' },
-                  { title: 'AI Assistance', desc: 'Smart suggestions' },
-                  { title: '3D Canvas', desc: 'Visual editing made easy' },
-                  { title: 'Production Ready', desc: 'Optimized output' },
-                  { title: 'Instant Preview', desc: 'Real-time changes' },
-                ].map((item) => (
-                  <div key={item.title} className="text-center space-y-2">
-                    <div className="w-10 h-10 mx-auto rounded-xl bg-primary/20 flex items-center justify-center">
-                      <Check size={18} className="text-primary" />
-                    </div>
-                    <h4 className="font-bold text-white text-sm">{item.title}</h4>
-                    <p className="text-xs text-white/40">{item.desc}</p>
+                  { value: '2M+', label: 'Deployments', icon: Globe },
+                  { value: '99.9%', label: 'Uptime', icon: Zap },
+                  { value: '150ms', label: 'Global Latency', icon: Rocket },
+                  { value: '10k+', label: 'Github Stars', icon: Github },
+                ].map((stat, i) => (
+                  <div key={i} className="space-y-3 flex flex-col items-center">
+                    <stat.icon size={20} className="text-white/30" />
+                    <div className="text-4xl md:text-5xl font-black text-white tracking-tighter">{stat.value}</div>
+                    <div className="text-xs font-bold text-white/40 uppercase tracking-widest">{stat.label}</div>
                   </div>
                 ))}
               </div>
-              <button onClick={handleBlank} className="w-full py-5 bg-white text-black rounded-2xl font-bold text-lg hover:scale-[1.01] transition-all shadow-lg">
-                Start Building Free
-              </button>
+            </RevealOnScroll>
+          </div>
+        </section>
+
+        {/* Pricing Section (SaaS Plan Part 5) */}
+        <section id="pricing" className="py-40 relative bg-black">
+          <div className="section-wrapper">
+            <RevealOnScroll direction="center">
+              <div className="text-center space-y-6 mb-24 max-w-3xl mx-auto">
+                <div className="inline-flex items-center gap-2 px-3 py-1 bg-white/5 border border-white/10 rounded-full">
+                  <CreditCard size={12} className="text-white/70" />
+                  <span className="text-[10px] font-bold uppercase tracking-widest text-white/70">Pricing</span>
+                </div>
+                <h2 className="text-4xl md:text-5xl font-black tracking-tight text-white leading-tight">
+                  Predictable pricing, <br className="hidden md:block" />
+                  <span className="text-white/40">designed to scale.</span>
+                </h2>
+                <p className="text-lg text-white/50">
+                  Start for free, upgrade when you need team collaboration and advanced AI capabilities.
+                </p>
+              </div>
+            </RevealOnScroll>
+
+            <div className="grid grid-cols-1 md:grid-cols-3 gap-8 max-w-6xl mx-auto">
+              {/* Hobby Tier */}
+              <RevealOnScroll delay={0.1} direction="up">
+                <div className="bg-[#0a0a0a] p-8 rounded-3xl border border-white/10 flex flex-col h-full hover:border-white/30 transition-colors">
+                  <div className="space-y-4 mb-8">
+                    <h3 className="text-xl font-bold text-white">Hobby</h3>
+                    <p className="text-sm text-white/50 h-10">For personal projects and experiments.</p>
+                    <div className="flex items-baseline gap-1">
+                      <span className="text-4xl font-black text-white">$0</span>
+                      <span className="text-sm text-white/50">/mo</span>
+                    </div>
+                  </div>
+                  <ul className="space-y-4 mb-8 flex-1">
+                    {['Unlimited local projects', 'Standard templates', 'Export HTML/CSS', 'Community support'].map(feature => (
+                      <li key={feature} className="flex items-start gap-3 text-sm text-white/70">
+                        <Check size={16} className="text-white/30 shrink-0 mt-0.5" />
+                        {feature}
+                      </li>
+                    ))}
+                  </ul>
+                  <button onClick={handleBlank} className="w-full py-3 bg-white/5 hover:bg-white/10 text-white rounded-xl font-bold text-sm transition-colors border border-white/10">
+                    Start for free
+                  </button>
+                </div>
+              </RevealOnScroll>
+
+              {/* Pro Tier */}
+              <RevealOnScroll delay={0.2} direction="up">
+                <div className="bg-[#0a0a0a] p-8 rounded-3xl border border-primary/50 relative shadow-2xl shadow-primary/10 flex flex-col h-full transform md:-translate-y-4">
+                  <div className="absolute top-0 left-1/2 -translate-x-1/2 -translate-y-1/2 px-3 py-1 bg-primary text-white text-[10px] font-bold uppercase tracking-widest rounded-full">
+                    Most Popular
+                  </div>
+                  <div className="space-y-4 mb-8">
+                    <h3 className="text-xl font-bold text-white">Pro</h3>
+                    <p className="text-sm text-white/50 h-10">For freelancers and professional developers.</p>
+                    <div className="flex items-baseline gap-1">
+                      <span className="text-4xl font-black text-white">$20</span>
+                      <span className="text-sm text-white/50">/mo</span>
+                    </div>
+                  </div>
+                  <ul className="space-y-4 mb-8 flex-1">
+                    {['Everything in Hobby', 'Unlimited AI Generations', 'Premium templates', 'One-click Vercel deploy', 'Remove branding'].map(feature => (
+                      <li key={feature} className="flex items-start gap-3 text-sm text-white">
+                        <Check size={16} className="text-primary shrink-0 mt-0.5" />
+                        {feature}
+                      </li>
+                    ))}
+                  </ul>
+                  <button onClick={handleBlank} className="w-full py-3 bg-white text-black rounded-xl font-bold text-sm hover:scale-[1.02] transition-transform shadow-lg shadow-white/10">
+                    Upgrade to Pro
+                  </button>
+                </div>
+              </RevealOnScroll>
+
+              {/* Enterprise Tier */}
+              <RevealOnScroll delay={0.3} direction="up">
+                <div className="bg-[#0a0a0a] p-8 rounded-3xl border border-white/10 flex flex-col h-full hover:border-white/30 transition-colors">
+                  <div className="space-y-4 mb-8">
+                    <h3 className="text-xl font-bold text-white">Enterprise</h3>
+                    <p className="text-sm text-white/50 h-10">Custom solutions for scaling teams.</p>
+                    <div className="flex items-baseline gap-1">
+                      <span className="text-4xl font-black text-white">Custom</span>
+                    </div>
+                  </div>
+                  <ul className="space-y-4 mb-8 flex-1">
+                    {['Everything in Pro', 'Custom AI models', 'SSO & Advanced Security', 'Dedicated success manager', 'SLA 99.99%'].map(feature => (
+                      <li key={feature} className="flex items-start gap-3 text-sm text-white/70">
+                        <Check size={16} className="text-white/30 shrink-0 mt-0.5" />
+                        {feature}
+                      </li>
+                    ))}
+                  </ul>
+                  <button className="w-full py-3 bg-white/5 hover:bg-white/10 text-white rounded-xl font-bold text-sm transition-colors border border-white/10">
+                    Contact Sales
+                  </button>
+                </div>
+              </RevealOnScroll>
             </div>
           </div>
         </section>
